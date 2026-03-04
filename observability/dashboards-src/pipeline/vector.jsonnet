@@ -67,7 +67,7 @@ local eventsTs =
   + c.tsPos(0, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
-      'topk(10, rate(vector_component_received_events_total{host=~"$host"}[5m]))',
+      'topk(10, (rate(vector_component_received_events_total{host=~"$host"}[5m]) or vector(0)))',
       '{{host}} · {{component_id}} ({{component_type}})'
     ),
   ])
@@ -80,7 +80,7 @@ local eventsOutTs =
   + c.tsPos(1, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
-      'topk(10, rate(vector_component_sent_events_total{host=~"$host"}[5m]))',
+      'topk(10, (rate(vector_component_sent_events_total{host=~"$host"}[5m]) or vector(0)))',
       '{{host}} · {{component_id}} ({{component_type}})'
     ),
   ])
@@ -93,7 +93,7 @@ local errorsTs =
   + c.tsPos(0, 1)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
-      'rate(vector_component_errors_total{host=~"$host"}[5m])',
+      '(rate(vector_component_errors_total{host=~"$host"}[5m]) or vector(0))',
       '{{host}} · {{component_id}} — {{error_type}}'
     ),
   ])
@@ -105,7 +105,7 @@ local bytesTs =
   + c.tsPos(1, 1)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
-      'topk(10, rate(vector_component_sent_bytes_total{host=~"$host"}[5m]))',
+      'topk(10, (rate(vector_component_sent_bytes_total{host=~"$host"}[5m]) or vector(0)))',
       '{{host}} · {{component_id}}'
     ),
   ])

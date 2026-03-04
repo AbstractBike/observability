@@ -86,9 +86,9 @@ local scanDurationTs =
   g.panel.timeSeries.new('Scan Duration (P50 / P95 / P99)')
   + c.tsPos(0, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
-    q('histogram_quantile(0.50, rate(arbitrage_scan_duration_seconds_bucket{application="%s"}[1m]))' % app, 'P50'),
-    q('histogram_quantile(0.95, rate(arbitrage_scan_duration_seconds_bucket{application="%s"}[1m]))' % app, 'P95'),
-    q('histogram_quantile(0.99, rate(arbitrage_scan_duration_seconds_bucket{application="%s"}[1m]))' % app, 'P99'),
+    q('(histogram_quantile(0.50, rate(arbitrage_scan_duration_seconds_bucket{application="%s"}[1m]) or vector(0)))' % app, 'P50'),
+    q('(histogram_quantile(0.95, rate(arbitrage_scan_duration_seconds_bucket{application="%s"}[1m]) or vector(0)))' % app, 'P95'),
+    q('(histogram_quantile(0.99, rate(arbitrage_scan_duration_seconds_bucket{application="%s"}[1m]) or vector(0)))' % app, 'P99'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('s')
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(10)
@@ -98,9 +98,9 @@ local opportunitiesTs =
   g.panel.timeSeries.new('Opportunities Found / min')
   + c.tsPos(1, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
-    q('rate(arbitrage_opportunities_found_total{application="%s"}[1m]) * 60' % app, 'found/min'),
-    q('rate(arbitrage_opportunities_filtered_total{application="%s"}[1m]) * 60' % app, 'filtered ({{reason}})/min'),
-    q('rate(arbitrage_paths_persistence_errors_total{application="%s"}[1m]) * 60' % app, 'persist errors/min'),
+    q('(rate(arbitrage_opportunities_found_total{application="%s"}[1m]) or vector(0)) * 60' % app, 'found/min'),
+    q('(rate(arbitrage_opportunities_filtered_total{application="%s"}[1m]) or vector(0)) * 60' % app, 'filtered ({{reason}})/min'),
+    q('(rate(arbitrage_paths_persistence_errors_total{application="%s"}[1m]) or vector(0)) * 60' % app, 'persist errors/min'),
   ])
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(10)
   + g.panel.timeSeries.options.tooltip.withMode('multi');
@@ -111,9 +111,9 @@ local binanceApiTs =
   g.panel.timeSeries.new('Binance API Latency (P50 / P95 / P99)')
   + c.tsPos(0, 1)
   + g.panel.timeSeries.queryOptions.withTargets([
-    q('histogram_quantile(0.50, rate(binance_api_duration_seconds_bucket{application="%s"}[1m]))' % app, 'P50'),
-    q('histogram_quantile(0.95, rate(binance_api_duration_seconds_bucket{application="%s"}[1m]))' % app, 'P95'),
-    q('histogram_quantile(0.99, rate(binance_api_duration_seconds_bucket{application="%s"}[1m]))' % app, 'P99'),
+    q('(histogram_quantile(0.50, rate(binance_api_duration_seconds_bucket{application="%s"}[1m]) or vector(0)))' % app, 'P50'),
+    q('(histogram_quantile(0.95, rate(binance_api_duration_seconds_bucket{application="%s"}[1m]) or vector(0)))' % app, 'P95'),
+    q('(histogram_quantile(0.99, rate(binance_api_duration_seconds_bucket{application="%s"}[1m]) or vector(0)))' % app, 'P99'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('s')
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(10)
@@ -123,7 +123,7 @@ local httpRequestsTs =
   g.panel.timeSeries.new('HTTP Requests / sec')
   + c.tsPos(1, 1)
   + g.panel.timeSeries.queryOptions.withTargets([
-    q('sum(rate(http_server_requests_seconds_count{application="%s"}[1m])) by (uri, status)' % app, '{{uri}} {{status}}'),
+    q('(sum(rate(http_server_requests_seconds_count{application="%s"}[1m]) or vector(0)) by (uri, status))', '{{uri}} {{status}}'),
   ])
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(10)
   + g.panel.timeSeries.options.tooltip.withMode('multi');
@@ -134,8 +134,8 @@ local jvmHeapTs =
   g.panel.timeSeries.new('Heap Memory (Used / Max)')
   + c.tsPos(0, 2)
   + g.panel.timeSeries.queryOptions.withTargets([
-    q('jvm_memory_used_bytes{application="%s",area="heap"}' % app, 'Used'),
-    q('jvm_memory_max_bytes{application="%s",area="heap"}' % app, 'Max'),
+    q('(jvm_memory_used_bytes{application="%s",area="heap"}) or vector(0)' % app, 'Used'),
+    q('(jvm_memory_max_bytes{application="%s",area="heap"}) or vector(0)' % app, 'Max'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('bytes')
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(10)
@@ -145,8 +145,8 @@ local cpuAndGcTs =
   g.panel.timeSeries.new('CPU & GC Pause')
   + c.tsPos(1, 2)
   + g.panel.timeSeries.queryOptions.withTargets([
-    q('process_cpu_usage{application="%s"}' % app, 'CPU'),
-    q('rate(jvm_gc_pause_seconds_sum{application="%s"}[1m])' % app, 'GC pause/s ({{cause}})'),
+    q('(process_cpu_usage{application="%s"}) or vector(0)' % app, 'CPU'),
+    q('(rate(jvm_gc_pause_seconds_sum{application="%s"}[1m]) or vector(0))' % app, 'GC pause/s ({{cause}})'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('percentunit')
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(10)

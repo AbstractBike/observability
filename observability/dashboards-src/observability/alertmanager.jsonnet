@@ -39,14 +39,14 @@ local silencesStat =
   g.panel.stat.new('Active Silences')
   + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('alertmanager_silences{state="active"}'),
+    c.vmQ('(alertmanager_silences{state="active"}) or vector(0)'),
   ]);
 
 local notifTs =
   g.panel.timeSeries.new('Notifications by Receiver')
   + c.tsPos(0, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('rate(alertmanager_notifications_total[5m])', '{{receiver}}'),
+    c.vmQ('(rate(alertmanager_notifications_total[5m]) or vector(0))', '{{receiver}}'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('reqps')
   + g.panel.timeSeries.options.tooltip.withMode('multi');
@@ -55,8 +55,8 @@ local alertsTs =
   g.panel.timeSeries.new('Alerts in Pipeline')
   + c.tsPos(1, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('alertmanager_alerts{state="active"}', 'active'),
-    c.vmQ('alertmanager_alerts{state="suppressed"}', 'suppressed'),
+    c.vmQ('(alertmanager_alerts{state="active"}) or vector(0)', 'active'),
+    c.vmQ('(alertmanager_alerts{state="suppressed"}) or vector(0)', 'suppressed'),
   ])
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 

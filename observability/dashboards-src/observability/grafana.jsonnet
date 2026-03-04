@@ -60,7 +60,7 @@ local httpRateTs =
   + c.tsPos(0, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
-      'topk(10, sum by (handler) (rate(grafana_http_request_duration_seconds_count{job="grafana"}[5m])))',
+      'topk(10, (sum by (handler) (rate(grafana_http_request_duration_seconds_count{job="grafana"}[5m])) or vector(0)))',
       '{{handler}}'
     ),
   ])
@@ -73,7 +73,7 @@ local httpLatTs =
   + c.tsPos(1, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
-      'histogram_quantile(0.99, sum by (le, handler) (rate(grafana_http_request_duration_seconds_bucket{job="grafana"}[5m]))) * 1000',
+      '(histogram_quantile(0.99, sum by (le, handler) (rate(grafana_http_request_duration_seconds_bucket{job="grafana"}[5m])) or vector(0))) * 1000',
       '{{handler}}'
     ),
   ])
@@ -86,7 +86,7 @@ local dsRateTs =
   + c.tsPos(0, 1)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
-      'sum by (datasource) (rate(grafana_datasource_request_total{job="grafana"}[5m]))',
+      '(sum by (datasource) (rate(grafana_datasource_request_total{job="grafana"}[5m])) or vector(0))',
       '{{datasource}}'
     ),
   ])
@@ -99,7 +99,7 @@ local dsLatTs =
   + c.tsPos(1, 1)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
-      'histogram_quantile(0.99, sum by (le, datasource) (rate(grafana_datasource_request_duration_seconds_bucket{job="grafana"}[5m]))) * 1000',
+      '(histogram_quantile(0.99, sum by (le, datasource) (rate(grafana_datasource_request_duration_seconds_bucket{job="grafana"}[5m])) or vector(0))) * 1000',
       '{{datasource}}'
     ),
   ])

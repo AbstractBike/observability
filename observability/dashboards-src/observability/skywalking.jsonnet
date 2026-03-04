@@ -43,8 +43,8 @@ local heapTs =
   g.panel.timeSeries.new('JVM Heap')
   + c.tsPos(0, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('jvm_memory_bytes_used{job="skywalking-oap",area="heap"}', 'used'),
-    c.vmQ('jvm_memory_bytes_max{job="skywalking-oap",area="heap"}', 'max'),
+    c.vmQ('(jvm_memory_bytes_used{job="skywalking-oap",area="heap"}) or vector(0)', 'used'),
+    c.vmQ('(jvm_memory_bytes_max{job="skywalking-oap",area="heap"}) or vector(0)', 'max'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('bytes')
   + g.panel.timeSeries.options.tooltip.withMode('multi');
@@ -53,7 +53,7 @@ local gcTs =
   g.panel.timeSeries.new('GC Time (ms/s)')
   + c.tsPos(1, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('rate(jvm_gc_collection_seconds_sum{job="skywalking-oap"}[5m]) * 1000', '{{gc}}'),
+    c.vmQ('(rate(jvm_gc_collection_seconds_sum{job="skywalking-oap"}[5m]) or vector(0)) * 1000', '{{gc}}'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('ms')
   + g.panel.timeSeries.options.tooltip.withMode('multi');
