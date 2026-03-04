@@ -76,7 +76,7 @@ local connTs =
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
 local txnTs =
-  g.panel.timeSeries.new('Transactions/sec')
+  g.panel.timeSeries.new('Transactions/sec — History')
   + c.tsPos(1, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ('rate(pg_stat_database_xact_commit[5m])', 'commit'),

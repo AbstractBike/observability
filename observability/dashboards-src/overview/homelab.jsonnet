@@ -168,10 +168,10 @@ g.dashboard.new('Homelab \u2014 Overview')
   + services
   + [
     g.panel.row.new('💯 SLO Compliance') + c.pos(0, 18, 24, 1),
-    sloStat('Host Uptime',  '(1 - slo:host_uptime:error_ratio_30d) * 100',  99.5, 0),
-    sloStat('PostgreSQL',   '(1 - slo:postgresql:error_ratio_30d) * 100',   99.9, 1),
-    sloStat('Redis',        '(1 - slo:redis:error_ratio_30d) * 100',        99.9, 2),
-    sloStat('Grafana',      '(1 - slo:grafana:error_ratio_30d) * 100',      99.0, 3),
+    sloStat('SLO: Host Uptime',  '(1 - slo:host_uptime:error_ratio_30d) * 100',  99.5, 0),
+    sloStat('SLO: PostgreSQL',   '(1 - slo:postgresql:error_ratio_30d) * 100',   99.9, 1),
+    sloStat('SLO: Redis',        '(1 - slo:redis:error_ratio_30d) * 100',        99.9, 2),
+    sloStat('SLO: Grafana',      '(1 - slo:grafana:error_ratio_30d) * 100',      99.0, 3),
     g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 19, 24, 1),
     troubleGuide,
     g.panel.row.new('📝 Logs') + c.pos(0, 27, 24, 1),

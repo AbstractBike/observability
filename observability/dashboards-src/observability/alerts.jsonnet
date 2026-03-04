@@ -11,7 +11,7 @@ local c = import 'lib/common.libsonnet';
 local alertPanel = c.alertCountPanel('alertmanager', col=0);
 
 local activeAlertsStat =
-  g.panel.stat.new('🚨 Active Alerts')
+  g.panel.stat.new('🚨 Grafana Alerts')
   + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('grafana_alerting_active_alerts or vector(0)'),

@@ -74,7 +74,7 @@ local errorRateStat =
 // ── Row 1: Serena MCP time series ────────────────────────────────────────
 
 local cpmTs =
-  g.panel.timeSeries.new('Calls/min')
+  g.panel.timeSeries.new('Calls/min — History')
   + c.tsPos(0, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.swQ('(service_cpm{service="' + serenaService + '"}) or vector(0)', 'cpm'),

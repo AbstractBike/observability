@@ -72,7 +72,7 @@ local searchLatStat =
   + g.panel.stat.options.withColorMode('value');
 
 local indexTs =
-  g.panel.timeSeries.new('Indexing Rate')
+  g.panel.timeSeries.new('Indexing Rate — History')
   + c.tsPos(0, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ('sum(rate(elasticsearch_indices_indexing_index_total[5m]))', 'index/s'),

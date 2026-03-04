@@ -99,7 +99,7 @@ local tempTs =
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
 local powerTs =
-  g.panel.timeSeries.new('Power Draw')
+  g.panel.timeSeries.new('Power Draw — History')
   + c.tsPos(1, 1)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ('nvidia_smi_power_draw_watts{host="heater"} or vector(0)', '{{name}}'),

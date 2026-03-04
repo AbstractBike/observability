@@ -224,8 +224,9 @@ local dbCard(icon, title, uid, pos) =
   card(title, icon, title, '/d/' + uid, '/d/' + uid, dashColor, 'dash', pos);
 
 // Colored dashboard card — same as dbCard but with an explicit accent color and subtitle.
-local cdbCard(icon, title, sub, uid, color, pos) =
-  card(title, icon, title, sub, '/d/' + uid, color, 'dash', pos);
+// `name` defaults to `title` but can be overridden to avoid duplicate panel titles.
+local cdbCard(icon, title, sub, uid, color, pos, name=null) =
+  card(if name != null then name else title, icon, title, sub, '/d/' + uid, color, 'dash', pos);
 
 local homelabCard  = dbCard('🖥',  'Homelab',         'homelab-overview',         c.pos(0,  28, 4, 4));
 local claudeCard   = dbCard('🤖', 'Claude Metrics',  'claude-metrics-v1',        c.pos(4,  28, 4, 4));
@@ -236,7 +237,7 @@ local swCard       = dbCard('🌐', 'SkyWalking',     'observability-skywalking'
 
 // ── Heater Infrastructure row (y=33) ─────────────────────────────────────────
 
-local homelabSysCard      = cdbCard('🖥',  'Homelab',      'cpu · mem · network', 'services-homelab-system', infraColor, c.pos(0,  33, 4, 4));
+local homelabSysCard      = cdbCard('🖥',  'Homelab',      'cpu · mem · network', 'services-homelab-system', infraColor, c.pos(0,  33, 4, 4), 'Homelab System');
 local heaterSystemCard    = cdbCard('🖥',  'Heater Sys',   'cpu · mem · disk',    'heater-system',           infraColor, c.pos(4,  33, 4, 4));
 local heaterJvmCard       = cdbCard('☕',  'JVM',          'heap · gc · threads', 'heater-jvm',              infraColor, c.pos(8,  33, 4, 4));
 local heaterGpuCard       = cdbCard('🎮',  'GPU',          'vram · utilization',  'heater-gpu',              infraColor, c.pos(12, 33, 4, 4));
@@ -245,12 +246,12 @@ local heaterClaudeCard    = cdbCard('🤖',  'Claude Code',  'tokens · cost · 
 
 // ── Services row (y=38) ───────────────────────────────────────────────────────
 
-local temporalDbCard   = cdbCard('⏱',  'Temporal',      'workflows · queues', 'services-temporal',       svcColor, c.pos(0,  38, 4, 4));
+local temporalDbCard   = cdbCard('⏱',  'Temporal',      'workflows · queues', 'services-temporal',       svcColor, c.pos(0,  38, 4, 4), 'Temporal Dashboard');
 local postgresDbCard   = cdbCard('🐘',  'PostgreSQL',    'queries · pool',     'services-postgresql',     svcColor, c.pos(4,  38, 4, 4));
 local redisDbCard      = cdbCard('🔴',  'Redis',         'cache · memory',     'services-redis',          svcColor, c.pos(8,  38, 4, 4));
 local clickhouseDbCard = cdbCard('⚡',  'ClickHouse',    'insert · select',    'services-clickhouse',     svcColor, c.pos(12, 38, 4, 4));
 local elasticDbCard    = cdbCard('🔍',  'Elasticsearch', 'index · search',     'services-elasticsearch',  svcColor, c.pos(16, 38, 4, 4));
-local redpandaDbCard   = cdbCard('📡',  'Redpanda',      'kafka · topics',     'services-redpanda',       svcColor, c.pos(20, 38, 4, 4));
+local redpandaDbCard   = cdbCard('📡',  'Redpanda',      'kafka · topics',     'services-redpanda',       svcColor, c.pos(20, 38, 4, 4), 'Redpanda Dashboard');
 
 // ── Pipeline & APM row (y=43) ─────────────────────────────────────────────────
 
@@ -259,7 +260,7 @@ local alertmgrDbCard   = cdbCard('🔔', 'Alertmanager',    'rules · silences',
 local vmalertDbCard    = cdbCard('📢', 'VM Alert',        'eval · firing',     'observability-vmalert',      pipeColor, c.pos(8,  43, 4, 4));
 local sloDbCard        = cdbCard('📊', 'SLO Overview',    'error budgets',     'slo-overview',               pipeColor, c.pos(12, 43, 4, 4));
 local serenaBackDbCard = cdbCard('🧠', 'Serena Backends', 'lsp · indexing',    'overview-serena-backends',   pipeColor, c.pos(16, 43, 4, 4));
-local logsDbCard       = cdbCard('📋', 'Logs',            'all-services · levels', 'observability-logs',        pipeColor, c.pos(20, 43, 4, 4));
+local logsDbCard       = cdbCard('📋', 'Logs',            'all-services · levels', 'observability-logs',        pipeColor, c.pos(20, 43, 4, 4), 'Logs Dashboard');
 local matrixApmDbCard     = cdbCard('💬', 'Matrix APM',       'requests · spans',   'matrix-apm-skywalking',    pipeColor, c.pos(0,  47, 4, 4));
 local nixosDeployerDbCard = cdbCard('🚀', 'NixOS Deployer',   'gitops · deploys',   'services-nixos-deployer',  pipeColor, c.pos(4,  47, 4, 4));
 local grafanaSelfDbCard   = cdbCard('📊', 'Grafana',          'http · alerts · ds', 'observability-grafana',    pipeColor, c.pos(8,  47, 4, 4));
