@@ -1,10 +1,13 @@
 local g = import 'github.com/grafana/grafonnet/gen/grafonnet-v11.4.0/main.libsonnet';
 local c = import 'lib/common.libsonnet';
 
+// Alert count panel + reposition stats
+local alertPanel = c.alertCountPanel('redpanda', col=0);
+
 // 5-stat layout: up(4w) + uptime(5w) + bytes-in(5w) + bytes-out(5w) + partitions(5w) = 24
 local upStat =
   g.panel.stat.new('Redpanda Up')
-  + c.pos(0, 1, 4, 3)
+  + c.pos(4, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([c.vmQ('up{job="redpanda"}')])
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')
   + g.panel.stat.standardOptions.thresholds.withSteps([
@@ -16,7 +19,7 @@ local upStat =
 
 local uptimeStat =
   g.panel.stat.new('Broker Uptime')
-  + c.pos(4, 1, 5, 3)
+  + c.pos(8, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('vectorized_application_uptime or vector(0)'),
   ])
@@ -25,7 +28,7 @@ local uptimeStat =
 
 local throughputInStat =
   g.panel.stat.new('Bytes In/sec')
-  + c.pos(9, 1, 5, 3)
+  + c.pos(13, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(rate(vectorized_cluster_partition_bytes_produced_total[5m])) or vector(0)'),
   ])
@@ -34,7 +37,7 @@ local throughputInStat =
 
 local throughputOutStat =
   g.panel.stat.new('Bytes Out/sec')
-  + c.pos(14, 1, 5, 3)
+  + c.pos(18, 1, 3, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(rate(vectorized_cluster_partition_bytes_fetched_total[5m])) or vector(0)'),
   ])
@@ -43,7 +46,7 @@ local throughputOutStat =
 
 local partitionStat =
   g.panel.stat.new('Partitions')
-  + c.pos(19, 1, 5, 3)
+  + c.pos(21, 1, 3, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('count(count by(topic, partition) (vectorized_cluster_partition_leader)) or vector(0)'),
   ])
@@ -69,18 +72,27 @@ local lagTs =
 
 local logsPanel = c.serviceLogsPanel('Redpanda Logs', 'redpanda');
 
+local troubleGuide = c.serviceTroubleshootingGuide('redpanda', [
+  { symptom: 'Broker Down', runbook: 'redpanda/broker-down', check: 'Check "Redpanda Up" stat' },
+  { symptom: 'High Consumer Lag', runbook: 'redpanda/consumer-lag', check: 'Look at "Consumer Group Lag" chart' },
+  { symptom: 'Low Throughput', runbook: 'redpanda/throughput', check: 'Monitor "Throughput" graph' },
+  { symptom: 'Partition Imbalance', runbook: 'redpanda/partitions', check: 'Check partition count' },
+], y=20);
+
 g.dashboard.new('Services — Redpanda')
 + g.dashboard.withUid('services-redpanda')
-+ g.dashboard.withDescription('Redpanda broker throughput, consumer lag, partition health.')
-+ g.dashboard.withTags(['services', 'redpanda'])
++ g.dashboard.withDescription('Redpanda broker throughput, consumer lag, partition health, and alerts.')
++ g.dashboard.withTags(['services', 'redpanda', 'kafka', 'critical'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  upStat, uptimeStat, throughputInStat, throughputOutStat, partitionStat,
+  alertPanel, upStat, uptimeStat, throughputInStat, throughputOutStat, partitionStat,
   g.panel.row.new('📤 Throughput & Lag') + c.pos(0, 4, 24, 1),
   throughputTs, lagTs,
   g.panel.row.new('📝 Logs') + c.pos(0, 12, 24, 1),
   logsPanel,
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 19, 24, 1),
+  troubleGuide,
 ])

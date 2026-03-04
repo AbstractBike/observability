@@ -9,9 +9,11 @@ local c = import 'lib/common.libsonnet';
 
 // ── Stats (y=1) ─────────────────────────────────────────────────────────────
 
+local alertPanel = c.alertCountPanel('clickhouse', col=0);
+
 local upStat =
   g.panel.stat.new('ClickHouse Up')
-  + c.pos(0, 1, 4, 3)
+  + c.pos(4, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([c.vmQ('up{job="clickhouse"}')])
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')
   + g.panel.stat.standardOptions.thresholds.withSteps([
@@ -23,7 +25,7 @@ local upStat =
 
 local queryStat =
   g.panel.stat.new('Queries/sec')
-  + c.pos(4, 1, 4, 3)
+  + c.pos(8, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('rate(ClickHouseProfileEvents_Query[5m]) or vector(0)'),
   ])
@@ -33,7 +35,7 @@ local queryStat =
 
 local memStat =
   g.panel.stat.new('Memory Used')
-  + c.pos(8, 1, 4, 3)
+  + c.pos(12, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('ClickHouseMetrics_MemoryTracking or vector(0)'),
   ])
@@ -42,7 +44,7 @@ local memStat =
 
 local errorRateStat =
   g.panel.stat.new('Failed Queries/sec')
-  + c.pos(12, 1, 4, 3)
+  + c.pos(16, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('rate(ClickHouseProfileEvents_FailedQuery[5m]) or vector(0)'),
   ])
@@ -57,7 +59,7 @@ local errorRateStat =
 
 local partsStat =
   g.panel.stat.new('Active Parts')
-  + c.pos(16, 1, 4, 3)
+  + c.pos(20, 1, 2, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('ClickHouseMetrics_PartsActive or vector(0)'),
   ])
@@ -72,7 +74,7 @@ local partsStat =
 
 local connStat =
   g.panel.stat.new('TCP Connections')
-  + c.pos(20, 1, 4, 3)
+  + c.pos(22, 1, 2, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('ClickHouseMetrics_TCPConnection or vector(0)'),
   ])
@@ -129,20 +131,29 @@ local mergesTs =
 
 local logsPanel = c.serviceLogsPanel('ClickHouse Logs', 'clickhouse-server');
 
+local troubleGuide = c.serviceTroubleshootingGuide('clickhouse', [
+  { symptom: 'Service Down', runbook: 'clickhouse/service-down', check: 'Check "ClickHouse Up" stat' },
+  { symptom: 'High Memory', runbook: 'clickhouse/memory-usage', check: 'Monitor "Memory Used" and "Memory & Storage" charts' },
+  { symptom: 'Query Failures', runbook: 'clickhouse/query-errors', check: 'Check "Failed Queries/sec" stat' },
+  { symptom: 'Too Many Parts', runbook: 'clickhouse/parts-management', check: 'Check "Active Parts" stat' },
+], y=28);
+
 g.dashboard.new('Services — ClickHouse')
 + g.dashboard.withUid('services-clickhouse')
 + g.dashboard.withDescription('ClickHouse queries/sec, inserts, memory, parts and errors.')
-+ g.dashboard.withTags(['services', 'clickhouse'])
++ g.dashboard.withTags(['services', 'clickhouse', 'analytics', 'critical'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  upStat, queryStat, memStat, errorRateStat, partsStat, connStat,
+  alertPanel, upStat, queryStat, memStat, errorRateStat, partsStat, connStat,
   g.panel.row.new('⚡ Query Activity') + c.pos(0, 4, 24, 1),
   queryTs, insertTs,
   g.panel.row.new('🏗️ Resources') + c.pos(0, 12, 24, 1),
   memTs, mergesTs,
   g.panel.row.new('📝 Logs') + c.pos(0, 20, 24, 1),
   logsPanel,
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 27, 24, 1),
+  troubleGuide,
 ])
