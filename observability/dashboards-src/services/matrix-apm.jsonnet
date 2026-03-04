@@ -190,12 +190,22 @@ local logsPanel =
   + g.panel.logs.options.withSortOrder('Descending')
   + g.panel.logs.options.withShowTime(true);
 
+// Alert integration for Grafana alerting
+local alertPanel = c.alertCountPanel('matrix', col=0);
+
+local troubleGuide = c.serviceTroubleshootingGuide('matrix', [
+  { symptom: 'High Latency', runbook: 'matrix/latency', check: 'Check p95/p99 in "Response Time Percentiles"' },
+  { symptom: 'Error Rate Spike', runbook: 'matrix/errors', check: 'Monitor "Error Rate (%)" graph' },
+  { symptom: 'JVM Memory Pressure', runbook: 'matrix/jvm-memory', check: 'Check "JVM Heap Memory" chart' },
+  { symptom: 'High GC Time', runbook: 'matrix/garbage-collection', check: 'Look at "GC Time" graph' },
+], y=40);
+
 // ── Dashboard ──────────────────────────────────────────────────────────────
 
 g.dashboard.new('Services — Matrix APM (SkyWalking)')
 + g.dashboard.withUid('matrix-apm-skywalking')
 + g.dashboard.withDescription('Matrix services APM: latency, throughput, error rate, JVM — via SkyWalking Java agent.')
-+ g.dashboard.withTags(['matrix', 'apm', 'skywalking', 'jvm'])
++ g.dashboard.withTags(['matrix', 'apm', 'skywalking', 'jvm', 'java', 'critical'])
 + g.dashboard.withRefresh('30s')
 + g.dashboard.time.withFrom('now-1h')
 + g.dashboard.time.withTo('now')
@@ -204,7 +214,7 @@ g.dashboard.new('Services — Matrix APM (SkyWalking)')
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Service Overview')   + c.pos(0, 0,  24, 1),
   c.externalLinksPanel(y=1),
-  cpmStat, respTimeStat, errorRateStat, apdexStat,
+  alertPanel, cpmStat, respTimeStat, errorRateStat, apdexStat,
 
   g.panel.row.new('📤 Request Traffic')    + c.pos(0, 4,  24, 1),
   cpmTs, latencyTs,
@@ -217,6 +227,9 @@ g.dashboard.new('Services — Matrix APM (SkyWalking)')
 
   g.panel.row.new('♻️ GC & Threads') + c.pos(0, 31, 24, 1),
   jvmGcTs, jvmThreadTs,
+
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 39, 24, 1),
+  troubleGuide,
 
   g.panel.row.new('📝 Logs') + c.pos(0, 39, 24, 1),
   logsPanel,

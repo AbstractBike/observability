@@ -7,9 +7,11 @@ local c = import 'lib/common.libsonnet';
 
 // ── Stat panels (y=1) ────────────────────────────────────────────────────────
 
+local alertPanel = c.alertCountPanel('homelab', col=0);
+
 local cpuStat =
   g.panel.stat.new('CPU Usage')
-  + c.statPos(0)
+  + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(100 - avg(rate(host_cpu_seconds_total{mode="idle",host="homelab"}[5m])) * 100) or vector(0)'),
   ])
@@ -22,7 +24,7 @@ local cpuStat =
 
 local memStat =
   g.panel.stat.new('Memory Used')
-  + c.statPos(1)
+  + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('((1 - host_memory_available_bytes{host="homelab"} / (host_memory_free_bytes{host="homelab"} + host_memory_available_bytes{host="homelab"} + host_memory_active_bytes{host="homelab"} + host_memory_buffers_bytes{host="homelab"} + host_memory_cached_bytes{host="homelab"})) * 100) or vector(0)'),
   ])
@@ -35,7 +37,7 @@ local memStat =
 
 local diskStat =
   g.panel.stat.new('Root Disk Used')
-  + c.statPos(2)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(host_filesystem_used_ratio{host="homelab",mountpoint="/"} * 100) or vector(0)'),
   ])
@@ -48,7 +50,7 @@ local diskStat =
 
 local loadStat =
   g.panel.stat.new('Load Avg (1m)')
-  + c.statPos(3)
+  + c.statPos(4)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('host_load1{host="homelab"} or vector(0)'),
   ])
@@ -129,20 +131,29 @@ local logsPanel =
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
+local troubleGuide = c.serviceTroubleshootingGuide('homelab', [
+  { symptom: 'High CPU Usage', runbook: 'homelab/high-cpu', check: 'Monitor "CPU Usage by Mode" graph' },
+  { symptom: 'Memory Pressure', runbook: 'homelab/memory', check: 'Check "Memory Breakdown" and "Memory Used" stat' },
+  { symptom: 'Disk I/O Bottleneck', runbook: 'homelab/disk-io', check: 'Look at "Disk I/O" chart' },
+  { symptom: 'Network Issues', runbook: 'homelab/networking', check: 'Monitor "Network I/O" graph' },
+], y=30);
+
 g.dashboard.new('Services — Homelab System')
 + g.dashboard.withUid('services-homelab-system')
 + g.dashboard.withDescription('Homelab VM host system metrics: CPU, memory, disk I/O, network (via Vector host_metrics).')
-+ g.dashboard.withTags(['services', 'homelab', 'system'])
++ g.dashboard.withTags(['services', 'homelab', 'system', 'host', 'critical'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  cpuStat, memStat, diskStat, loadStat,
+  alertPanel, cpuStat, memStat, diskStat, loadStat,
   g.panel.row.new('⚡ Performance') + c.pos(0, 4, 24, 1),
   cpuTs, memTs,
   g.panel.row.new('🏗️ Storage & Networking') + c.pos(0, 12, 24, 1),
   diskIoTs, netIoTs,
   g.panel.row.new('📝 Logs') + c.pos(0, 20, 24, 1),
   logsPanel,
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 28, 24, 1),
+  troubleGuide,
 ])

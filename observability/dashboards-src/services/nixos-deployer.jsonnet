@@ -8,9 +8,11 @@ local c = import 'lib/common.libsonnet';
 //   nixos_staging_lag_commits             — commits in staging not yet in main
 //   nixos_generations_total               — number of NixOS system generations
 
+local alertPanel = c.alertCountPanel('nixos-deployer', col=0);
+
 local deploySuccessRateStat =
   g.panel.stat.new('Deploy Success Rate')
-  + c.statPos(0)
+  + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
     // "or vector(0)" prevents no_data when the counter has not been emitted yet (fresh restart).
     c.vmQ('rate(nixos_deploy_total{status="success"}[1h]) or vector(0)'),
@@ -21,7 +23,7 @@ local deploySuccessRateStat =
 
 local stagingLagStat =
   g.panel.stat.new('Staging Lag (commits)')
-  + c.statPos(1)
+  + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('nixos_staging_lag_commits or vector(0)'),
   ])
@@ -35,7 +37,7 @@ local stagingLagStat =
 
 local generationsStat =
   g.panel.stat.new('NixOS Generations')
-  + c.statPos(2)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('nixos_generations_total or vector(0)'),
   ])
@@ -66,18 +68,26 @@ local deployDurationTs =
 local logsPanel =
   c.serviceLogsPanel('nixos-deployer Logs', 'nixos-deployer');
 
+local troubleGuide = c.serviceTroubleshootingGuide('nixos-deployer', [
+  { symptom: 'Deploy Failures', runbook: 'nixos-deployer/deploy-failures', check: 'Check "Deploy Success Rate" stat' },
+  { symptom: 'High Staging Lag', runbook: 'nixos-deployer/staging-lag', check: 'Monitor "Staging Lag (commits)" stat' },
+  { symptom: 'Slow Deployments', runbook: 'nixos-deployer/performance', check: 'Check "Deploy Duration p95" chart' },
+], y=20);
+
 g.dashboard.new('Services — NixOS Deployer')
 + g.dashboard.withUid('services-nixos-deployer')
 + g.dashboard.withDescription('NixOS GitOps deployer: deploy outcomes, duration, staging lag and system generations.')
-+ g.dashboard.withTags(['services', 'nixos-deployer', 'gitops'])
++ g.dashboard.withTags(['services', 'nixos-deployer', 'gitops', 'ci-cd', 'critical'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  deploySuccessRateStat, stagingLagStat, generationsStat,
+  alertPanel, deploySuccessRateStat, stagingLagStat, generationsStat,
   g.panel.row.new('🚀 Deploy Activity') + c.pos(0, 4, 24, 1),
   deploysByStatusTs, deployDurationTs,
-  g.panel.row.new('📝 Logs') + c.pos(0, 20, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 12, 24, 1),
   logsPanel,
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 19, 24, 1),
+  troubleGuide,
 ])
