@@ -54,8 +54,8 @@ local uptimeStat =
   g.panel.stat.new('Host Uptime')
   + c.pos(18, 1, 6, 3)
   + g.panel.stat.queryOptions.withTargets([
-    // host_uptime_seconds from Vector host_metrics source (actual OS uptime)
-    c.vmQ('host_uptime_seconds{host="homelab"}'),
+    // host_uptime from Vector host_metrics source (actual OS uptime, seconds)
+    c.vmQ('host_uptime{host="homelab"}'),
   ])
   + g.panel.stat.standardOptions.withUnit('s')
   + g.panel.stat.options.withColorMode('value')

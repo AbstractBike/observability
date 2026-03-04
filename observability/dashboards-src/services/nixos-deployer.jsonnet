@@ -12,7 +12,8 @@ local deploySuccessRateStat =
   g.panel.stat.new('Deploy Success Rate')
   + c.statPos(0)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('rate(nixos_deploy_total{status="success"}[1h])'),
+    // "or vector(0)" prevents no_data when the counter has not been emitted yet (fresh restart).
+    c.vmQ('rate(nixos_deploy_total{status="success"}[1h]) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('reqps')
   + g.panel.stat.options.withColorMode('value')
@@ -53,8 +54,9 @@ local deployDurationTs =
   g.panel.timeSeries.new('Deploy Duration p95')
   + c.tsPos(1, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
+    // Wider rate window (30m) captures infrequent deploys; "or vector(0)" shows 0 when idle.
     c.vmQ(
-      'histogram_quantile(0.95, rate(nixos_deploy_duration_seconds_bucket[10m]))',
+      'histogram_quantile(0.95, rate(nixos_deploy_duration_seconds_bucket[30m])) or vector(0)',
       'p95 {{stage}}'
     ),
   ])
