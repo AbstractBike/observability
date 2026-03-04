@@ -30,6 +30,22 @@ local budgetTs(title, errorRatioExpr, targetErrorRatio, col, row) =
   + g.panel.timeSeries.standardOptions.withMin(0)
   + g.panel.timeSeries.standardOptions.withMax(100);
 
+local guidancePanel =
+  g.panel.text.new('📚 SLO Guidance')
+  + c.pos(0, 12, 24, 3)
+  + g.panel.text.options.withMode('markdown')
+  + g.panel.text.options.withContent(|||
+    **SLO Budget Tracking**: Each service has a monthly error budget. When the budget reaches 0%, the service has violated its SLO target.
+
+    **Budget Formula**: `Remaining % = (1 - (Actual Error Rate / Target Error Rate)) × 100`
+
+    - **Green (>50%)**: Healthy budget, room for degradation
+    - **Yellow (0-50%)**: Limited budget, monitor closely
+    - **Red (<0%)**: SLO breach, immediate action required
+
+    **For operational status**, see [Services Health](/d/services-health) dashboard.
+  |||);
+
 g.dashboard.new('SLO — Overview')
 + g.dashboard.withUid('slo-overview')
 + g.dashboard.withDescription('Global SLO compliance table and error budget burn rates.')
@@ -48,4 +64,7 @@ g.dashboard.new('SLO — Overview')
   budgetTs('Redis Error Budget', 'slo:redis:error_ratio_30d', 0.001, 1, 0),
   budgetTs('Host Error Budget', 'slo:host_uptime:error_ratio_30d', 0.005, 0, 1),
   budgetTs('Grafana Error Budget', 'slo:grafana:error_ratio_30d', 0.01, 1, 1),
+
+  g.panel.row.new('Guidance') + c.pos(0, 11, 24, 1),
+  guidancePanel,
 ])

@@ -108,32 +108,37 @@ local g = import 'github.com/grafana/grafonnet/gen/grafonnet-v11.4.0/main.libson
 
   // ── External links panel ──────────────────────────────────────────────────
 
-  // Create a panel with quick-access links to external systems.
+  // Create a text panel with quick-access links to external systems.
   // Positioned at top-right corner as a utility panel.
   externalLinksPanel(y=0, x=18):
-    g.panel.stat.new('🔗 External Links')
+    local linkHtml = |||
+      <style>
+        .external-links { display: flex; gap: 8px; flex-wrap: wrap; }
+        .ext-link {
+          display: inline-block;
+          padding: 6px 12px;
+          background: #2563eb;
+          color: white;
+          text-decoration: none;
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: background 0.2s;
+        }
+        .ext-link:hover { background: #1d4ed8; }
+      </style>
+      <div class="external-links">
+        <a class="ext-link" href="http://192.168.0.4:8428" target="_blank">📊 Metrics</a>
+        <a class="ext-link" href="http://192.168.0.4:9428/vmui" target="_blank">📝 Logs</a>
+        <a class="ext-link" href="http://192.168.0.4:8080" target="_blank">🕵️ Traces</a>
+      </div>
+    |||;
+    g.panel.text.new('🔗 External Links')
     + self.pos(x, y, 6, 2)
-    + g.panel.stat.options.withReduceOptions(
-      g.panel.stat.options.reduce.withCalcs(['lastNotNull'])
-    )
-    + g.panel.stat.standardOptions.withNoValue('Click links →')
-    + g.panel.stat.options.withLinks([
-      {
-        title: '📊 Metrics',
-        url: 'http://192.168.0.4:8428',
-        targetBlank: true,
-      },
-      {
-        title: '📝 Logs',
-        url: 'http://192.168.0.4:9428/vmui',
-        targetBlank: true,
-      },
-      {
-        title: '🕵️ Traces',
-        url: 'http://192.168.0.4:8080',
-        targetBlank: true,
-      },
-    ]),
+    + g.panel.text.panelOptions.withTransparent(true)
+    + g.panel.text.options.withMode('html')
+    + g.panel.text.options.withContent(linkHtml),
 
   // ── Common dashboard setup ─────────────────────────────────────────────────
 

@@ -69,10 +69,8 @@ local levelVar =
 
 local logVolumePanel =
   g.panel.timeSeries.new('Log Volume by Level')
-  + c.pos(0, 0, 24, 6)
+  + c.pos(0, 0, 12, 6)
   + g.panel.timeSeries.queryOptions.withTargets([
-    // queryType "statsRange" uses the VictoriaLogs plugin's native histogram path,
-    // which returns numeric values directly (no type-conversion transformation needed).
     c.vlogsStatsQ('{host=~"$host",service=~"$service",level=~"$level"} | stats by (level) count() as logs'),
   ])
   + g.panel.timeSeries.fieldConfig.defaults.custom.withStacking({ mode: 'normal' })
@@ -80,9 +78,19 @@ local logVolumePanel =
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(80)
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
+local errorRatePanel =
+  g.panel.timeSeries.new('Error Rate (errors/min)')
+  + c.pos(12, 0, 12, 6)
+  + g.panel.timeSeries.queryOptions.withTargets([
+    c.vlogsStatsQ('{host=~"$host",service=~"$service",level=~"error|critical"} | stats by () count() as errors'),
+  ])
+  + g.panel.timeSeries.standardOptions.withUnit('short')
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
+  + g.panel.timeSeries.options.tooltip.withMode('multi');
+
 local liveLogsPanel =
   g.panel.logs.new('Live Logs')
-  + c.pos(0, 7, 24, 18)
+  + c.pos(0, 7, 24, 16)
   + g.panel.logs.queryOptions.withTargets([
     c.vlogsQ('{host=~"$host",service=~"$service",level=~"$level"}'),
   ])
@@ -90,6 +98,15 @@ local liveLogsPanel =
   + g.panel.logs.options.withSortOrder('Descending')
   + g.panel.logs.options.withEnableLogDetails(true)
   + g.panel.logs.options.withShowTime(true);
+
+local errorAnalysisPanel =
+  g.panel.text.new('📊 Error Analysis')
+  + c.pos(0, 23, 24, 2)
+  + g.panel.text.options.withMode('markdown')
+  + g.panel.text.options.withContent(|||
+    **Top error patterns detected in logs.** Filter by service/host above to diagnose issues.
+    Use **Live Logs** panel to search by keyword, trace_id, or error message.
+  |||);
 
 // ── Dashboard ───────────────────────────────────────────────────────────────
 
@@ -103,9 +120,13 @@ g.dashboard.new('Observability — Logs')
 + g.dashboard.graphTooltip.withSharedCrosshair()
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, hostVar, serviceVar, levelVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Log Volume') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('Analysis') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  logVolumePanel,
+  logVolumePanel, errorRatePanel,
+
   g.panel.row.new('Logs') + c.pos(0, 6, 24, 1),
   liveLogsPanel,
+
+  g.panel.row.new('Error Analysis') + c.pos(0, 22, 24, 1),
+  errorAnalysisPanel,
 ])
