@@ -6,34 +6,50 @@ local c = import 'lib/common.libsonnet';
 //   approximate_backlog_count, poll_latency_*
 // The temporal_* prefixed metrics are SDK/worker-side metrics.
 
+local upStat =
+  g.panel.stat.new('Temporal Up')
+  + c.pos(0, 1, 4, 3)
+  + g.panel.stat.queryOptions.withTargets([c.vmQ('up{job="temporal"}')])
+  + g.panel.stat.standardOptions.thresholds.withMode('absolute')
+  + g.panel.stat.standardOptions.thresholds.withSteps([
+    { color: 'red', value: null },
+    { color: 'green', value: 1 },
+  ])
+  + g.panel.stat.options.withColorMode('background')
+  + g.panel.stat.options.withTextMode('value_and_name');
+
 local workflowStartStat =
   g.panel.stat.new('Workflow Starts/sec')
-  + c.statPos(0)
+  + c.pos(4, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(rate(service_requests{operation="StartWorkflowExecution",service_name="frontend",job="temporal"}[5m]))'),
+    c.vmQ('sum(rate(service_requests{operation="StartWorkflowExecution",service_name="frontend",job="temporal"}[5m])) or vector(0)'),
   ])
-  + g.panel.stat.standardOptions.withUnit('reqps');
+  + g.panel.stat.standardOptions.withUnit('reqps')
+  + g.panel.stat.options.withColorMode('value')
+  + g.panel.stat.options.withGraphMode('area');
 
 local taskQueueStat =
   g.panel.stat.new('Task Queue Backlog')
-  + c.statPos(1)
+  + c.pos(9, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(approximate_backlog_count{job="temporal"})'),
-  ]);
+    c.vmQ('sum(approximate_backlog_count{job="temporal"}) or vector(0)'),
+  ])
+  + g.panel.stat.options.withColorMode('value');
 
 local schedLatStat =
-  g.panel.stat.new('Schedule-to-Start Latency')
-  + c.statPos(2)
+  g.panel.stat.new('Schedule-to-Start Latency p99')
+  + c.pos(14, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('histogram_quantile(0.99, rate(poll_latency_bucket{job="temporal"}[5m])) * 1000'),
+    c.vmQ('histogram_quantile(0.99, rate(poll_latency_bucket{job="temporal"}[5m])) * 1000 or vector(0)'),
   ])
-  + g.panel.stat.standardOptions.withUnit('ms');
+  + g.panel.stat.standardOptions.withUnit('ms')
+  + g.panel.stat.options.withColorMode('value');
 
 local errorStat =
   g.panel.stat.new('Service Errors/sec')
-  + c.statPos(3)
+  + c.pos(19, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(rate(service_error_with_type{job="temporal"}[5m]))'),
+    c.vmQ('sum(rate(service_error_with_type{job="temporal"}[5m])) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('reqps')
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')
@@ -74,7 +90,7 @@ g.dashboard.new('Services — Temporal')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
-  workflowStartStat, taskQueueStat, schedLatStat, errorStat,
+  upStat, workflowStartStat, taskQueueStat, schedLatStat, errorStat,
   g.panel.row.new('Workflows & Latency') + c.pos(0, 4, 24, 1),
   workflowTs, latTs,
   g.panel.row.new('Logs') + c.pos(0, 12, 24, 1),

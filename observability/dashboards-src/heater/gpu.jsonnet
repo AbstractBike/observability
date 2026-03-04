@@ -110,9 +110,12 @@ local logsPanel =
   g.panel.logs.new('GPU / CUDA Logs')
   + c.logPos(21)
   + g.panel.logs.queryOptions.withTargets([
-    c.vlogsQ('{host="heater"} | _msg:~"(nvidia|NVIDIA|cuda|CUDA|gpu|GPU|drm)"'),
+    // Use stream filter (indexed) first, then message regex for efficiency.
+    c.vlogsQ('{host="heater",service="kernel"} | _msg:~"(NVIDIA|nvidia|NVRM|cuda|CUDA|GPU|drm)"'),
   ])
-  + g.panel.logs.options.withWrapLogMessage(true);
+  + g.panel.logs.options.withWrapLogMessage(true)
+  + g.panel.logs.options.withSortOrder('Descending')
+  + g.panel.logs.options.withShowTime(true);
 
 g.dashboard.new('Heater — GPU')
 + g.dashboard.withUid('heater-gpu')

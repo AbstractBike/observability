@@ -100,12 +100,15 @@ local memTable =
   + g.panel.table.options.withSortBy([{ displayName: 'Value', desc: true }]);
 
 local logsPanel =
-  g.panel.logs.new('Process Logs')
+  g.panel.logs.new('Process Events (OOM / Segfaults / Kills)')
   + c.logPos(22)
   + g.panel.logs.queryOptions.withTargets([
-    c.vlogsQ('{host="heater"}'),
+    // Kernel logs for OOM kills, segfaults and process termination events.
+    c.vlogsQ('{host="heater",service="kernel"} | _msg:~"(killed|oom|OOM|segfault|segmentation|out of memory|Killed process|oom_kill)"'),
   ])
-  + g.panel.logs.options.withWrapLogMessage(true);
+  + g.panel.logs.options.withWrapLogMessage(true)
+  + g.panel.logs.options.withSortOrder('Descending')
+  + g.panel.logs.options.withShowTime(true);
 
 g.dashboard.new('Heater — Processes')
 + g.dashboard.withUid('heater-processes')
