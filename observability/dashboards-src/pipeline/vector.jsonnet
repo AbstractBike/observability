@@ -130,13 +130,13 @@ g.dashboard.new('Pipeline — Vector')
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, hostVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Stats') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   uptimeStat, eventsInStat, eventsOutStat, errorRateStat,
-  g.panel.row.new('Throughput') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('📤 Throughput') + c.pos(0, 4, 24, 1),
   eventsTs, eventsOutTs,
-  g.panel.row.new('Errors & Bytes') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('⚠️ Errors & Bytes') + c.pos(0, 12, 24, 1),
   errorsTs, bytesTs,
-  g.panel.row.new('Logs') + c.pos(0, 20, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 20, 24, 1),
   logsPanel,
 ])

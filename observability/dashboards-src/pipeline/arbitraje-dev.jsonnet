@@ -172,19 +172,19 @@ g.dashboard.new('Arbitraje — Dev')
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, instanceVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Key Stats') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   scanRateStat, pathsRateStat, maxProfitStat, circuitBreakerStat,
 
-  g.panel.row.new('Arbitrage Engine') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚙️ Arbitrage Engine') + c.pos(0, 4, 24, 1),
   scanDurationTs, opportunitiesTs,
 
-  g.panel.row.new('Binance API & HTTP') + c.pos(0, 13, 24, 1),
+  g.panel.row.new('🌐 Binance API & HTTP') + c.pos(0, 13, 24, 1),
   binanceApiTs, httpRequestsTs,
 
-  g.panel.row.new('JVM') + c.pos(0, 22, 24, 1),
+  g.panel.row.new('⚡ JVM') + c.pos(0, 22, 24, 1),
   jvmHeapTs, cpuAndGcTs,
 
-  g.panel.row.new('Logs') + c.pos(0, 31, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 31, 24, 1),
   logsPanel,
 ])
