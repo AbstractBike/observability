@@ -225,10 +225,11 @@ local swCard       = dbCard('🌐', 'SkyWalking',     'observability-skywalking'
 
 // ── Heater Infrastructure row (y=33) ─────────────────────────────────────────
 
-local heaterSystemCard = cdbCard('🖥',  'System',     'cpu · mem · disk',    'heater-system',     infraColor, c.pos(0,  33, 6, 4));
-local heaterJvmCard    = cdbCard('☕',  'JVM',        'heap · gc · threads', 'heater-jvm',        infraColor, c.pos(6,  33, 6, 4));
-local heaterGpuCard    = cdbCard('🎮',  'GPU',        'vram · utilization',  'heater-gpu',        infraColor, c.pos(12, 33, 6, 4));
-local heaterProcCard   = cdbCard('⚙',   'Processes',  'top · cpu · mem',     'heater-processes',  infraColor, c.pos(18, 33, 6, 4));
+local heaterSystemCard    = cdbCard('🖥',  'System',       'cpu · mem · disk',    'heater-system',     infraColor, c.pos(0,  33, 4, 4));
+local heaterJvmCard       = cdbCard('☕',  'JVM',          'heap · gc · threads', 'heater-jvm',        infraColor, c.pos(4,  33, 4, 4));
+local heaterGpuCard       = cdbCard('🎮',  'GPU',          'vram · utilization',  'heater-gpu',        infraColor, c.pos(8,  33, 4, 4));
+local heaterProcCard      = cdbCard('⚙',   'Processes',    'top · cpu · mem',     'heater-processes',  infraColor, c.pos(12, 33, 4, 4));
+local heaterClaudeCard    = cdbCard('🤖',  'Claude Code',  'tokens · cost · ctx', 'heater-claude-code',infraColor, c.pos(16, 33, 4, 4));
 
 // ── Services row (y=38) ───────────────────────────────────────────────────────
 
@@ -291,7 +292,7 @@ g.dashboard.new('Pin SI — Home')
     dashboardsRow,
     homelabCard, claudeCard, tracesDbCard, serenaCard, vmCard, swCard,
     heaterRow,
-    heaterSystemCard, heaterJvmCard, heaterGpuCard, heaterProcCard,
+    heaterSystemCard, heaterJvmCard, heaterGpuCard, heaterProcCard, heaterClaudeCard,
     servicesRow,
     temporalDbCard, postgresDbCard, redisDbCard, clickhouseDbCard, elasticDbCard, redpandaDbCard,
     pipelineRow,
