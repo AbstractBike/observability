@@ -150,13 +150,13 @@ g.dashboard.new('Observability — Logs')
 + g.dashboard.graphTooltip.withSharedCrosshair()
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, hostVar, serviceVar, levelVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Analysis') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('📊 Analysis') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   logVolumePanel, errorRatePanel,
 
-  g.panel.row.new('Logs') + c.pos(0, 6, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 6, 24, 1),
   liveLogsPanel,
 
-  g.panel.row.new('Error Analysis') + c.pos(0, 22, 24, 1),
+  g.panel.row.new('⚠️ Error Analysis') + c.pos(0, 22, 24, 1),
   errorAnalysisPanel,
 ])

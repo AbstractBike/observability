@@ -184,14 +184,14 @@ g.dashboard.new('Observability — Query Performance')
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   avgQueryTimeStat, p99QueryTimeStat, queryErrorRateStat, totalQueriesStat,
 
-  g.panel.row.new('Trends') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('📈 Trends') + c.pos(0, 4, 24, 1),
   queryTimeDistributionTs, slowestQueriesTs,
   queryErrorsTs, queryThroughputTs,
 
-  g.panel.row.new('Info') + c.pos(0, 17, 24, 1),
+  g.panel.row.new('ℹ️ Info') + c.pos(0, 17, 24, 1),
   infoPanel,
 ])

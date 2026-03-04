@@ -181,17 +181,17 @@ g.dashboard.new('Observability — Performance & Optimization')
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Performance Stats') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('⚡ Performance Stats') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   avgQueryLatencyStat, p99QueryLatencyStat, totalMetricsStat, storageUsedStat,
 
-  g.panel.row.new('Trends & Growth') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('📈 Trends & Growth') + c.pos(0, 4, 24, 1),
   queryLatencyTs, storageGrowthTs,
   cardinalityTs, cpuByServiceTs,
 
-  g.panel.row.new('Optimization Guide') + c.pos(0, 18, 24, 1),
+  g.panel.row.new('🎯 Optimization Guide') + c.pos(0, 18, 24, 1),
   insightsPanel,
 
-  g.panel.row.new('Logs') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
   logsPanel,
 ])
