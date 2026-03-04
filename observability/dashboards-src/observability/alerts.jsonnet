@@ -8,9 +8,11 @@ local c = import 'lib/common.libsonnet';
 
 // ── Alert Stats ────────────────────────────────────────────────────────────
 
+local alertPanel = c.alertCountPanel('alertmanager', col=0);
+
 local activeAlertsStat =
   g.panel.stat.new('🚨 Active Alerts')
-  + c.statPos(0)
+  + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('grafana_alerting_active_alerts or vector(0)'),
   ])
@@ -25,7 +27,7 @@ local activeAlertsStat =
 
 local firedAlertsStat =
   g.panel.stat.new('🔔 Fired This Hour')
-  + c.statPos(1)
+  + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('increase(alertmanager_notifications_total{job="alertmanager"}[1h]) or vector(0)'),
   ])
@@ -35,7 +37,7 @@ local firedAlertsStat =
 
 local alertmanagerUpStat =
   g.panel.stat.new('Alertmanager')
-  + c.statPos(2)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('up{job="alertmanager"} or vector(0)'),
   ])
@@ -49,7 +51,7 @@ local alertmanagerUpStat =
 
 local vmAlertUpStat =
   g.panel.stat.new('VMAlert')
-  + c.statPos(3)
+  + c.statPos(4)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('up{job="vmalert"} or vector(0)'),
   ])
@@ -129,22 +131,31 @@ local infoPanel =
   |||)
   + g.panel.text.options.withMode('markdown');
 
+// ── Troubleshooting Guide ──────────────────────────────────────────────────
+
+local troubleGuide = c.serviceTroubleshootingGuide('alertmanager', [
+  { symptom: 'Alerts Not Firing', runbook: 'alertmanager/no-alerts', check: 'Verify alertmanager is up and receiving alerts from VMAlert' },
+  { symptom: 'Alert Spam', runbook: 'alertmanager/alert-spam', check: 'Check grouping rules and adjust thresholds in VMAlert rules' },
+  { symptom: 'Notifications Not Sent', runbook: 'alertmanager/notification-failure', check: 'Monitor notification channel status and retry logs' },
+  { symptom: 'Alert Rules Not Evaluating', runbook: 'alertmanager/rule-eval', check: 'Check VMAlert health and rule syntax in "Trends" panel' },
+], y=11);
+
 // ── Logs panel ────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('Alert Logs', 'alertmanager', y=12);
+local logsPanel = c.serviceLogsPanel('Alert Logs', 'alertmanager', y=19);
 
 // ── Dashboard ──────────────────────────────────────────────────────────────
 
 g.dashboard.new('Observability — Alerts')
 + g.dashboard.withUid('alerts-dashboard')
 + g.dashboard.withDescription('Alert system monitoring: active alerts, firing rate, alertmanager status, alert history.')
-+ g.dashboard.withTags(['observability', 'alerts', 'monitoring', 'health'])
++ g.dashboard.withTags(['observability', 'alerts', 'monitoring', 'health', 'critical'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('🚨 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  activeAlertsStat, firedAlertsStat, alertmanagerUpStat, vmAlertUpStat,
+  alertPanel, activeAlertsStat, firedAlertsStat, alertmanagerUpStat, vmAlertUpStat,
 
   g.panel.row.new('📈 Trends') + c.pos(0, 4, 24, 1),
   alertRateTs, alertmanagerStatusTs,
@@ -152,6 +163,9 @@ g.dashboard.new('Observability — Alerts')
   g.panel.row.new('ℹ️ Info') + c.pos(0, 8, 24, 1),
   infoPanel,
 
-  g.panel.row.new('📝 Logs') + c.pos(0, 11, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 10, 24, 1),
+  troubleGuide,
+
+  g.panel.row.new('📝 Logs') + c.pos(0, 18, 24, 1),
   logsPanel,
 ])

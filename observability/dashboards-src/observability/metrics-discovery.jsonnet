@@ -44,9 +44,11 @@ local metricsByJobTs =
 
 // ── Total Series Count ────────────────────────────────────────────────────
 
+local alertPanel = c.alertCountPanel('victoriametrics', col=0);
+
 local totalSeriesStat =
   g.panel.stat.new('Total Series')
-  + c.statPos(0)
+  + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('count({__name__=~".+"}) or vector(0)'),
   ])
@@ -58,7 +60,7 @@ local totalSeriesStat =
 
 local uniqueMetricsStat =
   g.panel.stat.new('Unique Metrics')
-  + c.statPos(1)
+  + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('count(count by (__name__) ({__name__=~".+"})) or vector(0)'),
   ])
@@ -70,7 +72,7 @@ local uniqueMetricsStat =
 
 local jobCountStat =
   g.panel.stat.new('Active Jobs')
-  + c.statPos(2)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('count(count by (job) ({__name__=~".+"})) or vector(0)'),
   ])
@@ -82,7 +84,7 @@ local jobCountStat =
 
 local ingestionRateStat =
   g.panel.stat.new('Ingestion Rate (5m)')
-  + c.statPos(3)
+  + c.statPos(4)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(rate({__name__=~".+"}[5m])) or vector(0)'),
   ])
@@ -134,22 +136,31 @@ local infoPanel =
   |||)
   + g.panel.text.options.withMode('markdown');
 
+// ── Troubleshooting Guide ──────────────────────────────────────────────────
+
+local troubleGuide = c.serviceTroubleshootingGuide('victoriametrics', [
+  { symptom: 'Missing Service Metrics', runbook: 'metrics/missing-scrape', check: 'Check "Top Jobs" table - verify job appears in Prometheus scrape config' },
+  { symptom: 'High Cardinality Alert', runbook: 'metrics/cardinality', check: 'Inspect "Top 20 Metrics" for high-cardinality offenders' },
+  { symptom: 'Ingestion Rate Drop', runbook: 'metrics/ingest-drop', check: 'Compare current rate vs baseline in "Ingestion Rate" stat' },
+  { symptom: 'Storage Growing Fast', runbook: 'metrics/retention', check: 'Review metric discovery dashboard and reduce retention or cardinality' },
+], y=17);
+
 // ── Logs panel ────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('VictoriaMetrics Logs', 'victoriametrics', y=17);
+local logsPanel = c.serviceLogsPanel('VictoriaMetrics Logs', 'victoriametrics', y=25);
 
 // ── Dashboard ──────────────────────────────────────────────────────────────
 
 g.dashboard.new('Observability — Metric Discovery')
 + g.dashboard.withUid('metrics-discovery')
 + g.dashboard.withDescription('Catalog of all metrics in VictoriaMetrics: cardinality, jobs, ingestion rate, trends.')
-+ g.dashboard.withTags(['observability', 'metrics', 'discovery', 'troubleshooting'])
++ g.dashboard.withTags(['observability', 'metrics', 'discovery', 'troubleshooting', 'critical'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  totalSeriesStat, uniqueMetricsStat, jobCountStat, ingestionRateStat,
+  alertPanel, totalSeriesStat, uniqueMetricsStat, jobCountStat, ingestionRateStat,
 
   g.panel.row.new('📈 Metrics Overview') + c.pos(0, 4, 24, 1),
   topMetricsTs, metricsByJobTs,
@@ -157,6 +168,9 @@ g.dashboard.new('Observability — Metric Discovery')
   g.panel.row.new('ℹ️ Jobs & Info') + c.pos(0, 12, 24, 1),
   topJobsTable, infoPanel,
 
-  g.panel.row.new('📝 Logs') + c.pos(0, 16, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 16, 24, 1),
+  troubleGuide,
+
+  g.panel.row.new('📝 Logs') + c.pos(0, 24, 24, 1),
   logsPanel,
 ])

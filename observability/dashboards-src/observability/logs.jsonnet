@@ -67,6 +67,8 @@ local levelVar =
 
 // ── Panels ──────────────────────────────────────────────────────────────────
 
+local alertPanel = c.alertCountPanel('victorialogs', col=0);
+
 local logVolumePanel =
   g.panel.timeSeries.new('Log Volume by Level')
   + c.pos(0, 0, 12, 6)
@@ -137,12 +139,21 @@ local errorAnalysisPanel =
     Use **Live Logs** panel to search by keyword, trace_id, or error message.
   |||);
 
+// ── Troubleshooting Guide ──────────────────────────────────────────────────
+
+local troubleGuide = c.serviceTroubleshootingGuide('victorialogs', [
+  { symptom: 'No Logs Appearing', runbook: 'logs/no-logs', check: 'Verify services are sending logs to VictoriaLogs via Vector pipeline' },
+  { symptom: 'High Error Rate', runbook: 'logs/error-spike', check: 'Filter by "error" level and correlate with alert timestamps' },
+  { symptom: 'Logs Delayed', runbook: 'logs/latency', check: 'Check Vector pipeline health and VictoriaLogs ingestion rate' },
+  { symptom: 'Storage Growing Fast', runbook: 'logs/storage', check: 'Review log retention policy and reduce verbose services' },
+], y=25);
+
 // ── Dashboard ───────────────────────────────────────────────────────────────
 
 g.dashboard.new('Observability — Logs')
 + g.dashboard.withUid('observability-logs')
 + g.dashboard.withDescription('All-services structured log viewer with level filtering and live tail.')
-+ g.dashboard.withTags(['observability', 'logs'])
++ g.dashboard.withTags(['observability', 'logs', 'critical'])
 + g.dashboard.withRefresh('5s')
 + g.dashboard.time.withFrom('now-15m')
 + g.dashboard.time.withTo('now')
@@ -151,11 +162,14 @@ g.dashboard.new('Observability — Logs')
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Analysis') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  logVolumePanel, errorRatePanel,
+  alertPanel, logVolumePanel, errorRatePanel,
 
   g.panel.row.new('📝 Logs') + c.pos(0, 6, 24, 1),
   liveLogsPanel,
 
   g.panel.row.new('⚠️ Error Analysis') + c.pos(0, 22, 24, 1),
   errorAnalysisPanel,
+
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 24, 24, 1),
+  troubleGuide,
 ])
