@@ -43,7 +43,7 @@ local slaStat =
   g.panel.stat.new('Success Rate (SLA)')
   + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
-    c.swQ('((service_sla{service="' + serenaService + '"} / 100)) or vector(0)'),
+    c.swQ('(service_sla{service="' + serenaService + '"} / 100) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')

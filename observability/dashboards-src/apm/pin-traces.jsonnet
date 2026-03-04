@@ -26,8 +26,8 @@ local errorRate =
   + c.pos(6, 1, 6, 4)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ(|||
-      ((sum(rate(meter_service_resp_time_count{status="ERROR"}[1m])) or vector(0))
-      / (sum(rate(meter_service_resp_time_count[1m])) or vector(0))) * 100 or vector(0)
+      (((sum(rate(meter_service_resp_time_count{status="ERROR"}[1m])) or vector(0))
+      / (sum(rate(meter_service_resp_time_count[1m])) or vector(0)))) * 100 or vector(0)
     |||),
   ])
   + g.panel.stat.standardOptions.withUnit('percent')
@@ -61,7 +61,7 @@ local serviceCount =
   g.panel.stat.new('Services')
   + c.pos(18, 1, 6, 4)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('(count(count by(service) (meter_service_resp_time_count)) or vector(0)) or vector(0)'),
+    c.vmQ('(count(count by(service) (meter_service_resp_time_count))) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('short')
   + g.panel.stat.standardOptions.withDecimals(0)

@@ -73,7 +73,7 @@ local apdexStat =
   g.panel.stat.new('Apdex Score')
   + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
-    c.swQ('((service_apdex{service="$service"} / 10000)) or vector(0)'),
+    c.swQ('(service_apdex{service="$service"} / 10000) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('short')
   + g.panel.stat.standardOptions.withDecimals(2)
