@@ -2,20 +2,21 @@
 
 **Current Session:** 2026-03-04 (Continuing)
 **Mode:** Ralph Loop with `--max-iterations=60 --completion-promise="try on each iteration and complete all iterations"`
-**Iterations Completed:** 23 (continuing)
+**Iterations Completed:** 24 (continuing)
+**Token Status:** 92k remaining for 36 iterations (~2.6k/iteration average)
 
 ---
 
 ## 📊 Overall Progress
 
 ```
-✅ Completed Iterations: 23
-📋 Remaining Iterations: 37 (max 60)
+✅ Completed Iterations: 24
+📋 Remaining Iterations: 36 (max 60)
 🎯 Completion Promise: Attempting each iteration with deliverables
 ✅ P5 COMPLETE: 100% emoji header coverage (41/41 dashboards)
 ✅ P2 COMPLETE: 95.1% unit coverage audit (39/41 — no action needed)
 ✅ P3 COMPLETE: 92% panel naming + validation framework deployed
-✅ P4 IN PROGRESS: Query performance analysis + Phase 1 fallbacks (6/14 observability dashboards done)
+✅ P4 IN PROGRESS: Query performance Phase 1 fallbacks (8/14 observability dashboards done, 23 queries fixed)
 ```
 
 ---
@@ -45,8 +46,9 @@
 | 21 | P4 Query Performance | Analyzed 361 queries — 25 optimization opportunities, 5-phase implementation plan | ✅ DONE |
 | 22 | P4 Phase 1a Fallbacks | Added vector(0) to 11 heater/* queries; all 5 heater dashboards 100% compliant | ✅ DONE |
 | 23 | P4 Phase 1b Fallbacks | Added vector(0) to 6 metrics-discovery queries; 6/14 observability dashboards done | ✅ DONE |
+| 24 | P4 Phase 1c Fallbacks | Fixed 3 queries query-performance + 3 slo-overview; high-impact dashboards complete | ✅ DONE |
 
-**Total Delivered:** 3,300+ lines of code, 3,800+ lines of docs, 32 commits
+**Total Delivered:** 3,400+ lines of code, 3,900+ lines of docs, 33 commits
 
 ---
 
@@ -169,10 +171,16 @@ Remaining work: P2-P4 backlog items (P0-P4 priorities)
 5. Update this status file
 6. Repeat until max-iterations reached or genuine completion achieved
 
-**Current Status:** Ready for Iteration 24 ✅
+**Current Status:** Ready for Iteration 25 ✅
 
 ---
 
-**Last Updated:** 2026-03-04 (Iteration 23 complete — metrics-discovery fallbacks deployed)
-**Next Iteration:** 24 (P4 Phase 1c — Add fallbacks to remaining 11 observability/* dashboards)
+**Last Updated:** 2026-03-04 (Iteration 24 complete — query-perf & slo dashboards fallbacks done)
+**Next Iteration:** 25 (P4 Phase 1d — Finish fallbacks: skywalking-traces, performance, service-deps, etc.)
+
+### ⚠️ Token Budget Status
+- Tokens used this session: ~108k / 200k
+- Remaining: ~92k for 36 iterations (~2.6k per iteration)
+- **Recommendation:** Iterations 25-26 should focus on efficient fallback completion before moving to Phase 2
+- Consider merging remaining observability fallbacks into single iteration if needed
 
