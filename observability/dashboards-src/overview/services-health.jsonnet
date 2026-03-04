@@ -135,24 +135,26 @@ local latencyTs =
 // ── Service Info ──────────────────────────────────────────────────────────
 
 local infoPanel =
-  g.panel.text.new('🔗 Quick Navigation')
+  g.panel.text.new('🔗 Quick Navigation & Related Dashboards')
   + c.pos(0, 19, 24, 3)
   + g.panel.text.options.withContent(|||
-    ### Service Dashboards
+    ### 📊 Key Dashboards (Related to Service Health)
 
-    **Overview**: [Homelab Dashboard](d/homelab-overview)
+    **SLO & Compliance**: [SLO Overview](/d/slo-overview) — Monthly error budget tracking
+    **Performance**: [Performance & Optimization](/d/performance-optimization) — Query latency, storage, cardinality
+    **Alerts**: [Observability — Alerts](/d/alerts-dashboard) — Active alerts, firing rate
+    **Metrics Catalog**: [Metrics Discovery](/d/metrics-discovery) — Available metrics, cardinality analysis
+    **Logs**: [Observability — Logs](/d/observability-logs) — All-services log exploration
 
-    **Databases**:
-    - [PostgreSQL](d/services-postgresql) | [Redis](d/services-redis)
-    - [ClickHouse](d/services-clickhouse) | [Elasticsearch](d/services-elasticsearch)
+    ### 🖥️ Service Dashboards
 
-    **Observability**:
-    - [Grafana](d/observability-grafana) | [SkyWalking](d/observability-skywalking)
-    - [Alertmanager](d/observability-alertmanager)
+    **Overview**: [Homelab](/d/homelab-overview) | [Heater System](/d/heater-system)
 
-    **Pipeline**: [Vector](d/pipeline-vector) | [VictoriaMetrics Metrics](d/metrics-discovery)
+    **Databases**: [PostgreSQL](/d/services-postgresql) | [Redis](/d/services-redis) | [ClickHouse](/d/services-clickhouse) | [Elasticsearch](/d/services-elasticsearch)
 
-    **SLO**: [SLO Overview](d/slo-overview)
+    **Observability**: [Grafana](/d/observability-grafana) | [SkyWalking](/d/observability-skywalking) | [Alertmanager](/d/observability-alertmanager)
+
+    **Pipeline & APM**: [Vector](/d/pipeline-vector) | [Temporal](/d/services-temporal) | [Matrix APM](/d/matrix-apm-skywalking)
   |||)
   + g.panel.text.options.withMode('markdown');
 

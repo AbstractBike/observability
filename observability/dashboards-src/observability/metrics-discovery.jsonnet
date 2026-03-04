@@ -110,9 +110,14 @@ local topJobsTable =
 // ── Metrics Info Text ────────────────────────────────────────────────────
 
 local infoPanel =
-  g.panel.text.new('📊 Metric Discovery Guide')
+  g.panel.text.new('📊 Metric Discovery Guide & Related Dashboards')
   + c.pos(0, 13, 24, 3)
   + g.panel.text.options.withContent(|||
+    ### 📊 Related Dashboards
+    - **[Performance & Optimization](/d/performance-optimization)** — Monitor query latency and storage impact
+    - **[Services Health](/d/services-health)** — View health of metric-producing services
+    - **[Observability — Logs](/d/observability-logs)** — Debug missing metrics in logs
+
     ### How to use this dashboard:
 
     1. **Top 20 Metrics** - Shows metrics consuming most cardinality (impact on storage)
@@ -126,8 +131,6 @@ local infoPanel =
     - **High cardinality**: Click on metric in "Top 20" to investigate
     - **Unused exporters**: Look for jobs in config but not in table
     - **Performance issues**: Large ingestion rate may indicate cardinality explosion
-
-    See [DASHBOARD-DEPENDENCIES.md](./DASHBOARD-DEPENDENCIES.md) for metric requirements per dashboard.
   |||)
   + g.panel.text.options.withMode('markdown');
 

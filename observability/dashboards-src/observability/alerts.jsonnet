@@ -92,9 +92,15 @@ local alertmanagerStatusTs =
 // ── Alert Info ────────────────────────────────────────────────────────────
 
 local infoPanel =
-  g.panel.text.new('🔔 Alerting System')
+  g.panel.text.new('🔔 Alerting System & Related Dashboards')
   + c.pos(0, 9, 24, 3)
   + g.panel.text.options.withContent(|||
+    ### 📊 Related Dashboards
+    - **[VMAlert](/d/observability-vmalert)** — Rule evaluation and alert processing
+    - **[Alertmanager](/d/observability-alertmanager)** — Alert routing and grouping
+    - **[Services Health](/d/services-health)** — View triggered alert context
+    - **[SLO Overview](/d/slo-overview)** — Track SLO breach alerts
+
     ### Alerting Components
 
     - **Grafana Alerts**: Dashboard alert rules and notifications
@@ -112,8 +118,6 @@ local infoPanel =
     1. **Active Alerts** - Current firing alerts (target: 0)
     2. **Alert Rate** - Alerts fired per hour (baseline varies)
     3. **Alertmanager Status** - System health (target: up)
-
-    See [DASHBOARD-RUNBOOK.md](./DASHBOARD-RUNBOOK.md) for alert troubleshooting.
   |||)
   + g.panel.text.options.withMode('markdown');
 

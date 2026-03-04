@@ -134,9 +134,14 @@ local cpuByServiceTs =
 // ── Performance Insights ───────────────────────────────────────────────────
 
 local insightsPanel =
-  g.panel.text.new('⚡ Performance Optimization Guide')
+  g.panel.text.new('⚡ Performance Optimization Guide & Related Dashboards')
   + c.pos(0, 19, 24, 3)
   + g.panel.text.options.withContent(|||
+    ### 📊 Related Dashboards
+    - **[Metrics Discovery](/d/metrics-discovery)** — Catalog metrics, identify high-cardinality sources
+    - **[Services Health](/d/services-health)** — View health impact of optimization changes
+    - **[SLO Overview](/d/slo-overview)** — Track SLO compliance while optimizing
+
     ### Key Performance Indicators
 
     1. **Query Latency**: Target < 500ms (p50), < 2s (p99)
@@ -154,15 +159,12 @@ local insightsPanel =
        - If high: Profile queries, add query optimization rules
 
     ### Optimization Actions
-
     | Problem | Solution | Impact |
     |---------|----------|--------|
     | High cardinality | Remove high-cardinality labels | ⬇️ 50% storage |
     | Slow queries | Increase aggregation window | ⬇️ 10x latency |
     | Storage growth | Reduce retention | ⬇️ 30% storage |
     | High CPU | Enable query caching | ⬇️ 40% CPU |
-
-    See [IMPROVEMENTS-ROADMAP.md](./IMPROVEMENTS-ROADMAP.md) for cost analysis.
   |||)
   + g.panel.text.options.withMode('markdown');
 

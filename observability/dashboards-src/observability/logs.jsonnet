@@ -100,10 +100,12 @@ local liveLogsPanel =
   + g.panel.logs.options.withShowTime(true);
 
 local errorAnalysisPanel =
-  g.panel.text.new('📊 Error Analysis')
+  g.panel.text.new('📊 Error Analysis & Related Dashboards')
   + c.pos(0, 23, 24, 2)
   + g.panel.text.options.withMode('markdown')
   + g.panel.text.options.withContent(|||
+    **Related**: [Services Health](/d/services-health) — View service context | [Alerts](/d/alerts-dashboard) — Check triggered alerts
+
     **Top error patterns detected in logs.** Filter by service/host above to diagnose issues.
     Use **Live Logs** panel to search by keyword, trace_id, or error message.
   |||);

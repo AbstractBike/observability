@@ -43,7 +43,10 @@ local guidancePanel =
     - **Yellow (0-50%)**: Limited budget, monitor closely
     - **Red (<0%)**: SLO breach, immediate action required
 
-    **For operational status**, see [Services Health](/d/services-health) dashboard.
+    ### Related Dashboards
+    - **[Services Health](/d/services-health)** — Current operational status and error rates
+    - **[Observability — Alerts](/d/alerts-dashboard)** — Active alerts and firing rate
+    - **[Performance & Optimization](/d/performance-optimization)** — System performance tracking
   |||);
 
 g.dashboard.new('SLO — Overview')
