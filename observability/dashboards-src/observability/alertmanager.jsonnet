@@ -1,9 +1,11 @@
 local g = import 'github.com/grafana/grafonnet/gen/grafonnet-v11.4.0/main.libsonnet';
 local c = import 'lib/common.libsonnet';
 
+local alertPanel = c.alertCountPanel('alertmanager', col=0);
+
 local receivedStat =
   g.panel.stat.new('Alerts Received/sec')
-  + c.statPos(0)
+  + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('rate(alertmanager_alerts_received_total[5m]) or vector(0)'),
   ])
@@ -13,7 +15,7 @@ local receivedStat =
 
 local firedStat =
   g.panel.stat.new('Notifications Sent/sec')
-  + c.statPos(1)
+  + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(rate(alertmanager_notifications_total[5m])) or vector(0)'),
   ])
@@ -23,7 +25,7 @@ local firedStat =
 
 local failedStat =
   g.panel.stat.new('Failed Notifications/sec')
-  + c.statPos(2)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(rate(alertmanager_notifications_failed_total[5m])) or vector(0)'),
   ])
@@ -37,7 +39,7 @@ local failedStat =
 
 local silencesStat =
   g.panel.stat.new('Active Silences')
-  + c.statPos(3)
+  + c.statPos(4)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(alertmanager_silences{state="active"}) or vector(0)'),
   ]);
@@ -62,18 +64,27 @@ local alertsTs =
 
 local logsPanel = c.serviceLogsPanel('Alertmanager Logs', 'alertmanager', y=13);
 
+local troubleGuide = c.serviceTroubleshootingGuide('alertmanager', [
+  { symptom: 'Notification Failures', runbook: 'alertmanager/notification-failures', check: 'Check "Failed Notifications/sec" stat' },
+  { symptom: 'Alert Pipeline Backlog', runbook: 'alertmanager/alert-backlog', check: 'Monitor "Alerts in Pipeline" active vs suppressed' },
+  { symptom: 'High Alert Volume', runbook: 'alertmanager/volume', check: 'Check "Alerts Received/sec" and routing config' },
+  { symptom: 'Silences Not Working', runbook: 'alertmanager/silences', check: 'Verify active silences in "Active Silences" stat' },
+], y=14);
+
 g.dashboard.new('Observability — Alertmanager')
 + g.dashboard.withUid('observability-alertmanager')
 + g.dashboard.withDescription('Alertmanager: notifications sent/failed, silences, alert pipeline.')
-+ g.dashboard.withTags(['observability', 'alertmanager', 'alerting'])
++ g.dashboard.withTags(['observability', 'alertmanager', 'alerting', 'critical', 'infrastructure'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  receivedStat, firedStat, failedStat, silencesStat,
+  alertPanel, receivedStat, firedStat, failedStat, silencesStat,
   g.panel.row.new('⚠️ Alert Routing') + c.pos(0, 4, 24, 1),
   notifTs, alertsTs,
-  g.panel.row.new('📝 Logs') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 12, 24, 1),
+  troubleGuide,
+  g.panel.row.new('📝 Logs') + c.pos(0, 19, 24, 1),
   logsPanel,
 ])

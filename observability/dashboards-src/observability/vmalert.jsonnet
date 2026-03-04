@@ -1,9 +1,11 @@
 local g = import 'github.com/grafana/grafonnet/gen/grafonnet-v11.4.0/main.libsonnet';
 local c = import 'lib/common.libsonnet';
 
+local alertPanel = c.alertCountPanel('vmalert', col=0);
+
 local firingCountStat =
   g.panel.stat.new('Firing Alerts')
-  + c.statPos(0)
+  + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(vmalert_alerts_firing)'),
   ])
@@ -17,7 +19,7 @@ local firingCountStat =
 
 local rulesStat =
   g.panel.stat.new('Rules Loaded')
-  + c.statPos(1)
+  + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('count(vmalert_alerting_rules_last_evaluation_samples) + count(vmalert_recording_rules_last_evaluation_samples) or vector(0)'),
   ])
@@ -25,7 +27,7 @@ local rulesStat =
 
 local evalDurStat =
   g.panel.stat.new('Eval Duration p99 (ms)')
-  + c.statPos(2)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
     // vmalert exposes iteration_duration as a Summary (quantile labels), not a Histogram.
     c.vmQ('max(vmalert_iteration_duration_seconds{quantile="0.99"}) * 1000 or vector(0)'),
@@ -35,7 +37,7 @@ local evalDurStat =
 
 local errorStat =
   g.panel.stat.new('Eval Errors/sec')
-  + c.statPos(3)
+  + c.statPos(4)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('rate(vmalert_execution_errors_total[5m]) or vector(0)'),
   ])
@@ -67,18 +69,27 @@ local evalTs =
 
 local logsPanel = c.serviceLogsPanel('VMAlert Logs', 'vmalert', y=13);
 
+local troubleGuide = c.serviceTroubleshootingGuide('vmalert', [
+  { symptom: 'Evaluation Errors', runbook: 'vmalert/eval-errors', check: 'Check "Eval Errors/sec" and logs for parse errors' },
+  { symptom: 'High Rule Evaluation Latency', runbook: 'vmalert/latency', check: 'Monitor "Evaluation Duration" p99 trend' },
+  { symptom: 'Rules Not Loading', runbook: 'vmalert/rule-loading', check: 'Verify "Rules Loaded" count and check log errors' },
+  { symptom: 'Alert Spam', runbook: 'vmalert/alert-spam', check: 'Check "Firing Alerts Over Time" for abnormal patterns' },
+], y=14);
+
 g.dashboard.new('Observability — vmalert')
 + g.dashboard.withUid('observability-vmalert')
 + g.dashboard.withDescription('vmalert: firing alerts, rule evaluation duration, errors.')
-+ g.dashboard.withTags(['observability', 'vmalert', 'alerting'])
++ g.dashboard.withTags(['observability', 'vmalert', 'alerting', 'critical', 'infrastructure'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  firingCountStat, rulesStat, evalDurStat, errorStat,
-  g.panel.row.new('Detail') + c.pos(0, 4, 24, 1),
+  alertPanel, firingCountStat, rulesStat, evalDurStat, errorStat,
+  g.panel.row.new('⚙️ Evaluation') + c.pos(0, 4, 24, 1),
   firingTs, evalTs,
-  g.panel.row.new('Logs') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 12, 24, 1),
+  troubleGuide,
+  g.panel.row.new('📝 Logs') + c.pos(0, 19, 24, 1),
   logsPanel,
 ])

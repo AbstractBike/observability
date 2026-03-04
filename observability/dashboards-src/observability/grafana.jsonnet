@@ -8,9 +8,11 @@ local c = import 'lib/common.libsonnet';
 
 // ── Stats ───────────────────────────────────────────────────────────────────
 
+local alertPanel = c.alertCountPanel('grafana', col=0);
+
 local httpRateStat =
   g.panel.stat.new('HTTP Requests/s')
-  + c.statPos(0)
+  + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(rate(grafana_http_request_duration_seconds_count{job="grafana"}[5m])) or vector(0)'),
   ])
@@ -21,7 +23,7 @@ local httpRateStat =
 
 local activeAlertsStat =
   g.panel.stat.new('Active Alerts')
-  + c.statPos(1)
+  + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(grafana_alerting_active_alerts{job="grafana"}) or vector(0)'),
   ])
@@ -35,7 +37,7 @@ local activeAlertsStat =
 
 local dashboardsStat =
   g.panel.stat.new('Dashboards')
-  + c.statPos(2)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('grafana_stat_totals_dashboard{job="grafana"} or vector(0)'),
   ])
@@ -45,7 +47,7 @@ local dashboardsStat =
 
 local dbConnStat =
   g.panel.stat.new('DB Connections (in use)')
-  + c.statPos(3)
+  + c.statPos(4)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('grafana_database_conn_in_use{job="grafana"} or vector(0)'),
   ])
@@ -111,22 +113,31 @@ local dsLatTs =
 
 local logsPanel = c.serviceLogsPanel('Grafana Logs', 'grafana-start');
 
+local troubleGuide = c.serviceTroubleshootingGuide('grafana', [
+  { symptom: 'High HTTP Latency', runbook: 'grafana/latency', check: 'Check "HTTP Latency p99" and handler breakdown' },
+  { symptom: 'Datasource Errors', runbook: 'grafana/datasource', check: 'Monitor "Datasource Request Latency" and logs' },
+  { symptom: 'High Memory Usage', runbook: 'grafana/memory', check: 'Check "DB Connections" and dashboard count' },
+  { symptom: 'Alert System Issues', runbook: 'grafana/alerting', check: 'Verify "Active Alerts" in Grafana UI' },
+], y=21);
+
 // ── Dashboard ────────────────────────────────────────────────────────────────
 
 g.dashboard.new('Observability — Grafana')
 + g.dashboard.withUid('observability-grafana')
 + g.dashboard.withDescription('Grafana self-monitoring: HTTP request rate, latency, alerting, datasource performance.')
-+ g.dashboard.withTags(['observability', 'grafana'])
++ g.dashboard.withTags(['observability', 'grafana', 'critical', 'infrastructure'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  httpRateStat, activeAlertsStat, dashboardsStat, dbConnStat,
+  alertPanel, httpRateStat, activeAlertsStat, dashboardsStat, dbConnStat,
   g.panel.row.new('⚡ HTTP Traffic') + c.pos(0, 4, 24, 1),
   httpRateTs, httpLatTs,
   g.panel.row.new('🔧 Datasources') + c.pos(0, 12, 24, 1),
   dsRateTs, dsLatTs,
-  g.panel.row.new('📝 Logs') + c.pos(0, 20, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 20, 24, 1),
+  troubleGuide,
+  g.panel.row.new('📝 Logs') + c.pos(0, 27, 24, 1),
   logsPanel,
 ])

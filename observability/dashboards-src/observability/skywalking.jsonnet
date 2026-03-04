@@ -4,9 +4,11 @@ local c = import 'lib/common.libsonnet';
 // OAP Prometheus endpoint (:1234) exports JVM/process metrics only.
 // oap_trace_in_latency_* are stored in BanyanDB, not in the Prometheus endpoint.
 
+local alertPanel = c.alertCountPanel('skywalking-oap', col=0);
+
 local uptimeStat =
   g.panel.stat.new('OAP Uptime')
-  + c.statPos(0)
+  + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('time() - process_start_time_seconds{job="skywalking-oap"} or vector(0)'),
   ])
@@ -15,7 +17,7 @@ local uptimeStat =
 
 local threadsStat =
   g.panel.stat.new('OAP Threads')
-  + c.statPos(1)
+  + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('jvm_threads_current{job="skywalking-oap"} or vector(0)'),
   ])
@@ -23,7 +25,7 @@ local threadsStat =
 
 local heapStat =
   g.panel.stat.new('Heap Used')
-  + c.statPos(2)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('jvm_memory_bytes_used{job="skywalking-oap",area="heap"} or vector(0)'),
   ])
@@ -32,7 +34,7 @@ local heapStat =
 
 local cpuStat =
   g.panel.stat.new('CPU Usage (%)')
-  + c.statPos(3)
+  + c.statPos(4)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(rate(process_cpu_seconds_total{job="skywalking-oap"}[5m]) * 100) or vector(0)'),
   ])
@@ -86,7 +88,14 @@ local swUiLink =
     </div>
   |||);
 
-local oapLogsPanel = c.serviceLogsPanel('OAP Logs', 'skywalking-oap', y=21);
+local oapLogsPanel = c.serviceLogsPanel('OAP Logs', 'skywalking-oap', y=28);
+
+local troubleGuide = c.serviceTroubleshootingGuide('skywalking-oap', [
+  { symptom: 'OAP Service Down', runbook: 'skywalking/service-down', check: 'Check "OAP Uptime" stat and logs' },
+  { symptom: 'High Heap Usage', runbook: 'skywalking/memory', check: 'Monitor "Heap Used" and GC time trends' },
+  { symptom: 'Trace Ingestion Latency', runbook: 'skywalking/trace-latency', check: 'Check "Trace Latency" percentiles and trace volume' },
+  { symptom: 'GC Pauses', runbook: 'skywalking/gc', check: 'Monitor "GC Time" spikes in JVM Performance' },
+], y=20);
 
 // ── Recent Traces Panel ────────────────────────────────────────────────────
 local recentTracesPanel =
@@ -128,19 +137,21 @@ local traceLatencyPanel =
 g.dashboard.new('Observability — SkyWalking')
 + g.dashboard.withUid('observability-skywalking')
 + g.dashboard.withDescription('SkyWalking OAP JVM health: uptime, heap, GC, CPU. Links to SkyWalking UI.')
-+ g.dashboard.withTags(['observability', 'skywalking', 'tracing'])
++ g.dashboard.withTags(['observability', 'skywalking', 'tracing', 'critical', 'infrastructure', 'apm'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  uptimeStat, threadsStat, heapStat, cpuStat,
+  alertPanel, uptimeStat, threadsStat, heapStat, cpuStat,
   g.panel.row.new('⚡ JVM Performance') + c.pos(0, 4, 24, 1),
   heapTs, gcTs,
   g.panel.row.new('📡 Traces') + c.pos(0, 12, 24, 1),
   recentTracesPanel, traceLatencyPanel,
-  g.panel.row.new('🔗 SkyWalking UI') + c.pos(0, 18, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 20, 24, 1),
+  troubleGuide,
+  g.panel.row.new('🔗 SkyWalking UI') + c.pos(0, 26, 24, 1),
   swUiLink,
-  g.panel.row.new('📝 Logs') + c.pos(0, 22, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 30, 24, 1),
   oapLogsPanel,
 ])
