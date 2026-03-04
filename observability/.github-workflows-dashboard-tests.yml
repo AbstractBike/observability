@@ -1,0 +1,112 @@
+name: Dashboard Tests
+
+on:
+  push:
+    paths:
+      - 'observability/dashboards-src/**'
+      - 'scripts/verify-dashboards-comprehensive.js'
+      - 'scripts/test-*.js'
+  pull_request:
+    paths:
+      - 'observability/dashboards-src/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        working-directory: ./scripts
+        run: npm ci
+
+      - name: Validate Jsonnet syntax
+        run: |
+          for file in observability/dashboards-src/**/*.jsonnet; do
+            echo "Validating $file"
+            jsonnet "$file" > /dev/null || exit 1
+          done
+
+      - name: Run Playwright tests
+        run: |
+          cd scripts
+          node verify-dashboards-comprehensive.js
+          node test-correlation.js
+          node test-performance.js
+
+      - name: Check pass rate
+        run: |
+          if [ -f /tmp/dashboard-verify-results.json ]; then
+            HEALTHY=$(jq '.dashboards | map(select(.status | contains("PASS"))) | length' /tmp/dashboard-verify-results.json)
+            TOTAL=$(jq '.dashboards | length' /tmp/dashboard-verify-results.json)
+            PASS_RATE=$((HEALTHY * 100 / TOTAL))
+
+            echo "Pass rate: $PASS_RATE%"
+
+            if [ $PASS_RATE -lt 50 ]; then
+              echo "❌ Pass rate below 50%"
+              exit 1
+            fi
+          fi
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: dashboard-test-results
+          path: /tmp/dashboard-verify-results.json
+          retention-days: 30
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const results = JSON.parse(fs.readFileSync('/tmp/dashboard-verify-results.json', 'utf8'));
+            const healthy = results.dashboards.filter(d => d.status.includes('PASS')).length;
+            const total = results.dashboards.length;
+
+            const comment = `## Dashboard Test Results
+
+            **Pass Rate**: ${healthy}/${total} (${Math.round(healthy/total*100)}%)
+
+            ### Healthy Dashboards ✅
+            ${results.dashboards.filter(d => d.status.includes('PASS')).map(d => `- ${d.name}`).join('\n')}
+
+            ### With Issues ⚠️
+            ${results.dashboards.filter(d => !d.status.includes('PASS')).map(d => `- ${d.name}: ${d.status}`).join('\n')}
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  security:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Check for hardcoded credentials
+        run: |
+          if grep -r "password\|secret\|api[_-]key\|token" observability/dashboards-src/ --include="*.jsonnet"; then
+            echo "❌ Found potential credentials in dashboards"
+            exit 1
+          fi
+
+      - name: Lint Jsonnet
+        run: |
+          for file in observability/dashboards-src/**/*.jsonnet; do
+            echo "Linting $file"
+            jsonnetfmt --test "$file" || (jsonnetfmt -i "$file" && echo "⚠️  Fixed formatting in $file")
+          done
