@@ -119,15 +119,15 @@ local throughputTs =
 // ── Row separators ───────────────────────────────────────────────────────────
 
 local statsRow =
-  g.panel.row.new('Service Health')
+  g.panel.row.new('📊 Service Health')
   + c.pos(0, 0, 24, 1);
 
 local topRow =
-  g.panel.row.new('Top Services')
+  g.panel.row.new('🏆 Top Services')
   + c.pos(0, 5, 24, 1);
 
 local throughputRow =
-  g.panel.row.new('Throughput')
+  g.panel.row.new('📤 Throughput')
   + c.pos(0, 14, 24, 1);
 
 // ── Row 4: Service error logs ────────────────────────────────────────────────
@@ -144,7 +144,7 @@ local errorLogsPanel =
   + g.panel.logs.options.withShowTime(true);
 
 local logsRow =
-  g.panel.row.new('Error Logs')
+  g.panel.row.new('❌ Error Logs')
   + c.pos(0, 22, 24, 1);
 
 // ── Dashboard assembly ───────────────────────────────────────────────────────

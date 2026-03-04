@@ -171,20 +171,20 @@ g.dashboard.new('Overview — Services Health')
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Health Summary') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('📊 Health Summary') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   healthyServicesStat, downServicesStat, errorRateStat, avgLatencyStat,
 
-  g.panel.row.new('Service Status') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚡ Service Status') + c.pos(0, 4, 24, 1),
 ]
 + services
 + [
-  g.panel.row.new('Trends') + c.pos(0, 9, 24, 1),
+  g.panel.row.new('📈 Trends') + c.pos(0, 9, 24, 1),
   errorRateTs, latencyTs,
 
-  g.panel.row.new('Navigation & Info') + c.pos(0, 18, 24, 1),
+  g.panel.row.new('🔗 Navigation & Info') + c.pos(0, 18, 24, 1),
   infoPanel,
 
-  g.panel.row.new('Logs') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
   logsPanel,
 ])

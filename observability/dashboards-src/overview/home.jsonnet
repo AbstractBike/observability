@@ -254,21 +254,21 @@ local nixosDeployerDbCard = cdbCard('🚀', 'NixOS Deployer',   'gitops · deplo
 local grafanaSelfDbCard   = cdbCard('📊', 'Grafana',          'http · alerts · ds', 'observability-grafana',    pipeColor, c.pos(8,  47, 4, 4));
 
 // ── New Dashboards row (y=51) ─────────────────────────────────────────────
-local newRow  = g.panel.row.new('New Dashboards') + c.pos(0, 51, 24, 1);
+local newRow  = g.panel.row.new('✨ New Dashboards') + c.pos(0, 51, 24, 1);
 local newCard = card('New Dashboards', '📂', 'New Dashboards',
                      'dashboards_new/ · auto-provisioned',
                      '/dashboards', dashColor, 'new', c.pos(0, 52, 6, 4));
 
 // ── Row separators ───────────────────────────────────────────────────────────
 
-local observabilityRow = g.panel.row.new('Observability')        + c.pos(0, 3,  24, 1);
-local appsRow          = g.panel.row.new('System Apps')          + c.pos(0, 8,  24, 1);
-local arbitrageRow     = g.panel.row.new('Arbitrage')            + c.pos(0, 13, 24, 1);
-local matrixRow        = g.panel.row.new('Matrix Suite')         + c.pos(0, 18, 24, 1);
-local dashboardsRow    = g.panel.row.new('Dashboards')           + c.pos(0, 27, 24, 1);
-local heaterRow        = g.panel.row.new('Infrastructure')       + c.pos(0, 32, 24, 1);
-local servicesRow      = g.panel.row.new('Services')             + c.pos(0, 37, 24, 1);
-local pipelineRow      = g.panel.row.new('Pipeline & APM')       + c.pos(0, 42, 24, 1);
+local observabilityRow = g.panel.row.new('📊 Observability')        + c.pos(0, 3,  24, 1);
+local appsRow          = g.panel.row.new('🔧 System Apps')          + c.pos(0, 8,  24, 1);
+local arbitrageRow     = g.panel.row.new('📈 Arbitrage')            + c.pos(0, 13, 24, 1);
+local matrixRow        = g.panel.row.new('💬 Matrix Suite')         + c.pos(0, 18, 24, 1);
+local dashboardsRow    = g.panel.row.new('📋 Dashboards')           + c.pos(0, 27, 24, 1);
+local heaterRow        = g.panel.row.new('🏗️ Infrastructure')       + c.pos(0, 32, 24, 1);
+local servicesRow      = g.panel.row.new('⚡ Services')             + c.pos(0, 37, 24, 1);
+local pipelineRow      = g.panel.row.new('🔄 Pipeline & APM')       + c.pos(0, 42, 24, 1);
 
 // ── Dashboard assembly ───────────────────────────────────────────────────────
 

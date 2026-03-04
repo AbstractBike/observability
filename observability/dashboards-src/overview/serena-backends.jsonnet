@@ -165,21 +165,21 @@ g.dashboard.new('Overview — Serena & Backends')
 + g.dashboard.withPanels([
 
   // Row 0: Serena RED stats
-  g.panel.row.new('Serena MCP — RED Metrics') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('📊 Serena MCP — RED Metrics') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   cpmStat, respTimeStat, slaStat, errorRateStat,
 
   // Row 1: Serena time series
-  g.panel.row.new('Serena MCP — Trends') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('📈 Serena MCP — Trends') + c.pos(0, 4, 24, 1),
   cpmTs, latencyTs,
   errorRateTs, toolCpmTs,
 
   // Row 2: Per-tool breakdown
-  g.panel.row.new('Serena — Per-Tool Breakdown') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('🔧 Serena — Per-Tool Breakdown') + c.pos(0, 21, 24, 1),
   toolLatencyTs,
 
   // Row 3: Backend health grid
-  g.panel.row.new('Backend Services — Health') + c.pos(0, 28, 24, 1),
+  g.panel.row.new('⚡ Backend Services — Health') + c.pos(0, 28, 24, 1),
   upPanel('Serena MCP',         'serena-mcp',           0, 0),
   upPanel('Arbitraje',          'arbitraje',            1, 0),
   upPanel('PostgreSQL',         'postgres-exporter',    2, 0),
@@ -193,6 +193,6 @@ g.dashboard.new('Overview — Serena & Backends')
   upPanel('VMAlert',            'vmalert',              2, 2),
 
   // Row 4: Error logs
-  g.panel.row.new('Error Logs') + c.pos(0, 40, 24, 1),
+  g.panel.row.new('❌ Error Logs') + c.pos(0, 40, 24, 1),
   errorLogs,
 ])

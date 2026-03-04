@@ -142,23 +142,23 @@ g.dashboard.new('Homelab \u2014 Overview')
 + g.dashboard.withVariables([c.vmDsVar])
 + g.dashboard.withPanels(
   [
-    g.panel.row.new('Homelab \u2014 Host') + c.pos(0, 0, 24, 1),
+    g.panel.row.new('🏠 Homelab — Host') + c.pos(0, 0, 24, 1),
     c.externalLinksPanel(y=1, x=18),
     cpuStat,
     ramStat,
     diskStat,
     uptimeStat,
 
-    g.panel.row.new('Services') + c.pos(0, 4, 24, 1),
+    g.panel.row.new('⚡ Services') + c.pos(0, 4, 24, 1),
   ]
   + services
   + [
-    g.panel.row.new('SLO Compliance') + c.pos(0, 18, 24, 1),
+    g.panel.row.new('💯 SLO Compliance') + c.pos(0, 18, 24, 1),
     sloStat('Host Uptime',  '(1 - slo:host_uptime:error_ratio_30d) * 100',  99.5, 0),
     sloStat('PostgreSQL',   '(1 - slo:postgresql:error_ratio_30d) * 100',   99.9, 1),
     sloStat('Redis',        '(1 - slo:redis:error_ratio_30d) * 100',        99.9, 2),
     sloStat('Grafana',      '(1 - slo:grafana:error_ratio_30d) * 100',      99.0, 3),
-    g.panel.row.new('Logs') + c.pos(0, 21, 24, 1),
+    g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
     systemLogsPanel,
   ]
 )
