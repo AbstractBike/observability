@@ -68,8 +68,8 @@ local gpuUtilTs =
   g.panel.timeSeries.new('GPU & Memory Utilization')
   + c.tsPos(0, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('nvidia_smi_utilization_gpu_ratio{host="heater"} * 100', 'GPU {{name}}'),
-    c.vmQ('nvidia_smi_utilization_memory_ratio{host="heater"} * 100', 'Memory {{name}}'),
+    c.vmQ('(nvidia_smi_utilization_gpu_ratio{host="heater"} * 100) or vector(0)', 'GPU {{name}}'),
+    c.vmQ('(nvidia_smi_utilization_memory_ratio{host="heater"} * 100) or vector(0)', 'Memory {{name}}'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('percent')
   + g.panel.timeSeries.standardOptions.withMax(100)
@@ -80,8 +80,8 @@ local vramTs =
   g.panel.timeSeries.new('VRAM Used vs Total')
   + c.tsPos(1, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('nvidia_smi_memory_used_bytes{host="heater"}', 'Used {{name}}'),
-    c.vmQ('nvidia_smi_memory_total_bytes{host="heater"}', 'Total {{name}}'),
+    c.vmQ('nvidia_smi_memory_used_bytes{host="heater"} or vector(0)', 'Used {{name}}'),
+    c.vmQ('nvidia_smi_memory_total_bytes{host="heater"} or vector(0)', 'Total {{name}}'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('bytes')
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(10)
@@ -91,8 +91,8 @@ local tempTs =
   g.panel.timeSeries.new('Temperature & Fan')
   + c.tsPos(0, 1)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('nvidia_smi_temperature_gpu{host="heater"}', 'Temp °C {{name}}'),
-    c.vmQ('nvidia_smi_fan_speed_ratio{host="heater"} * 100', 'Fan % {{name}}'),
+    c.vmQ('nvidia_smi_temperature_gpu{host="heater"} or vector(0)', 'Temp °C {{name}}'),
+    c.vmQ('(nvidia_smi_fan_speed_ratio{host="heater"} * 100) or vector(0)', 'Fan % {{name}}'),
   ])
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 

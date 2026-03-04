@@ -75,8 +75,8 @@ local tokensTs =
   g.panel.timeSeries.new('Token Usage (Input vs Output)')
   + c.tsPos(0, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('sum by (project) (claude_prompt_input_tokens{host="heater",project=~"$project"})', 'input · {{project}}'),
-    c.vmQ('sum by (project) (claude_prompt_output_tokens{host="heater",project=~"$project"})', 'output · {{project}}'),
+    c.vmQ('sum by (project) (claude_prompt_input_tokens{host="heater",project=~"$project"}) or vector(0)', 'input · {{project}}'),
+    c.vmQ('sum by (project) (claude_prompt_output_tokens{host="heater",project=~"$project"}) or vector(0)', 'output · {{project}}'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('short')
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(10)
@@ -86,7 +86,7 @@ local costTs =
   g.panel.timeSeries.new('Session Cost by Project')
   + c.tsPos(1, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('sum by (project) (claude_prompt_session_cost_usd{host="heater",project=~"$project"})', '{{project}}'),
+    c.vmQ('sum by (project) (claude_prompt_session_cost_usd{host="heater",project=~"$project"}) or vector(0)', '{{project}}'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('currencyUSD')
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
@@ -96,7 +96,7 @@ local apiWaitTs =
   g.panel.timeSeries.new('API Wait Time (max)')
   + c.tsPos(0, 1)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('max(claude_prompt_api_wait_ms{host="heater",project=~"$project"})', 'api wait ms'),
+    c.vmQ('max(claude_prompt_api_wait_ms{host="heater",project=~"$project"}) or vector(0)', 'api wait ms'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('ms')
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
@@ -106,7 +106,7 @@ local contextTs =
   g.panel.timeSeries.new('Context Window Usage')
   + c.tsPos(1, 1)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('max by (project) (claude_prompt_context_used_pct{host="heater",project=~"$project"})', '{{project}}'),
+    c.vmQ('max by (project) (claude_prompt_context_used_pct{host="heater",project=~"$project"}) or vector(0)', '{{project}}'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('percent')
   + g.panel.timeSeries.standardOptions.withMax(100)
