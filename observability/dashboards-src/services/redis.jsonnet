@@ -32,7 +32,9 @@ local connStat =
   g.panel.stat.new('Connected Clients')
   + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([c.vmQ('redis_connected_clients')])
-  + c.percentThresholds;
+  + g.panel.stat.standardOptions.withDecimals(0)
+  + g.panel.stat.options.withColorMode('value')
+  + g.panel.stat.options.withGraphMode('none');
 
 local opsTs =
   g.panel.timeSeries.new('Operations/sec')

@@ -16,7 +16,9 @@ local connStat =
   g.panel.stat.new('Active Connections')
   + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([c.vmQ('sum(pg_stat_activity_count)')])
-  + c.percentThresholds;
+  + g.panel.stat.standardOptions.withDecimals(0)
+  + g.panel.stat.options.withColorMode('value')
+  + g.panel.stat.options.withGraphMode('none');
 
 local cacheHitStat =
   g.panel.stat.new('Cache Hit Rate')

@@ -1,9 +1,22 @@
 local g = import 'github.com/grafana/grafonnet/gen/grafonnet-v11.4.0/main.libsonnet';
 local c = import 'lib/common.libsonnet';
 
+// 5-stat layout: up(4w) + health(5w) + nodes(5w) + indexRate(5w) + searchLat(5w) = 24
+local upStat =
+  g.panel.stat.new('Elasticsearch Up')
+  + c.pos(0, 1, 4, 3)
+  + g.panel.stat.queryOptions.withTargets([c.vmQ('up{job="elasticsearch-exporter"}')])
+  + g.panel.stat.standardOptions.thresholds.withMode('absolute')
+  + g.panel.stat.standardOptions.thresholds.withSteps([
+    { color: 'red', value: null },
+    { color: 'green', value: 1 },
+  ])
+  + g.panel.stat.options.withColorMode('background')
+  + g.panel.stat.options.withTextMode('value_and_name');
+
 local healthStat =
   g.panel.stat.new('Cluster Health')
-  + c.statPos(0)
+  + c.pos(4, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('elasticsearch_cluster_health_status{color="green"}'),
   ])
@@ -16,25 +29,30 @@ local healthStat =
 
 local nodesStat =
   g.panel.stat.new('Nodes')
-  + c.statPos(1)
-  + g.panel.stat.queryOptions.withTargets([c.vmQ('elasticsearch_cluster_health_number_of_nodes')]);
+  + c.pos(9, 1, 5, 3)
+  + g.panel.stat.queryOptions.withTargets([c.vmQ('elasticsearch_cluster_health_number_of_nodes')])
+  + g.panel.stat.standardOptions.withDecimals(0)
+  + g.panel.stat.options.withColorMode('value');
 
 local indexRateStat =
   g.panel.stat.new('Indexing Rate')
-  + c.statPos(2)
+  + c.pos(14, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(rate(elasticsearch_indices_indexing_index_total[5m]))'),
+    c.vmQ('sum(rate(elasticsearch_indices_indexing_index_total[5m])) or vector(0)'),
   ])
-  + g.panel.stat.standardOptions.withUnit('reqps');
+  + g.panel.stat.standardOptions.withUnit('reqps')
+  + g.panel.stat.options.withColorMode('value')
+  + g.panel.stat.options.withGraphMode('area');
 
 local searchLatStat =
   g.panel.stat.new('Search Latency (avg)')
-  + c.statPos(3)
+  + c.pos(19, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     // avg latency = total_time / total_count (not a percentile)
     c.vmQ('elasticsearch_indices_search_query_time_seconds / clamp_min(elasticsearch_indices_search_query_total, 1) * 1000'),
   ])
-  + g.panel.stat.standardOptions.withUnit('ms');
+  + g.panel.stat.standardOptions.withUnit('ms')
+  + g.panel.stat.options.withColorMode('value');
 
 local indexTs =
   g.panel.timeSeries.new('Indexing Rate')
@@ -79,7 +97,7 @@ g.dashboard.new('Services — Elasticsearch')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
-  healthStat, nodesStat, indexRateStat, searchLatStat,
+  upStat, healthStat, nodesStat, indexRateStat, searchLatStat,
   g.panel.row.new('Indexing & Search') + c.pos(0, 4, 24, 1),
   indexTs, searchTs,
   g.panel.row.new('JVM & Disk') + c.pos(0, 12, 24, 1),

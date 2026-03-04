@@ -5,23 +5,27 @@ local receivedStat =
   g.panel.stat.new('Alerts Received/sec')
   + c.statPos(0)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('rate(alertmanager_alerts_received_total[5m])'),
+    c.vmQ('rate(alertmanager_alerts_received_total[5m]) or vector(0)'),
   ])
-  + g.panel.stat.standardOptions.withUnit('reqps');
+  + g.panel.stat.standardOptions.withUnit('reqps')
+  + g.panel.stat.options.withColorMode('value')
+  + g.panel.stat.options.withGraphMode('area');
 
 local firedStat =
   g.panel.stat.new('Notifications Sent/sec')
   + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(rate(alertmanager_notifications_total[5m]))'),
+    c.vmQ('sum(rate(alertmanager_notifications_total[5m])) or vector(0)'),
   ])
-  + g.panel.stat.standardOptions.withUnit('reqps');
+  + g.panel.stat.standardOptions.withUnit('reqps')
+  + g.panel.stat.options.withColorMode('value')
+  + g.panel.stat.options.withGraphMode('area');
 
 local failedStat =
   g.panel.stat.new('Failed Notifications/sec')
   + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(rate(alertmanager_notifications_failed_total[5m]))'),
+    c.vmQ('sum(rate(alertmanager_notifications_failed_total[5m])) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('reqps')
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')
