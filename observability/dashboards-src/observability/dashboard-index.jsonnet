@@ -164,6 +164,7 @@ local metaText =
   + g.panel.text.options.withContent(|||
     | Dashboard | Purpose | Tags |
     |-----------|---------|------|
+    | [Observability — Query Performance](/d/query-performance) | Query latency by datasource, error rates, throughput trends | `meta`, `performance`, `profiling` |
     | [Serena MCP Backend](/d/serena-mcp) | Serena language server MCP performance | `meta`, `serena`, `development` |
     | [Serena Backends](/d/serena-backends) | Multi-backend Serena infrastructure | `meta`, `serena`, `development` |
   |||);
