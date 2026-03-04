@@ -6,21 +6,29 @@ local c = import 'lib/common.libsonnet';
 local serviceVar =
   g.dashboard.variable.custom.new('service', [
     { key: 'All', value: '.*' },
-    { key: 'postgresql.service', value: 'postgresql.service' },
-    { key: 'nginx.service', value: 'nginx.service' },
-    { key: 'grafana.service', value: 'grafana.service' },
-    { key: 'vector.service', value: 'vector.service' },
-    { key: 'redis.service', value: 'redis.service' },
-    { key: 'clickhouse-server.service', value: 'clickhouse-server.service' },
-    { key: 'elasticsearch.service', value: 'elasticsearch.service' },
-    { key: 'matrix-synapse.service', value: 'matrix-synapse.service' },
-    { key: 'temporal.service', value: 'temporal.service' },
-    { key: 'coredns.service', value: 'coredns.service' },
-    { key: 'victoriametrics.service', value: 'victoriametrics.service' },
-    { key: 'victorialogs.service', value: 'victorialogs.service' },
-    { key: 'skywalking-oap.service', value: 'skywalking-oap.service' },
-    { key: 'adguardhome.service', value: 'adguardhome.service' },
+    { key: 'postgres', value: 'postgres' },
+    { key: 'nginx', value: 'nginx' },
+    { key: 'grafana-start', value: 'grafana-start' },
+    { key: 'vector', value: 'vector' },
+    { key: 'redis', value: 'redis' },
+    { key: 'clickhouse-server', value: 'clickhouse-server' },
+    { key: 'elasticsearch', value: 'elasticsearch' },
+    { key: 'synapse', value: 'synapse' },
+    { key: 'temporal', value: 'temporal' },
+    { key: 'temporal-ui', value: 'temporal-ui' },
+    { key: 'cloudflared', value: 'cloudflared' },
+    { key: 'victoria-metrics', value: 'victoria-metrics' },
+    { key: 'victorialogs', value: 'victorialogs' },
+    { key: 'skywalking-oap', value: 'skywalking-oap' },
+    { key: 'AdGuardHome', value: 'AdGuardHome' },
+    { key: 'redpanda', value: 'redpanda' },
+    { key: 'alertmanager', value: 'alertmanager' },
+    { key: 'vmalert', value: 'vmalert' },
+    { key: 'firecrawl-api', value: 'firecrawl-api' },
+    { key: 'nexus', value: 'nexus' },
+    { key: 'serena', value: 'serena' },
     { key: 'arbitraje', value: 'arbitraje' },
+    { key: 'claude-code', value: 'claude-code' },
   ])
   + g.dashboard.variable.custom.generalOptions.withLabel('Service')
   + g.dashboard.variable.custom.generalOptions.withCurrent('All', '.*');
@@ -43,7 +51,8 @@ local logVolumePanel =
   g.panel.timeSeries.new('Log Volume by Level')
   + c.pos(0, 0, 24, 6)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vlogsQ('{host="homelab",service=~"$service",level=~"$level"} | stats by (level) count() as logs'),
+    // _time:$__interval groups by time bucket so Grafana gets a proper timeseries.
+    c.vlogsQ('{host="homelab",service=~"$service",level=~"$level"} | stats by (_time:$__interval, level) count() as logs'),
   ])
   + g.panel.timeSeries.fieldConfig.defaults.custom.withStacking({ mode: 'normal' })
   + g.panel.timeSeries.fieldConfig.defaults.custom.withDrawStyle('bars')

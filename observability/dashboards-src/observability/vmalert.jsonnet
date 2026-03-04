@@ -63,7 +63,7 @@ local evalTs =
   + g.panel.timeSeries.standardOptions.withUnit('ms')
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
-local logsPanel = c.serviceLogsPanel('VMAlert Logs', 'vmalert.service', y=13);
+local logsPanel = c.serviceLogsPanel('VMAlert Logs', 'vmalert', y=13);
 
 g.dashboard.new('Observability — vmalert')
 + g.dashboard.withUid('observability-vmalert')

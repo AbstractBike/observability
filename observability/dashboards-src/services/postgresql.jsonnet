@@ -70,7 +70,7 @@ local sizeTs =
   + g.panel.timeSeries.standardOptions.withUnit('bytes')
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
-local logsPanel = c.serviceLogsPanel('PostgreSQL Logs', 'postgresql.service');
+local logsPanel = c.serviceLogsPanel('PostgreSQL Logs', 'postgres');
 
 g.dashboard.new('Services — PostgreSQL')
 + g.dashboard.withUid('services-postgresql')

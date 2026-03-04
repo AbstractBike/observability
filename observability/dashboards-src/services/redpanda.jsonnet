@@ -63,7 +63,7 @@ local lagTs =
   ])
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
-local logsPanel = c.serviceLogsPanel('Redpanda Logs', 'redpanda.service');
+local logsPanel = c.serviceLogsPanel('Redpanda Logs', 'redpanda');
 
 g.dashboard.new('Services — Redpanda')
 + g.dashboard.withUid('services-redpanda')

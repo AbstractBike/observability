@@ -65,7 +65,7 @@ local memTs =
   + g.panel.timeSeries.standardOptions.withUnit('bytes')
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
-local logsPanel = c.serviceLogsPanel('ClickHouse Logs', 'clickhouse-server.service');
+local logsPanel = c.serviceLogsPanel('ClickHouse Logs', 'clickhouse-server');
 
 g.dashboard.new('Services — ClickHouse')
 + g.dashboard.withUid('services-clickhouse')

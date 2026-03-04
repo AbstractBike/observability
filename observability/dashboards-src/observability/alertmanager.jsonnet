@@ -56,7 +56,7 @@ local alertsTs =
   ])
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
-local logsPanel = c.serviceLogsPanel('Alertmanager Logs', 'alertmanager.service', y=13);
+local logsPanel = c.serviceLogsPanel('Alertmanager Logs', 'alertmanager', y=13);
 
 g.dashboard.new('Observability — Alertmanager')
 + g.dashboard.withUid('observability-alertmanager')

@@ -70,7 +70,7 @@ local diskTs =
   ])
   + g.panel.timeSeries.standardOptions.withUnit('bytes');
 
-local logsPanel = c.serviceLogsPanel('Elasticsearch Logs', 'elasticsearch.service');
+local logsPanel = c.serviceLogsPanel('Elasticsearch Logs', 'elasticsearch');
 
 g.dashboard.new('Services — Elasticsearch')
 + g.dashboard.withUid('services-elasticsearch')

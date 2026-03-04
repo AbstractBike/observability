@@ -81,7 +81,7 @@ local swUiLink =
     </div>
   |||);
 
-local oapLogsPanel = c.serviceLogsPanel('OAP Logs', 'skywalking-oap.service', y=17);
+local oapLogsPanel = c.serviceLogsPanel('OAP Logs', 'skywalking-oap', y=17);
 
 g.dashboard.new('Observability — SkyWalking')
 + g.dashboard.withUid('observability-skywalking')

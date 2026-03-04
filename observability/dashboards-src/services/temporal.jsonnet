@@ -65,7 +65,7 @@ local latTs =
   + g.panel.timeSeries.standardOptions.withUnit('ms')
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
-local logsPanel = c.serviceLogsPanel('Temporal Logs', 'temporal.service');
+local logsPanel = c.serviceLogsPanel('Temporal Logs', 'temporal');
 
 g.dashboard.new('Services — Temporal')
 + g.dashboard.withUid('services-temporal')

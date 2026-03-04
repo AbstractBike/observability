@@ -71,7 +71,7 @@ local hitsTs =
   + g.panel.timeSeries.standardOptions.withUnit('reqps')
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
-local logsPanel = c.serviceLogsPanel('Redis Logs', 'redis.service');
+local logsPanel = c.serviceLogsPanel('Redis Logs', 'redis');
 
 g.dashboard.new('Services — Redis')
 + g.dashboard.withUid('services-redis')
