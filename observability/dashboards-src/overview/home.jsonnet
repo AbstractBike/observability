@@ -247,7 +247,8 @@ local vmalertDbCard    = cdbCard('📢', 'VM Alert',        'eval · firing',   
 local sloDbCard        = cdbCard('📊', 'SLO Overview',    'error budgets',     'slo-overview',               pipeColor, c.pos(12, 43, 4, 4));
 local serenaBackDbCard = cdbCard('🧠', 'Serena Backends', 'lsp · indexing',    'overview-serena-backends',   pipeColor, c.pos(16, 43, 4, 4));
 local logsDbCard       = cdbCard('📋', 'Logs',            'all-services · levels', 'observability-logs',        pipeColor, c.pos(20, 43, 4, 4));
-local matrixApmDbCard  = cdbCard('💬', 'Matrix APM',      'requests · spans',  'matrix-apm-skywalking',      pipeColor, c.pos(0,  47, 4, 4));
+local matrixApmDbCard     = cdbCard('💬', 'Matrix APM',       'requests · spans',   'matrix-apm-skywalking',    pipeColor, c.pos(0,  47, 4, 4));
+local nixosDeployerDbCard = cdbCard('🚀', 'NixOS Deployer',   'gitops · deploys',   'services-nixos-deployer',  pipeColor, c.pos(4,  47, 4, 4));
 
 // ── New Dashboards row (y=51) ─────────────────────────────────────────────
 local newRow  = g.panel.row.new('New Dashboards') + c.pos(0, 51, 24, 1);
@@ -294,6 +295,6 @@ g.dashboard.new('Pin SI — Home')
     servicesRow,
     temporalDbCard, postgresDbCard, redisDbCard, clickhouseDbCard, elasticDbCard, redpandaDbCard,
     pipelineRow,
-    vectorDbCard, alertmgrDbCard, vmalertDbCard, sloDbCard, serenaBackDbCard, logsDbCard, matrixApmDbCard,
+    vectorDbCard, alertmgrDbCard, vmalertDbCard, sloDbCard, serenaBackDbCard, logsDbCard, matrixApmDbCard, nixosDeployerDbCard,
     newRow, newCard,
   ])

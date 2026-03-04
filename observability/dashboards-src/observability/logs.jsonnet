@@ -34,6 +34,10 @@ local serviceVar =
     { key: 'skywalking-ui', value: 'skywalking-ui' },
     { key: 'superset', value: 'superset' },
     { key: 'claude-code', value: 'claude-code' },
+    { key: 'kernel', value: 'kernel' },
+    { key: 'systemd', value: 'systemd' },
+    { key: 'k3s', value: 'k3s' },
+    { key: 'python', value: 'python' },
   ])
   + g.dashboard.variable.custom.generalOptions.withLabel('Service')
   + g.dashboard.variable.custom.generalOptions.withCurrent('All', '.*');

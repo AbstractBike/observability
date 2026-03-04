@@ -103,7 +103,7 @@ local logsPanel =
   g.panel.logs.new('Process Logs')
   + c.logPos(22)
   + g.panel.logs.queryOptions.withTargets([
-    c.vlogsQ('{host="heater"} | _stream_fields: _msg'),
+    c.vlogsQ('{host="heater"}'),
   ])
   + g.panel.logs.options.withWrapLogMessage(true);
 

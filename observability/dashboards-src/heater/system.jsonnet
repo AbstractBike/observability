@@ -113,7 +113,7 @@ local logsPanel =
   g.panel.logs.new('System Logs')
   + c.logPos(21)
   + g.panel.logs.queryOptions.withTargets([
-    c.vlogsQ('{host="heater"} | _stream_fields: _msg | _msg:~"(kernel|systemd|NetworkManager|sudo)"'),
+    c.vlogsQ('{host="heater",service=~"(kernel|systemd|NetworkManager|sudo|sshd)"}'),
   ])
   + g.panel.logs.options.withDedupStrategy('none')
   + g.panel.logs.options.withShowLabels(false)
