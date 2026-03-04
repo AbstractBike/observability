@@ -243,6 +243,50 @@ local config = {
     + g.panel.text.options.withMode('html')
     + g.panel.text.options.withContent(linkHtml),
 
+  // Custom external links with service-specific URLs
+  // Usage: c.customExternalLinksPanel([
+  //   { icon: '🗄️', title: 'pgAdmin', url: 'http://pgadmin.pin' },
+  //   { icon: '📊', title: 'Metrics', url: 'http://192.168.0.4:8428' },
+  // ])
+  customExternalLinksPanel(links=[], y=0, x=22):
+    local linkStyle = |||
+      <style>
+        .ext-link-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 24px;
+          height: 24px;
+          background: #2563eb;
+          color: white;
+          text-decoration: none;
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: bold;
+          cursor: pointer;
+          margin: 2px;
+          transition: all 0.2s;
+          border: 1px solid #1d4ed8;
+        }
+        .ext-link-btn:hover {
+          background: #1d4ed8;
+          transform: scale(1.1);
+          box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
+        }
+        .ext-links-container { display: flex; gap: 4px; }
+      </style>
+    ||;
+    local linkHtml = linkStyle + '<div class="ext-links-container">' +
+      std.join('', [
+        '<a class="ext-link-btn" href="' + link.url + '" target="_blank" title="' + link.title + '">' + link.icon + '</a>'
+        for link in links
+      ]) + '</div>';
+    g.panel.text.new('')
+    + self.pos(x, y, 2, 1)
+    + g.panel.text.panelOptions.withTransparent(true)
+    + g.panel.text.options.withMode('html')
+    + g.panel.text.options.withContent(linkHtml),
+
   // ── Runbook helpers ──────────────────────────────────────────────────────
 
   // Create a markdown runbook link helper
