@@ -92,10 +92,10 @@ g.dashboard.new('PostgreSQL — Query Tracing & Performance')
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Query Performance') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('📊 Query Performance') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   queryRateStat, avgQueryLatencyStat, p95QueryLatencyStat, slowQueryCountStat,
 
-  g.panel.row.new('Analysis') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('🔍 Analysis') + c.pos(0, 4, 24, 1),
   queryLatencyTs, slowQueryVolumeTs,
 ])

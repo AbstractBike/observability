@@ -228,25 +228,25 @@ g.dashboard.new('Observability — System Health Scoring')
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Overall Health') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('📊 Overall Health') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   overallHealthStat, upstreamHealthStat, downstreamHealthStat, healthTrendStat,
 
-  g.panel.row.new('Component Health Scores') + c.pos(0, 3, 24, 1),
+  g.panel.row.new('🏗️ Component Health Scores') + c.pos(0, 3, 24, 1),
   databaseHealthStat, cacheHealthStat, queueHealthStat, infraHealthStat,
 
-  g.panel.row.new('Health Trends & Performance') + c.pos(0, 7, 24, 1),
+  g.panel.row.new('📈 Health Trends & Performance') + c.pos(0, 7, 24, 1),
   healthTrendTs, componentHealthTs,
 
-  g.panel.row.new('Error Rate & Latency') + c.pos(0, 11, 24, 1),
+  g.panel.row.new('⚠️ Error Rate & Latency') + c.pos(0, 11, 24, 1),
   errorRateTs, latencyTs,
 
-  g.panel.row.new('Service Status') + c.pos(0, 13, 24, 1),
+  g.panel.row.new('📊 Service Status') + c.pos(0, 13, 24, 1),
   serviceStatusTable,
 
-  g.panel.row.new('Health Guidance') + c.pos(0, 19, 24, 1),
+  g.panel.row.new('💡 Health Guidance') + c.pos(0, 19, 24, 1),
   insightsPanel,
 
-  g.panel.row.new('Logs') + c.pos(0, 23, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 23, 24, 1),
   logsPanel,
 ])

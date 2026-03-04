@@ -179,20 +179,20 @@ g.dashboard.new('api-gateway — Distributed Tracing')
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Overview') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('📊 Overview') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   tracesPerMinStat, errorRateStat, avgLatencyStat, p99LatencyStat,
 
-  g.panel.row.new('Trace Distribution & Performance') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚡ Trace Distribution & Performance') + c.pos(0, 4, 24, 1),
   traceVolumeTs, latencyDistributionTs,
   operationCountTs, operationErrorsTs,
 
-  g.panel.row.new('Operation Analysis') + c.pos(0, 6, 24, 1),
+  g.panel.row.new('🔍 Operation Analysis') + c.pos(0, 6, 24, 1),
   spanLatencyTable,
 
-  g.panel.row.new('Troubleshooting') + c.pos(0, 14, 24, 1),
+  g.panel.row.new('🛠️ Troubleshooting') + c.pos(0, 14, 24, 1),
   guidancePanel,
 
-  g.panel.row.new('Logs') + c.pos(0, 18, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 18, 24, 1),
   logsPanel,
 ])

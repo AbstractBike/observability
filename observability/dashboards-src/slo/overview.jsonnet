@@ -55,19 +55,19 @@ g.dashboard.new('SLO — Overview')
 + g.dashboard.withTags(['slo', 'overview'])
 + c.dashboardDefaults
 + g.dashboard.withPanels([
-  g.panel.row.new('30-day Compliance') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('📊 30-day Compliance') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   sloStatPanel('Host Uptime (99.5%)', 'slo:host_uptime:error_ratio_30d', 99.5, 0),
   sloStatPanel('PostgreSQL (99.9%)', 'slo:postgresql:error_ratio_30d', 99.9, 1),
   sloStatPanel('Redis (99.9%)', 'slo:redis:error_ratio_30d', 99.9, 2),
   sloStatPanel('Grafana (99%)', 'slo:grafana:error_ratio_30d', 99.0, 3),
 
-  g.panel.row.new('Error Budget Remaining (30d)') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('💯 Error Budget Remaining (30d)') + c.pos(0, 4, 24, 1),
   budgetTs('PostgreSQL Error Budget', 'slo:postgresql:error_ratio_30d', 0.001, 0, 0),
   budgetTs('Redis Error Budget', 'slo:redis:error_ratio_30d', 0.001, 1, 0),
   budgetTs('Host Error Budget', 'slo:host_uptime:error_ratio_30d', 0.005, 0, 1),
   budgetTs('Grafana Error Budget', 'slo:grafana:error_ratio_30d', 0.01, 1, 1),
 
-  g.panel.row.new('Guidance') + c.pos(0, 11, 24, 1),
+  g.panel.row.new('💡 Guidance') + c.pos(0, 11, 24, 1),
   guidancePanel,
 ])
