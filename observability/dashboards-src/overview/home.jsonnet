@@ -165,6 +165,17 @@ local card(name, icon, title, subtitle, url, accent, badge, pos, external=false)
   + g.panel.text.options.withContent(cardHtml(icon, title, subtitle, url, accent, badge, external))
   + pos;
 
+// ── Alert panel & troubleshooting guide ────────────────────────────────────
+
+local alertPanel = c.alertCountPanel('home', col=0);
+
+local troubleGuide = c.serviceTroubleshootingGuide('home', [
+  { symptom: 'Service Unavailable', runbook: 'general/service-recovery', check: 'Check Infrastructure row for service status indicators' },
+  { symptom: 'Observability Down', runbook: 'general/obs-recovery', check: 'Verify Metrics, Logs, and Traces links accessible from Observability row' },
+  { symptom: 'Dashboard Not Found', runbook: 'general/dashboard-search', check: 'Use Dashboards row or search for specific service dashboard' },
+  { symptom: 'External Tool Unreachable', runbook: 'general/connectivity', check: 'Check System Apps row (Temporal, Superset, etc.) and network status' },
+], y=1);
+
 // ── Color palette ────────────────────────────────────────────────────────────
 local obsColor  = '#7c3aed';  // violet — observability
 local appColor  = '#2563eb';  // blue   — system apps
@@ -275,14 +286,16 @@ local pipelineRow      = g.panel.row.new('🔄 Pipeline & APM')       + c.pos(0,
 g.dashboard.new('Pin SI — Home')
 + g.dashboard.withUid('pin-si-home')
 + g.dashboard.withDescription('Pin Soluciones Informáticas — Central Operations & Observability Hub. Navigation dashboard providing quick access to all observability dashboards (metrics, logs, traces, alerts), infrastructure services (databases, cache, message brokers), and external tools (Temporal, Superset, Matrix Chat, Redpanda Console).')
-+ g.dashboard.withTags(['home', 'pin-si'])
++ g.dashboard.withTags(['home', 'pin-si', 'critical'])
 + g.dashboard.withRefresh('30s')
 + g.dashboard.withEditable(false)
 + g.dashboard.graphTooltip.withSharedCrosshair()
 + g.dashboard.withVariables([c.vmDsVar, c.swDsVar])
 + g.dashboard.withPanels([
     c.externalLinksPanel(y=0, x=18),
+    alertPanel,
     headerPanel,
+    troubleGuide,
     observabilityRow,
     metricsCard, logsCard, tracesCard, alertsCard,
     appsRow,

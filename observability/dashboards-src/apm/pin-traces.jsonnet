@@ -10,9 +10,11 @@ local c = import 'lib/common.libsonnet';
 
 // ── Row 1: Stats ─────────────────────────────────────────────────────────────
 
+local alertPanel = c.alertCountPanel('pin-traces', col=0);
+
 local reqRate =
   g.panel.stat.new('Requests / min')
-  + c.pos(0, 1, 6, 4)
+  + c.pos(6, 1, 6, 4)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(sum(rate(meter_service_resp_time_count[5m])) or vector(0)) * 60'),
   ])
@@ -23,7 +25,7 @@ local reqRate =
 
 local errorRate =
   g.panel.stat.new('Error %')
-  + c.pos(6, 1, 6, 4)
+  + c.pos(12, 1, 6, 4)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ(|||
       (((sum(rate(meter_service_resp_time_count{status="ERROR"}[1m])) or vector(0))
@@ -43,7 +45,7 @@ local errorRate =
 
 local p99 =
   g.panel.stat.new('P99 Latency')
-  + c.pos(12, 1, 6, 4)
+  + c.pos(18, 1, 6, 4)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(histogram_quantile(0.99, sum by(le) (rate(meter_service_resp_time_bucket[5m])))) or vector(0)'),
   ])
@@ -59,7 +61,7 @@ local p99 =
 
 local serviceCount =
   g.panel.stat.new('Services')
-  + c.pos(18, 1, 6, 4)
+  + c.pos(0, 6, 6, 4)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(count(count by(service) (meter_service_resp_time_count))) or vector(0)'),
   ])
@@ -132,9 +134,18 @@ local throughputRow =
 
 // ── Row 4: Service error logs ────────────────────────────────────────────────
 
+// ── Troubleshooting Guide ──────────────────────────────────────────────────
+
+local troubleGuide = c.serviceTroubleshootingGuide('pin-traces', [
+  { symptom: 'Service Latency High', runbook: 'apm/latency-investigation', check: 'Check P99 Latency stat and Top Services panel for bottleneck' },
+  { symptom: 'Error Rate Spike', runbook: 'apm/error-root-cause', check: 'Monitor Error % stat and review error logs for stack traces' },
+  { symptom: 'Throughput Drop', runbook: 'apm/capacity-check', check: 'Check Requests/min stat and correlate with service health' },
+  { symptom: 'New Service Down', runbook: 'apm/service-onboard', check: 'Verify service count in Services stat and check instrumentation' },
+], y=20);
+
 local errorLogsPanel =
   g.panel.logs.new('Service Error Logs')
-  + c.logPos(23)
+  + c.logPos(27)
   + g.panel.logs.queryOptions.withTargets([
     // Query VictoriaLogs for ERROR/CRITICAL level logs.
     c.vlogsQ('{level=~"(error|critical)"}'),
@@ -152,15 +163,17 @@ local logsRow =
 g.dashboard.new('Pin Traces — APM Overview')
 + g.dashboard.withUid('pin-traces')
 + g.dashboard.withDescription('Pin Soluciones Informáticas — Distributed Tracing & APM')
-+ g.dashboard.withTags(['apm', 'pin-traces', 'skywalking'])
++ g.dashboard.withTags(['apm', 'pin-traces', 'skywalking', 'critical'])
 + g.dashboard.withRefresh('30s')
 + g.dashboard.withEditable(false)
 + g.dashboard.graphTooltip.withSharedCrosshair()
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, c.swDsVar])
 + g.dashboard.withPanels([
     c.externalLinksPanel(y=0, x=18),
-    statsRow, reqRate, errorRate, p99, serviceCount,
+    statsRow, alertPanel, reqRate, errorRate, p99, serviceCount,
     topRow, topServicesByLatency, errorByService,
     throughputRow, throughputTs,
+    g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 19, 24, 1),
+    troubleGuide,
     logsRow, errorLogsPanel,
   ])

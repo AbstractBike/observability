@@ -15,11 +15,13 @@ local c = import 'lib/common.libsonnet';
 
 local serenaService = 'serena-standalone-rs';
 
+local alertPanel = c.alertCountPanel('serena-backends', col=0);
+
 // ── Row 0: Serena MCP stats ───────────────────────────────────────────────
 
 local cpmStat =
   g.panel.stat.new('Calls/min')
-  + c.statPos(0)
+  + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
     c.swQ('(service_cpm{service="' + serenaService + '"}) or vector(0)'),
   ])
@@ -27,7 +29,7 @@ local cpmStat =
 
 local respTimeStat =
   g.panel.stat.new('Avg Response Time')
-  + c.statPos(1)
+  + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
     c.swQ('(service_resp_time{service="' + serenaService + '"}) or vector(0)'),
   ])
@@ -41,7 +43,7 @@ local respTimeStat =
 
 local slaStat =
   g.panel.stat.new('Success Rate (SLA)')
-  + c.statPos(2)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
     c.swQ('(service_sla{service="' + serenaService + '"} / 100) or vector(0)'),
   ])
@@ -56,7 +58,7 @@ local slaStat =
 
 local errorRateStat =
   g.panel.stat.new('Error Rate')
-  + c.statPos(3)
+  + c.statPos(4)
   + g.panel.stat.queryOptions.withTargets([
     c.swQ('(service_error_rate{service="' + serenaService + '"}) or vector(0)'),
   ])
@@ -141,11 +143,20 @@ local upPanel(title, job, col, row) =
     g.panel.stat.options.reduceOptions.withCalcs(['lastNotNull'])
   );
 
+// ── Troubleshooting Guide ──────────────────────────────────────────────────
+
+local troubleGuide = c.serviceTroubleshootingGuide('serena-backends', [
+  { symptom: 'Serena Latency High', runbook: 'serena/latency-spike', check: 'Check Avg Response Time stat and per-tool latency breakdown' },
+  { symptom: 'Serena Error Rate Up', runbook: 'serena/error-investigation', check: 'Review Error Rate stat and check error logs for stack traces' },
+  { symptom: 'Backend Service Down', runbook: 'serena/backend-outage', check: 'Check Backend Services grid for red status indicators' },
+  { symptom: 'MCP Connection Lost', runbook: 'serena/mcp-reconnect', check: 'Verify Serena MCP process running and check SLA metric' },
+], y=36);
+
 // ── Row 4: Error logs ─────────────────────────────────────────────────────
 
 local errorLogs =
   g.panel.logs.new('Recent Errors & Warnings')
-  + c.logPos(41)
+  + c.logPos(45)
   + g.panel.logs.queryOptions.withTargets([
     // Query VictoriaLogs for ERROR/WARN level logs or Exception mentions.
     c.vlogsQ('{level=~"(error|warning)"} or _msg:~"(Exception|Error)"'),
@@ -159,7 +170,7 @@ local errorLogs =
 g.dashboard.new('Overview — Serena & Backends')
 + g.dashboard.withUid('overview-serena-backends')
 + g.dashboard.withDescription('Serena MCP server RED metrics (SkyWalking) and backend services health grid.')
-+ g.dashboard.withTags(['overview', 'serena', 'backends', 'mcp'])
++ g.dashboard.withTags(['overview', 'serena', 'backends', 'mcp', 'critical'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, c.swDsVar])
 + g.dashboard.withPanels([
@@ -167,7 +178,7 @@ g.dashboard.new('Overview — Serena & Backends')
   // Row 0: Serena RED stats
   g.panel.row.new('📊 Serena MCP — RED Metrics') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  cpmStat, respTimeStat, slaStat, errorRateStat,
+  alertPanel, cpmStat, respTimeStat, slaStat, errorRateStat,
 
   // Row 1: Serena time series
   g.panel.row.new('📈 Serena MCP — Trends') + c.pos(0, 4, 24, 1),
@@ -192,7 +203,11 @@ g.dashboard.new('Overview — Serena & Backends')
   upPanel('Alertmanager',       'alertmanager',         1, 2),
   upPanel('VMAlert',            'vmalert',              2, 2),
 
-  // Row 4: Error logs
-  g.panel.row.new('❌ Error Logs') + c.pos(0, 40, 24, 1),
+  // Row 4: Troubleshooting
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 36, 24, 1),
+  troubleGuide,
+
+  // Row 5: Error logs
+  g.panel.row.new('❌ Error Logs') + c.pos(0, 44, 24, 1),
   errorLogs,
 ])
