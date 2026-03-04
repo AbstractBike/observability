@@ -93,7 +93,8 @@ local alertmanagerStatusTs =
 
 local infoPanel =
   g.panel.text.new('🔔 Alerting System & Related Dashboards')
-  + c.pos(0, 9, 24, 3)
+  + c.pos(0, 9, 24, 4)
+  + g.panel.text.options.withMode('markdown')
   + g.panel.text.options.withContent(|||
     ### 📊 Related Dashboards
     - **[VMAlert](/d/observability-vmalert)** — Rule evaluation and alert processing
@@ -108,13 +109,20 @@ local infoPanel =
     - **Alertmanager**: Alert routing, grouping, and notifications
 
     ### Alert Channels
-
     - Email notifications
     - On-call escalation
     - Service integration via webhooks
 
-    ### Key Metrics
+    ### 🚀 On-Call Runbooks
 
+    When an alert fires, follow these guides:
+    - [High CPU Usage](https://wiki.pin/runbooks/infrastructure/cpu) — CPU > 85% sustained
+    - [Memory Pressure](https://wiki.pin/runbooks/infrastructure/memory) — Memory > 90%
+    - [Service Unhealthy](https://wiki.pin/runbooks/services/health-check-failure) — Health check failure
+    - [Storage Critical](https://wiki.pin/runbooks/infrastructure/storage) — Disk > 85%
+    - [High Latency](https://wiki.pin/runbooks/performance/latency-spike) — p99 > 5s
+
+    ### Key Metrics
     1. **Active Alerts** - Current firing alerts (target: 0)
     2. **Alert Rate** - Alerts fired per hour (baseline varies)
     3. **Alertmanager Status** - System health (target: up)

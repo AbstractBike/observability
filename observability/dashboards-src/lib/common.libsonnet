@@ -97,6 +97,42 @@ local config = {
 
   // ── Standard panel decorations ─────────────────────────────────────────────
 
+  // Unit definitions for consistency across dashboards
+  units: {
+    // Time
+    latency_ms: { unit: 'ms', decimals: 1 },
+    latency_s: { unit: 's', decimals: 2 },
+    duration_s: { unit: 's', decimals: 0 },
+    uptime: { unit: 's', decimals: 0 },
+
+    // Data
+    bytes: { unit: 'bytes', decimals: 1 },
+    megabytes: { unit: 'MB', decimals: 1 },
+    gigabytes: { unit: 'GB', decimals: 1 },
+
+    // Rates
+    rate_per_sec: { unit: 'reqps', decimals: 0 },
+    rate_per_min: { unit: 'reqpm', decimals: 0 },
+    rate_per_hour: { unit: 'short', decimals: 0 },
+
+    // Percentages
+    percent: { unit: 'percent', decimals: 0 },
+    percent_decimal: { unit: 'percentunit', decimals: 2 },
+
+    // Counts
+    count: { unit: 'short', decimals: 0 },
+    count_decimal: { unit: 'short', decimals: 1 },
+
+    // Performance
+    cpu_percent: { unit: 'percent', decimals: 1 },
+    memory_percent: { unit: 'percent', decimals: 1 },
+    disk_percent: { unit: 'percent', decimals: 0 },
+
+    // Errors
+    errors: { unit: 'short', decimals: 0 },
+    error_rate: { unit: 'percentunit', decimals: 4 },
+  },
+
   // Standard percentage thresholds: green < 70% < yellow < 90% < red.
   percentThresholds:
     g.panel.stat.standardOptions.thresholds.withMode('absolute')
@@ -106,6 +142,15 @@ local config = {
       { color: 'red', value: 90 },
     ]),
 
+  // Latency thresholds: green < 100ms < yellow < 500ms < red
+  latencyThresholds:
+    g.panel.stat.standardOptions.thresholds.withMode('absolute')
+    + g.panel.stat.standardOptions.thresholds.withSteps([
+      { color: 'green', value: null },
+      { color: 'yellow', value: 100 },
+      { color: 'red', value: 500 },
+    ]),
+
   // Flip thresholds for metrics where high = good (e.g. free space).
   freeThresholds:
     g.panel.stat.standardOptions.thresholds.withMode('absolute')
@@ -113,6 +158,15 @@ local config = {
       { color: 'red', value: null },
       { color: 'yellow', value: 20 },
       { color: 'green', value: 50 },
+    ]),
+
+  // Error count thresholds: green < 5 < yellow < 20 < red
+  errorThresholds:
+    g.panel.stat.standardOptions.thresholds.withMode('absolute')
+    + g.panel.stat.standardOptions.thresholds.withSteps([
+      { color: 'green', value: null },
+      { color: 'yellow', value: 5 },
+      { color: 'red', value: 20 },
     ]),
 
   // ── External links panel ──────────────────────────────────────────────────
@@ -156,6 +210,13 @@ local config = {
     + g.panel.text.panelOptions.withTransparent(true)
     + g.panel.text.options.withMode('html')
     + g.panel.text.options.withContent(linkHtml),
+
+  // ── Runbook helpers ──────────────────────────────────────────────────────
+
+  // Create a markdown runbook link helper
+  // Usage: c.runbookLink('High CPU Usage', 'troubleshooting/cpu')
+  runbookLink(title, path):
+    '[📖 ' + title + ' Runbook](https://wiki.pin/runbooks/' + path + ')',
 
   // ── Configuration access ──────────────────────────────────────────────────
 
