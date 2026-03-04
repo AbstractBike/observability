@@ -19,7 +19,7 @@ local topMetricsTs =
   + c.tsPos(0, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
-      'topk(20, count by (__name__) ({__name__=~".+"}))',
+      'topk(20, count by (__name__) ({__name__=~".+"})) or vector(0)',
       '{{__name__}}'
     ),
   ])
@@ -34,7 +34,7 @@ local metricsByJobTs =
   + c.tsPos(1, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
-      'count by (job) ({__name__=~".+"})',
+      'count by (job) ({__name__=~".+"}) or vector(0)',
       '{{job}}'
     ),
   ])
@@ -48,7 +48,7 @@ local totalSeriesStat =
   g.panel.stat.new('Total Series')
   + c.statPos(0)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('count({__name__=~".+"})'),
+    c.vmQ('count({__name__=~".+"}) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('short')
   + g.panel.stat.options.withColorMode('value')
@@ -60,7 +60,7 @@ local uniqueMetricsStat =
   g.panel.stat.new('Unique Metrics')
   + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('count(count by (__name__) ({__name__=~".+"}))'),
+    c.vmQ('count(count by (__name__) ({__name__=~".+"})) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('short')
   + g.panel.stat.options.withColorMode('value')
@@ -72,7 +72,7 @@ local jobCountStat =
   g.panel.stat.new('Active Jobs')
   + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('count(count by (job) ({__name__=~".+"}))'),
+    c.vmQ('count(count by (job) ({__name__=~".+"})) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('short')
   + g.panel.stat.options.withColorMode('value')
@@ -98,7 +98,7 @@ local topJobsTable =
   + c.pos(0, 5, 24, 8)
   + g.panel.table.queryOptions.withTargets([
     c.vmQ(
-      'sort_desc(topk(10, count by (job) ({__name__=~".+"})))',
+      'sort_desc(topk(10, count by (job) ({__name__=~".+"})  or vector(0)))',
       'Series Count'
     ),
   ])
