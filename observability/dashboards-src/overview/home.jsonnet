@@ -225,11 +225,12 @@ local swCard       = dbCard('🌐', 'SkyWalking',     'observability-skywalking'
 
 // ── Heater Infrastructure row (y=33) ─────────────────────────────────────────
 
-local heaterSystemCard    = cdbCard('🖥',  'System',       'cpu · mem · disk',    'heater-system',     infraColor, c.pos(0,  33, 4, 4));
-local heaterJvmCard       = cdbCard('☕',  'JVM',          'heap · gc · threads', 'heater-jvm',        infraColor, c.pos(4,  33, 4, 4));
-local heaterGpuCard       = cdbCard('🎮',  'GPU',          'vram · utilization',  'heater-gpu',        infraColor, c.pos(8,  33, 4, 4));
-local heaterProcCard      = cdbCard('⚙',   'Processes',    'top · cpu · mem',     'heater-processes',  infraColor, c.pos(12, 33, 4, 4));
-local heaterClaudeCard    = cdbCard('🤖',  'Claude Code',  'tokens · cost · ctx', 'heater-claude-code',infraColor, c.pos(16, 33, 4, 4));
+local homelabSysCard      = cdbCard('🖥',  'Homelab',      'cpu · mem · network', 'services-homelab-system', infraColor, c.pos(0,  33, 4, 4));
+local heaterSystemCard    = cdbCard('🖥',  'Heater Sys',   'cpu · mem · disk',    'heater-system',           infraColor, c.pos(4,  33, 4, 4));
+local heaterJvmCard       = cdbCard('☕',  'JVM',          'heap · gc · threads', 'heater-jvm',              infraColor, c.pos(8,  33, 4, 4));
+local heaterGpuCard       = cdbCard('🎮',  'GPU',          'vram · utilization',  'heater-gpu',              infraColor, c.pos(12, 33, 4, 4));
+local heaterProcCard      = cdbCard('⚙',   'Processes',    'top · cpu · mem',     'heater-processes',        infraColor, c.pos(16, 33, 4, 4));
+local heaterClaudeCard    = cdbCard('🤖',  'Claude Code',  'tokens · cost · ctx', 'heater-claude-code',      infraColor, c.pos(20, 33, 4, 4));
 
 // ── Services row (y=38) ───────────────────────────────────────────────────────
 
@@ -265,7 +266,7 @@ local appsRow          = g.panel.row.new('System Apps')          + c.pos(0, 8,  
 local arbitrageRow     = g.panel.row.new('Arbitrage')            + c.pos(0, 13, 24, 1);
 local matrixRow        = g.panel.row.new('Matrix Suite')         + c.pos(0, 18, 24, 1);
 local dashboardsRow    = g.panel.row.new('Dashboards')           + c.pos(0, 27, 24, 1);
-local heaterRow        = g.panel.row.new('Heater Infrastructure')+ c.pos(0, 32, 24, 1);
+local heaterRow        = g.panel.row.new('Infrastructure')       + c.pos(0, 32, 24, 1);
 local servicesRow      = g.panel.row.new('Services')             + c.pos(0, 37, 24, 1);
 local pipelineRow      = g.panel.row.new('Pipeline & APM')       + c.pos(0, 42, 24, 1);
 
@@ -293,7 +294,7 @@ g.dashboard.new('Pin SI — Home')
     dashboardsRow,
     homelabCard, claudeCard, tracesDbCard, serenaCard, vmCard, swCard,
     heaterRow,
-    heaterSystemCard, heaterJvmCard, heaterGpuCard, heaterProcCard, heaterClaudeCard,
+    homelabSysCard, heaterSystemCard, heaterJvmCard, heaterGpuCard, heaterProcCard, heaterClaudeCard,
     servicesRow,
     temporalDbCard, postgresDbCard, redisDbCard, clickhouseDbCard, elasticDbCard, redpandaDbCard,
     pipelineRow,
