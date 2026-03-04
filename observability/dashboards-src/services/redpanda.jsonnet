@@ -18,32 +18,36 @@ local uptimeStat =
   g.panel.stat.new('Broker Uptime')
   + c.pos(4, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('vectorized_application_uptime'),
+    c.vmQ('vectorized_application_uptime or vector(0)'),
   ])
-  + g.panel.stat.standardOptions.withUnit('s');
+  + g.panel.stat.standardOptions.withUnit('s')
+  + g.panel.stat.options.withColorMode('value');
 
 local throughputInStat =
   g.panel.stat.new('Bytes In/sec')
   + c.pos(9, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(rate(vectorized_cluster_partition_bytes_produced_total[5m]))'),
+    c.vmQ('sum(rate(vectorized_cluster_partition_bytes_produced_total[5m])) or vector(0)'),
   ])
-  + g.panel.stat.standardOptions.withUnit('Bps');
+  + g.panel.stat.standardOptions.withUnit('Bps')
+  + g.panel.stat.options.withColorMode('value');
 
 local throughputOutStat =
   g.panel.stat.new('Bytes Out/sec')
   + c.pos(14, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(rate(vectorized_cluster_partition_bytes_fetched_total[5m]))'),
+    c.vmQ('sum(rate(vectorized_cluster_partition_bytes_fetched_total[5m])) or vector(0)'),
   ])
-  + g.panel.stat.standardOptions.withUnit('Bps');
+  + g.panel.stat.standardOptions.withUnit('Bps')
+  + g.panel.stat.options.withColorMode('value');
 
 local partitionStat =
   g.panel.stat.new('Partitions')
   + c.pos(19, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('count(count by(topic, partition) (vectorized_cluster_partition_leader))'),
-  ]);
+    c.vmQ('count(count by(topic, partition) (vectorized_cluster_partition_leader)) or vector(0)'),
+  ])
+  + g.panel.stat.options.withColorMode('value');
 
 local throughputTs =
   g.panel.timeSeries.new('Throughput')

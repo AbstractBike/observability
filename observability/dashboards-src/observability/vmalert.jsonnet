@@ -19,23 +19,25 @@ local rulesStat =
   g.panel.stat.new('Rules Loaded')
   + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('count(vmalert_alerting_rules_last_evaluation_samples) + count(vmalert_recording_rules_last_evaluation_samples)'),
-  ]);
+    c.vmQ('count(vmalert_alerting_rules_last_evaluation_samples) + count(vmalert_recording_rules_last_evaluation_samples) or vector(0)'),
+  ])
+  + g.panel.stat.options.withColorMode('value');
 
 local evalDurStat =
   g.panel.stat.new('Eval Duration p99 (ms)')
   + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
     // vmalert exposes iteration_duration as a Summary (quantile labels), not a Histogram.
-    c.vmQ('max(vmalert_iteration_duration_seconds{quantile="0.99"}) * 1000'),
+    c.vmQ('max(vmalert_iteration_duration_seconds{quantile="0.99"}) * 1000 or vector(0)'),
   ])
-  + g.panel.stat.standardOptions.withUnit('ms');
+  + g.panel.stat.standardOptions.withUnit('ms')
+  + g.panel.stat.options.withColorMode('value');
 
 local errorStat =
   g.panel.stat.new('Eval Errors/sec')
   + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('rate(vmalert_execution_errors_total[5m])'),
+    c.vmQ('rate(vmalert_execution_errors_total[5m]) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('reqps')
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')

@@ -8,32 +8,36 @@ local uptimeStat =
   g.panel.stat.new('OAP Uptime')
   + c.statPos(0)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('time() - process_start_time_seconds{job="skywalking-oap"}'),
+    c.vmQ('time() - process_start_time_seconds{job="skywalking-oap"} or vector(0)'),
   ])
-  + g.panel.stat.standardOptions.withUnit('s');
+  + g.panel.stat.standardOptions.withUnit('s')
+  + g.panel.stat.options.withColorMode('value');
 
 local threadsStat =
   g.panel.stat.new('OAP Threads')
   + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('jvm_threads_current{job="skywalking-oap"}'),
-  ]);
+    c.vmQ('jvm_threads_current{job="skywalking-oap"} or vector(0)'),
+  ])
+  + g.panel.stat.options.withColorMode('value');
 
 local heapStat =
   g.panel.stat.new('Heap Used')
   + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('jvm_memory_bytes_used{job="skywalking-oap",area="heap"}'),
+    c.vmQ('jvm_memory_bytes_used{job="skywalking-oap",area="heap"} or vector(0)'),
   ])
-  + g.panel.stat.standardOptions.withUnit('bytes');
+  + g.panel.stat.standardOptions.withUnit('bytes')
+  + g.panel.stat.options.withColorMode('value');
 
 local cpuStat =
   g.panel.stat.new('CPU Usage (%)')
   + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('rate(process_cpu_seconds_total{job="skywalking-oap"}[5m]) * 100'),
+    c.vmQ('(rate(process_cpu_seconds_total{job="skywalking-oap"}[5m]) * 100) or vector(0)'),
   ])
-  + g.panel.stat.standardOptions.withUnit('percent');
+  + g.panel.stat.standardOptions.withUnit('percent')
+  + g.panel.stat.options.withColorMode('value');
 
 local heapTs =
   g.panel.timeSeries.new('JVM Heap')

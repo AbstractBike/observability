@@ -30,9 +30,11 @@ local cpmStat =
   g.panel.stat.new('Calls / min')
   + c.statPos(0)
   + g.panel.stat.queryOptions.withTargets([
-    c.swQ('service_cpm{service="$service"}'),
+    c.swQ('service_cpm{service="$service"} or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('short')
+  + g.panel.stat.options.withColorMode('value')
+  + g.panel.stat.options.withGraphMode('area')
   + g.panel.stat.options.withReduceOptions(
     g.panel.stat.options.reduceOptions.withCalcs(['lastNotNull'])
   );
@@ -41,9 +43,10 @@ local respTimeStat =
   g.panel.stat.new('Avg Response Time')
   + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
-    c.swQ('service_resp_time{service="$service"}'),
+    c.swQ('service_resp_time{service="$service"} or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('ms')
+  + g.panel.stat.options.withColorMode('value')
   + g.panel.stat.options.withReduceOptions(
     g.panel.stat.options.reduceOptions.withCalcs(['lastNotNull'])
   );
@@ -52,7 +55,7 @@ local errorRateStat =
   g.panel.stat.new('Error Rate')
   + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
-    c.swQ('service_error_rate{service="$service"}'),
+    c.swQ('service_error_rate{service="$service"} or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')
@@ -70,7 +73,7 @@ local apdexStat =
   g.panel.stat.new('Apdex Score')
   + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
-    c.swQ('service_apdex{service="$service"} / 10000'),
+    c.swQ('(service_apdex{service="$service"} / 10000) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('short')
   + g.panel.stat.standardOptions.withDecimals(2)
