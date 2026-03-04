@@ -2,17 +2,26 @@ local g = import 'github.com/grafana/grafonnet/gen/grafonnet-v11.4.0/main.libson
 local c = import 'lib/common.libsonnet';
 
 // Vector internal_metrics metric names:
-// vector_component_received_events_total{component_id, component_type, component_kind}
-// vector_component_sent_events_total{component_id, component_type, component_kind}
-// vector_component_errors_total{component_id, component_type, component_kind, error_type}
+// vector_component_received_events_total{component_id, component_type, component_kind, host}
+// vector_component_sent_events_total{component_id, component_type, component_kind, host}
+// vector_component_errors_total{component_id, component_type, component_kind, error_type, host}
 // vector_uptime_seconds{host}
-// vector_processed_bytes_total{component_id}
+// vector_processed_bytes_total{component_id, host}
+
+local hostVar =
+  g.dashboard.variable.custom.new('host', [
+    { key: 'All', value: '.*' },
+    { key: 'heater', value: 'heater' },
+    { key: 'homelab', value: 'homelab' },
+  ])
+  + g.dashboard.variable.custom.generalOptions.withLabel('Host')
+  + g.dashboard.variable.custom.generalOptions.withCurrent('heater', 'heater');
 
 local uptimeStat =
   g.panel.stat.new('Vector Uptime')
   + c.statPos(0)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('vector_uptime_seconds{host="heater"}'),
+    c.vmQ('max(vector_uptime_seconds{host=~"$host"}) or vector(0)', '{{host}}'),
   ])
   + g.panel.stat.standardOptions.withUnit('s')
   + g.panel.stat.options.withColorMode('value')
@@ -22,7 +31,7 @@ local eventsInStat =
   g.panel.stat.new('Events In/sec')
   + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(rate(vector_component_received_events_total{host="heater"}[5m]))'),
+    c.vmQ('sum(rate(vector_component_received_events_total{host=~"$host"}[5m])) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('reqps')
   + g.panel.stat.options.withColorMode('value')
@@ -32,7 +41,7 @@ local eventsOutStat =
   g.panel.stat.new('Events Out/sec')
   + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(rate(vector_component_sent_events_total{host="heater"}[5m]))'),
+    c.vmQ('sum(rate(vector_component_sent_events_total{host=~"$host"}[5m])) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('reqps')
   + g.panel.stat.options.withColorMode('value')
@@ -42,7 +51,7 @@ local errorRateStat =
   g.panel.stat.new('Error Rate')
   + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(rate(vector_component_errors_total{host="heater"}[5m]))'),
+    c.vmQ('sum(rate(vector_component_errors_total{host=~"$host"}[5m])) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('reqps')
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')
@@ -58,8 +67,8 @@ local eventsTs =
   + c.tsPos(0, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
-      'rate(vector_component_received_events_total{host="heater"}[5m])',
-      '{{component_id}} ({{component_type}})'
+      'topk(10, rate(vector_component_received_events_total{host=~"$host"}[5m]))',
+      '{{host}} · {{component_id}} ({{component_type}})'
     ),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('reqps')
@@ -71,8 +80,8 @@ local eventsOutTs =
   + c.tsPos(1, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
-      'rate(vector_component_sent_events_total{host="heater"}[5m])',
-      '{{component_id}} ({{component_type}})'
+      'topk(10, rate(vector_component_sent_events_total{host=~"$host"}[5m]))',
+      '{{host}} · {{component_id}} ({{component_type}})'
     ),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('reqps')
@@ -84,8 +93,8 @@ local errorsTs =
   + c.tsPos(0, 1)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
-      'rate(vector_component_errors_total{host="heater"}[5m])',
-      '{{component_id}} — {{error_type}}'
+      'rate(vector_component_errors_total{host=~"$host"}[5m])',
+      '{{host}} · {{component_id}} — {{error_type}}'
     ),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('reqps')
@@ -96,8 +105,8 @@ local bytesTs =
   + c.tsPos(1, 1)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
-      'rate(vector_component_sent_bytes_total{host="heater"}[5m])',
-      '{{component_id}}'
+      'topk(10, rate(vector_component_sent_bytes_total{host=~"$host"}[5m]))',
+      '{{host}} · {{component_id}}'
     ),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('Bps')
@@ -108,15 +117,18 @@ local logsPanel =
   g.panel.logs.new('Vector Service Logs')
   + c.logPos(21)
   + g.panel.logs.queryOptions.withTargets([
-    c.vlogsQ('{host="heater"} | _msg:~"(vector|Vector)"'),
+    c.vlogsQ('{host=~"$host",service="vector"}'),
   ])
-  + g.panel.logs.options.withWrapLogMessage(true);
+  + g.panel.logs.options.withWrapLogMessage(true)
+  + g.panel.logs.options.withSortOrder('Descending')
+  + g.panel.logs.options.withShowTime(true);
 
 g.dashboard.new('Pipeline — Vector')
 + g.dashboard.withUid('pipeline-vector')
-+ g.dashboard.withDescription('Vector observability pipeline metrics: events in/out, errors and component health.')
++ g.dashboard.withDescription('Vector observability pipeline metrics: events in/out, errors and component health for both heater and homelab hosts.')
 + g.dashboard.withTags(['pipeline', 'vector'])
 + c.dashboardDefaults
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, hostVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Stats') + c.pos(0, 0, 24, 1),
   uptimeStat, eventsInStat, eventsOutStat, errorRateStat,
