@@ -51,10 +51,11 @@ local diskStat =
   + g.panel.stat.options.withGraphMode('none');
 
 local uptimeStat =
-  g.panel.stat.new('Uptime')
+  g.panel.stat.new('Host Uptime')
   + c.pos(18, 1, 6, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('vector_uptime_seconds{host="homelab"}'),
+    // host_uptime_seconds from Vector host_metrics source (actual OS uptime)
+    c.vmQ('host_uptime_seconds{host="homelab"}'),
   ])
   + g.panel.stat.standardOptions.withUnit('s')
   + g.panel.stat.options.withColorMode('value')
@@ -97,13 +98,15 @@ local services = [
   svcStat('Alertmanager',    'up{job="alertmanager"}',                                                                1, 2),
   svcStat('VMAlert',         'up{job="vmalert"}',                                                                     2, 2),
   svcStat('Vector',          'clamp_max(clamp_min(min_over_time(vector_uptime_seconds{host="homelab"}[2m]),0),1)',     3, 2),
+  // row 3 (y=14)
+  svcStat('SkyWalking OAP',  'up{job="skywalking-oap"}',                                                              0, 3),
 ];
 
 // ── SLO panels (y=15) ─────────────────────────────────────────────────────────
 
 local sloStat(title, expr, targetPct, col) =
   g.panel.stat.new(title)
-  + c.pos(col * 6, 15, 6, 3)
+  + c.pos(col * 6, 19, 6, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ(expr),
   ])
@@ -136,7 +139,7 @@ g.dashboard.new('Homelab \u2014 Overview')
   ]
   + services
   + [
-    g.panel.row.new('SLO Compliance') + c.pos(0, 14, 24, 1),
+    g.panel.row.new('SLO Compliance') + c.pos(0, 18, 24, 1),
     sloStat('Host Uptime',  '(1 - slo:host_uptime:error_ratio_30d) * 100',  99.5, 0),
     sloStat('PostgreSQL',   '(1 - slo:postgresql:error_ratio_30d) * 100',   99.9, 1),
     sloStat('Redis',        '(1 - slo:redis:error_ratio_30d) * 100',        99.9, 2),

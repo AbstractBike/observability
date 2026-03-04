@@ -65,6 +65,8 @@ local latTs =
   + g.panel.timeSeries.standardOptions.withUnit('ms')
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
+local logsPanel = c.serviceLogsPanel('Temporal Logs', 'temporal.service');
+
 g.dashboard.new('Services — Temporal')
 + g.dashboard.withUid('services-temporal')
 + g.dashboard.withDescription('Temporal workflow starts, completions, task queue depth, latency.')
@@ -75,4 +77,6 @@ g.dashboard.new('Services — Temporal')
   workflowStartStat, taskQueueStat, schedLatStat, errorStat,
   g.panel.row.new('Workflows & Latency') + c.pos(0, 4, 24, 1),
   workflowTs, latTs,
+  g.panel.row.new('Logs') + c.pos(0, 12, 24, 1),
+  logsPanel,
 ])

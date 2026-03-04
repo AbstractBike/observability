@@ -24,7 +24,21 @@ local c = import 'lib/common.libsonnet';
 
 local app = 'market.scalable';
 
-local q(expr, legend='') = c.vmQ(expr, legend);
+// Dev instance runs via `bootRun` on heater (192.168.0.3:8081).
+// The $instance variable defaults to heater so this dashboard only shows dev metrics,
+// even when a prod instance also pushes metrics with the same application label.
+local instanceVar =
+  g.dashboard.variable.custom.new('instance', [
+    { key: 'heater (dev)', value: '192.168.0.3.*' },
+    { key: 'homelab (prod)', value: '192.168.0.4.*' },
+    { key: 'all', value: '.*' },
+  ])
+  + g.dashboard.variable.custom.generalOptions.withLabel('Instance')
+  + g.dashboard.variable.custom.generalOptions.withCurrent('heater (dev)', '192.168.0.3.*');
+
+local q(expr, legend='') =
+  // Inject instance filter into every arbitraje metric to scope to dev
+  c.vmQ(std.strReplace(expr, 'application="%s"' % app, 'application="%s",instance=~"$instance"' % app), legend);
 
 // ── Row 0: Key Stats ──────────────────────────────────────────────────────────
 
@@ -147,22 +161,16 @@ local cpuAndGcTs =
 
 // ── Row 4: Logs ───────────────────────────────────────────────────────────────
 
-local logsPanel =
-  g.panel.logs.new('Arbitraje Dev Logs')
-  + c.logPos(29)
-  + g.panel.logs.queryOptions.withTargets([
-    c.vlogsQ('{job="arbitraje"} | _msg:~"(arbitrage|opportunity|profit|ERROR|WARN|Exception)"'),
-  ])
-  + g.panel.logs.options.withWrapLogMessage(true)
-  + g.panel.logs.options.withSortOrder('Descending');
+local logsPanel = c.serviceLogsPanel('Arbitraje Dev Logs', 'arbitraje', y=29);
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
 g.dashboard.new('Arbitraje — Dev')
 + g.dashboard.withUid('arbitraje-dev')
-+ g.dashboard.withDescription('Dev instance: arbitrage engine scan rate, opportunities, Binance API health, JVM. Runs via bootRun on heater.')
++ g.dashboard.withDescription('Dev instance: arbitrage engine scan rate, opportunities, Binance API health, JVM. Runs via bootRun on heater (default filter: 192.168.0.3).')
 + g.dashboard.withTags(['arbitraje', 'trading', 'pipeline', 'dev'])
 + c.dashboardDefaults
++ g.dashboard.withVariables([instanceVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Key Stats') + c.pos(0, 0, 24, 1),
   scanRateStat, pathsRateStat, maxProfitStat, circuitBreakerStat,

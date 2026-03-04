@@ -71,6 +71,8 @@ local hitsTs =
   + g.panel.timeSeries.standardOptions.withUnit('reqps')
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
+local logsPanel = c.serviceLogsPanel('Redis Logs', 'redis.service');
+
 g.dashboard.new('Services — Redis')
 + g.dashboard.withUid('services-redis')
 + g.dashboard.withDescription('Redis operations, memory, hit rate, and evictions.')
@@ -83,4 +85,6 @@ g.dashboard.new('Services — Redis')
   opsTs, memTs,
   g.panel.row.new('Evictions & Keyspace') + c.pos(0, 12, 24, 1),
   evictTs, hitsTs,
+  g.panel.row.new('Logs') + c.pos(0, 20, 24, 1),
+  logsPanel,
 ])

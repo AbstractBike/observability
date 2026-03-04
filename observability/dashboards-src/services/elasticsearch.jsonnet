@@ -28,10 +28,11 @@ local indexRateStat =
   + g.panel.stat.standardOptions.withUnit('reqps');
 
 local searchLatStat =
-  g.panel.stat.new('Search Latency p99')
+  g.panel.stat.new('Search Latency (avg)')
   + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('elasticsearch_indices_search_query_time_seconds / elasticsearch_indices_search_query_total * 1000'),
+    // avg latency = total_time / total_count (not a percentile)
+    c.vmQ('elasticsearch_indices_search_query_time_seconds / clamp_min(elasticsearch_indices_search_query_total, 1) * 1000'),
   ])
   + g.panel.stat.standardOptions.withUnit('ms');
 
@@ -69,6 +70,8 @@ local diskTs =
   ])
   + g.panel.timeSeries.standardOptions.withUnit('bytes');
 
+local logsPanel = c.serviceLogsPanel('Elasticsearch Logs', 'elasticsearch.service');
+
 g.dashboard.new('Services — Elasticsearch')
 + g.dashboard.withUid('services-elasticsearch')
 + g.dashboard.withDescription('Elasticsearch cluster health, indexing rate, search latency, JVM heap.')
@@ -81,4 +84,6 @@ g.dashboard.new('Services — Elasticsearch')
   indexTs, searchTs,
   g.panel.row.new('JVM & Disk') + c.pos(0, 12, 24, 1),
   jvmTs, diskTs,
+  g.panel.row.new('Logs') + c.pos(0, 20, 24, 1),
+  logsPanel,
 ])
