@@ -45,6 +45,20 @@ local g = import 'github.com/grafana/grafonnet/gen/grafonnet-v11.4.0/main.libson
     editorMode: 'code',
   },
 
+  // VictoriaLogs stats-range query — for TimeSeries panels showing log volume over time.
+  // queryType "statsRange" uses the plugin's native histogram path that returns numeric values.
+  vlogsStatsQ(expr, step=''): {
+    datasource: {
+      type: 'victoriametrics-logs-datasource',
+      uid: '${vlogs}',
+    },
+    expr: expr,
+    refId: 'A',
+    queryType: 'statsRange',
+    legendFormat: '{{level}}',
+    editorMode: 'code',
+  } + (if step != '' then { step: step } else {}),
+
   // ── Layout helpers ─────────────────────────────────────────────────────────
 
   // Set absolute grid position on any panel.

@@ -51,8 +51,9 @@ local logVolumePanel =
   g.panel.timeSeries.new('Log Volume by Level')
   + c.pos(0, 0, 24, 6)
   + g.panel.timeSeries.queryOptions.withTargets([
-    // _time:$__interval groups by time bucket so Grafana gets a proper timeseries.
-    c.vlogsQ('{host="homelab",service=~"$service",level=~"$level"} | stats by (_time:$__interval, level) count() as logs'),
+    // queryType "statsRange" uses the VictoriaLogs plugin's native histogram path,
+    // which returns numeric values directly (no type-conversion transformation needed).
+    c.vlogsStatsQ('{host="homelab",service=~"$service",level=~"$level"} | stats by (level) count() as logs'),
   ])
   + g.panel.timeSeries.fieldConfig.defaults.custom.withStacking({ mode: 'normal' })
   + g.panel.timeSeries.fieldConfig.defaults.custom.withDrawStyle('bars')
