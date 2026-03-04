@@ -21,7 +21,7 @@ local overallSloHealthStat =
   g.panel.stat.new('Overall SLO Health')
   + c.statPos(0)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('(count(count by (service) (skywalking_trace_status_total{status="success"})) / count(count by (service) (skywalking_trace_status_total))) * 100 or vector(100)'),
+    c.vmQ('((count(count by (service) (skywalking_trace_status_total{status="success"})) / count(count by (service) (skywalking_trace_status_total))) * 100) or vector(100)'),
   ])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')
@@ -37,7 +37,7 @@ local availabilitySloStat =
   g.panel.stat.new('Availability SLO')
   + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('(count(up{job=~".*"}) / count(count by (job) (up{job=~".*"}))) * 100 or vector(100)'),
+    c.vmQ('((count(up{job=~".*"}) / count(count by (job) (up{job=~".*"}))) * 100) or vector(100)'),
   ])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')
@@ -67,7 +67,7 @@ local errorBudgetStat =
   g.panel.stat.new('Error Budget Remaining')
   + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('100 - ((count(skywalking_trace_status_total{status="error"}[30d]) / count(skywalking_trace_status_total[30d])) * 100) or vector(100)'),
+    c.vmQ('(100 - ((count(skywalking_trace_status_total{status="error"}[30d]) / count(skywalking_trace_status_total[30d])) * 100)) or vector(100)'),
   ])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')

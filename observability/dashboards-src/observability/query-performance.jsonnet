@@ -81,15 +81,15 @@ local queryTimeDistributionTs =
   + c.tsPos(0, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
-      'histogram_quantile(0.5, sum by(le) (rate(grafana_query_duration_seconds_bucket[5m]))) * 1000',
+      '(histogram_quantile(0.5, sum by(le) (rate(grafana_query_duration_seconds_bucket[5m]))) or vector(0)) * 1000',
       'p50'
     ),
     c.vmQ(
-      'histogram_quantile(0.95, sum by(le) (rate(grafana_query_duration_seconds_bucket[5m]))) * 1000',
+      '(histogram_quantile(0.95, sum by(le) (rate(grafana_query_duration_seconds_bucket[5m]))) or vector(0)) * 1000',
       'p95'
     ),
     c.vmQ(
-      'histogram_quantile(0.99, sum by(le) (rate(grafana_query_duration_seconds_bucket[5m]))) * 1000',
+      '(histogram_quantile(0.99, sum by(le) (rate(grafana_query_duration_seconds_bucket[5m]))) or vector(0)) * 1000',
       'p99'
     ),
   ])
