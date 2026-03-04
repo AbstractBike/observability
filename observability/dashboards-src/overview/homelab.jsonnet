@@ -131,6 +131,7 @@ g.dashboard.new('Homelab \u2014 Overview')
 + g.dashboard.withPanels(
   [
     g.panel.row.new('Homelab \u2014 Host') + c.pos(0, 0, 24, 1),
+    c.externalLinksPanel(y=1, x=18),
     cpuStat,
     ramStat,
     diskStat,

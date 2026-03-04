@@ -106,6 +106,35 @@ local g = import 'github.com/grafana/grafonnet/gen/grafonnet-v11.4.0/main.libson
       { color: 'green', value: 50 },
     ]),
 
+  // ── External links panel ──────────────────────────────────────────────────
+
+  // Create a panel with quick-access links to external systems.
+  // Positioned at top-right corner as a utility panel.
+  externalLinksPanel(y=0, x=18):
+    g.panel.stat.new('🔗 External Links')
+    + self.pos(x, y, 6, 2)
+    + g.panel.stat.options.withReduceOptions(
+      g.panel.stat.options.reduce.withCalcs(['lastNotNull'])
+    )
+    + g.panel.stat.standardOptions.withNoValue('Click links →')
+    + g.panel.stat.options.withLinks([
+      {
+        title: '📊 Metrics',
+        url: 'http://192.168.0.4:8428',
+        targetBlank: true,
+      },
+      {
+        title: '📝 Logs',
+        url: 'http://192.168.0.4:9428/vmui',
+        targetBlank: true,
+      },
+      {
+        title: '🕵️ Traces',
+        url: 'http://192.168.0.4:8080',
+        targetBlank: true,
+      },
+    ]),
+
   // ── Common dashboard setup ─────────────────────────────────────────────────
 
   // Apply to every dashboard: refresh 30s, last 1h, both datasource vars.
