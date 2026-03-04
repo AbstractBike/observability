@@ -178,6 +178,18 @@ local jvmThreadTs =
   + g.panel.timeSeries.standardOptions.withUnit('short')
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
+// ── Logs panel ──────────────────────────────────────────────────────────────
+
+local logsPanel =
+  g.panel.logs.new('Service Logs')
+  + c.logPos(40)
+  + g.panel.logs.queryOptions.withTargets([
+    c.vlogsQ('{service=~"(matrix-core|matrix-sync|matrix-media|matrix-admin)"}'),
+  ])
+  + g.panel.logs.options.withWrapLogMessage(true)
+  + g.panel.logs.options.withSortOrder('Descending')
+  + g.panel.logs.options.withShowTime(true);
+
 // ── Dashboard ──────────────────────────────────────────────────────────────
 
 g.dashboard.new('Services — Matrix APM (SkyWalking)')
@@ -205,4 +217,7 @@ g.dashboard.new('Services — Matrix APM (SkyWalking)')
 
   g.panel.row.new('Garbage Collection & Threads') + c.pos(0, 31, 24, 1),
   jvmGcTs, jvmThreadTs,
+
+  g.panel.row.new('Logs') + c.pos(0, 39, 24, 1),
+  logsPanel,
 ])

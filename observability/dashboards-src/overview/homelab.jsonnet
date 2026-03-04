@@ -102,6 +102,18 @@ local services = [
   svcStat('SkyWalking OAP',  'up{job="skywalking-oap"}',                                                              0, 3),
 ];
 
+// ── Logs panel (y=22) ─────────────────────────────────────────────────────────
+
+local systemLogsPanel =
+  g.panel.logs.new('System Logs')
+  + c.logPos(22)
+  + g.panel.logs.queryOptions.withTargets([
+    c.vlogsQ('{host="homelab",level=~"(warn|error|critical)"}'),
+  ])
+  + g.panel.logs.options.withWrapLogMessage(true)
+  + g.panel.logs.options.withSortOrder('Descending')
+  + g.panel.logs.options.withShowTime(true);
+
 // ── SLO panels (y=15) ─────────────────────────────────────────────────────────
 
 local sloStat(title, expr, targetPct, col) =
@@ -146,5 +158,7 @@ g.dashboard.new('Homelab \u2014 Overview')
     sloStat('PostgreSQL',   '(1 - slo:postgresql:error_ratio_30d) * 100',   99.9, 1),
     sloStat('Redis',        '(1 - slo:redis:error_ratio_30d) * 100',        99.9, 2),
     sloStat('Grafana',      '(1 - slo:grafana:error_ratio_30d) * 100',      99.0, 3),
+    g.panel.row.new('Logs') + c.pos(0, 21, 24, 1),
+    systemLogsPanel,
   ]
 )
