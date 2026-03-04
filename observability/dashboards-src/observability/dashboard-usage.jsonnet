@@ -8,9 +8,11 @@ local c = import 'lib/common.libsonnet';
 
 // ── Usage Summary Stats ─────────────────────────────────────────────────────
 
+local alertPanel = c.alertCountPanel('grafana', col=0);
+
 local totalViewsStat =
   g.panel.stat.new('📊 Total Views (30d)')
-  + c.statPos(0)
+  + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(increase(grafana_dashboard_view_count[30d])) or vector(0)'),
   ])
@@ -20,7 +22,7 @@ local totalViewsStat =
 
 local activeUsersStat =
   g.panel.stat.new('👥 Active Users (30d)')
-  + c.statPos(1)
+  + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('count(count by (user) (increase(grafana_dashboard_view_count[30d])) > 0) or vector(0)'),
   ])
@@ -29,7 +31,7 @@ local activeUsersStat =
 
 local avgEngagementStat =
   g.panel.stat.new('✅ Avg Engagement')
-  + c.statPos(2)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(1 - avg(grafana_dashboard_bounce_rate) or vector(0.3)) * 100'),
   ])
@@ -38,7 +40,7 @@ local avgEngagementStat =
 
 local topDashboardsStat =
   g.panel.stat.new('🔝 Top Dashboards')
-  + c.statPos(3)
+  + c.statPos(4)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('count(topk(10, sum by (dashboard) (increase(grafana_dashboard_view_count[30d]))) > 0)'),
   ])
@@ -120,22 +122,31 @@ local guidePanel =
   |||)
   + g.panel.text.options.withMode('markdown');
 
+// ── Troubleshooting Guide ──────────────────────────────────────────────────
+
+local troubleGuide = c.serviceTroubleshootingGuide('grafana', [
+  { symptom: 'Low Engagement', runbook: 'grafana/engagement-low', check: 'Review "Engagement Rate" and check underutilized dashboards' },
+  { symptom: 'Missing Usage Data', runbook: 'grafana/metrics-missing', check: 'Verify Grafana is sending metrics to VictoriaMetrics (check targets)' },
+  { symptom: 'High View Count Anomaly', runbook: 'grafana/usage-spike', check: 'Correlate with "Daily Views Trend" and check for bots/automation' },
+  { symptom: 'Unexpected Dashboard Underutilization', runbook: 'grafana/discovery', check: 'Add links to underutilized dashboards in "Dashboard Index"' },
+], y=20);
+
 // ── Logs panel ──────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('Analytics Logs', 'grafana', y=22);
+local logsPanel = c.serviceLogsPanel('Analytics Logs', 'grafana', y=28);
 
 // ── Dashboard ───────────────────────────────────────────────────────────────
 
 g.dashboard.new('Observability — Dashboard Usage Analytics')
 + g.dashboard.withUid('dashboard-usage-analytics')
 + g.dashboard.withDescription('Monitor dashboard usage patterns: view counts, user engagement, top dashboards, underutilized dashboards. Identify optimization opportunities based on user behavior.')
-+ g.dashboard.withTags(['observability', 'analytics', 'usage', 'optimization'])
++ g.dashboard.withTags(['observability', 'analytics', 'usage', 'optimization', 'critical'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Usage Summary') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  totalViewsStat, activeUsersStat, avgEngagementStat, topDashboardsStat,
+  alertPanel, totalViewsStat, activeUsersStat, avgEngagementStat, topDashboardsStat,
 
   g.panel.row.new('⚡ Dashboard Performance') + c.pos(0, 3, 24, 1),
   topDashboardsTable, underutilizedTable,
@@ -146,6 +157,9 @@ g.dashboard.new('Observability — Dashboard Usage Analytics')
   g.panel.row.new('🎯 Analytics Guide') + c.pos(0, 18, 24, 1),
   guidePanel,
 
-  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 19, 24, 1),
+  troubleGuide,
+
+  g.panel.row.new('📝 Logs') + c.pos(0, 27, 24, 1),
   logsPanel,
 ])

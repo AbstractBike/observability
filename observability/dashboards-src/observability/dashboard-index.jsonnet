@@ -8,6 +8,8 @@ local c = import 'lib/common.libsonnet';
 
 // ── Overview Section ─────────────────────────────────────────────────────────
 
+local alertPanel = c.alertCountPanel('grafana', col=0);
+
 local overviewText =
   g.panel.text.new('📊 Observability Dashboard Index')
   + c.pos(0, 0, 24, 2)
@@ -195,12 +197,21 @@ local tipsText =
     - Links in alert panels point to runbooks and remediation steps
   |||);
 
+// ── Troubleshooting Guide ──────────────────────────────────────────────────
+
+local troubleGuide = c.serviceTroubleshootingGuide('grafana', [
+  { symptom: 'Dashboard Missing', runbook: 'grafana/dashboard-missing', check: 'Search by tag above or use Ctrl+K to find dashboard by name' },
+  { symptom: 'Dashboard Not Loading', runbook: 'grafana/dashboard-error', check: 'Check data source status - click external links (top-right) to verify connectivity' },
+  { symptom: 'Slow Dashboard', runbook: 'grafana/performance', check: 'Review "Query Performance" dashboard for slow datasources' },
+  { symptom: 'Navigation Help Needed', runbook: 'grafana/navigation', check: 'Follow tips in "Tips & Quick Links" section or use dashboard search' },
+], y=12);
+
 // ── Dashboard ──────────────────────────────────────────────────────────────────
 
 g.dashboard.new('Observability — Dashboard Index')
 + g.dashboard.withUid('dashboard-index')
 + g.dashboard.withDescription('Central navigator for all observability dashboards. Organized by category with quick-access links and search tags.')
-+ g.dashboard.withTags(['observability', 'meta', 'navigation', 'index'])
++ g.dashboard.withTags(['observability', 'meta', 'navigation', 'index', 'critical'])
 + g.dashboard.withRefresh('off')  // Static content, no need to refresh
 + g.dashboard.time.withFrom('now-6h')
 + g.dashboard.time.withTo('now')
@@ -222,6 +233,8 @@ g.dashboard.new('Observability — Dashboard Index')
 ])
 + g.dashboard.withPanels([
   g.panel.row.new('📋 Dashboard Navigator') + c.pos(0, 0, 24, 1),
+  c.externalLinksPanel(y=1),
+  alertPanel,
   overviewText,
 
   g.panel.row.new('🎯 Core Observability') + c.pos(0, 2, 24, 1),
@@ -251,6 +264,9 @@ g.dashboard.new('Observability — Dashboard Index')
   g.panel.row.new('🔬 Internal/Meta Observability') + c.pos(0, 10, 24, 1),
   metaText,
 
-  g.panel.row.new('💡 Tips & Quick Links') + c.pos(0, 11, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 11, 24, 1),
+  troubleGuide,
+
+  g.panel.row.new('💡 Tips & Quick Links') + c.pos(0, 19, 24, 1),
   tipsText,
 ])

@@ -8,9 +8,11 @@ local c = import 'lib/common.libsonnet';
 
 // ── Cost Summary Stats ──────────────────────────────────────────────────────
 
+local alertPanel = c.alertCountPanel('observability', col=0);
+
 local totalCostStat =
   g.panel.stat.new('💰 Est. Monthly Cost')
-  + c.statPos(0)
+  + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(rate(process_resident_memory_bytes[30d]) * 0.01 + rate(container_cpu_usage_seconds_total[30d]) * 0.05) or vector(0)'),
   ])
@@ -20,7 +22,7 @@ local totalCostStat =
 
 local cpuCostStat =
   g.panel.stat.new('📊 CPU Cost (30d)')
-  + c.statPos(1)
+  + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(rate(container_cpu_usage_seconds_total[30d]) * 0.05) or vector(0)'),
   ])
@@ -30,7 +32,7 @@ local cpuCostStat =
 
 local memoryCostStat =
   g.panel.stat.new('💾 Memory Cost (30d)')
-  + c.statPos(2)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(rate(process_resident_memory_bytes[30d]) * 0.01) or vector(0)'),
   ])
@@ -40,7 +42,7 @@ local memoryCostStat =
 
 local storageCostStat =
   g.panel.stat.new('🗄️ Storage Cost (30d)')
-  + c.statPos(3)
+  + c.statPos(4)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(vm_data_size_bytes or vector(0)) * 0.000001 or vector(0)'),
   ])
@@ -114,22 +116,31 @@ local infoPanel =
   |||)
   + g.panel.text.options.withMode('markdown');
 
+// ── Troubleshooting Guide ──────────────────────────────────────────────────
+
+local troubleGuide = c.serviceTroubleshootingGuide('observability', [
+  { symptom: 'Cost Spike', runbook: 'cost/spike-investigation', check: 'Check "Daily Cost Trend" and "Cost by Service" for anomalies' },
+  { symptom: 'High CPU Cost', runbook: 'cost/cpu-optimization', check: 'Review top CPU consumers in "Cost by Service" table' },
+  { symptom: 'Memory Leak Detected', runbook: 'cost/memory-leak', check: 'Correlate with "Memory Cost" trend and service restarts' },
+  { symptom: 'Storage Growing', runbook: 'cost/storage-cleanup', check: 'Use "Metrics Discovery" dashboard to identify high-cardinality metrics' },
+], y=18);
+
 // ── Logs panel ──────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('Cost Tracking Logs', 'observability', y=20);
+local logsPanel = c.serviceLogsPanel('Cost Tracking Logs', 'observability', y=26);
 
 // ── Dashboard ───────────────────────────────────────────────────────────────
 
 g.dashboard.new('Observability — Cost Tracking')
 + g.dashboard.withUid('cost-tracking')
 + g.dashboard.withDescription('Infrastructure cost allocation and optimization: monitor resource consumption (CPU, memory, storage) and estimated monthly costs by service.')
-+ g.dashboard.withTags(['observability', 'cost', 'optimization', 'budgeting'])
++ g.dashboard.withTags(['observability', 'cost', 'optimization', 'budgeting', 'critical'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('💰 Cost Summary') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  totalCostStat, cpuCostStat, memoryCostStat, storageCostStat,
+  alertPanel, totalCostStat, cpuCostStat, memoryCostStat, storageCostStat,
 
   g.panel.row.new('📊 Service Breakdown') + c.pos(0, 3, 24, 1),
   serviceCostTable,
@@ -140,6 +151,9 @@ g.dashboard.new('Observability — Cost Tracking')
   g.panel.row.new('🎯 Optimization Guide') + c.pos(0, 16, 24, 1),
   infoPanel,
 
-  g.panel.row.new('📝 Logs') + c.pos(0, 19, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 17, 24, 1),
+  troubleGuide,
+
+  g.panel.row.new('📝 Logs') + c.pos(0, 25, 24, 1),
   logsPanel,
 ])
