@@ -102,9 +102,12 @@ local logsPanel =
   g.panel.logs.new('IntelliJ / JVM Logs')
   + c.logPos(21)
   + g.panel.logs.queryOptions.withTargets([
-    c.vlogsQ('{host="heater"} | _msg:~"(Exception|Error|WARN|jvm|java|IntelliJ)"'),
+    // Filter to kernel and claude-code logs that mention JVM/Java/exceptions.
+    c.vlogsQ('{host="heater"} | _msg:~"(?i)(exception|error|jvm|java|intellij)"'),
   ])
-  + g.panel.logs.options.withWrapLogMessage(true);
+  + g.panel.logs.options.withWrapLogMessage(true)
+  + g.panel.logs.options.withSortOrder('Descending')
+  + g.panel.logs.options.withShowTime(true);
 
 g.dashboard.new('Heater — JVM / IntelliJ')
 + g.dashboard.withUid('heater-jvm')

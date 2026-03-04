@@ -147,8 +147,12 @@ local errorLogs =
   g.panel.logs.new('Recent Errors & Warnings')
   + c.logPos(41)
   + g.panel.logs.queryOptions.withTargets([
-    c.vlogsQ('{job=~".+"} |= `ERROR` or `WARN` or `Exception`'),
-  ]);
+    // Query VictoriaLogs for ERROR/WARN level logs or Exception mentions.
+    c.vlogsQ('{level=~"(error|warning)"} or _msg:~"(Exception|Error)"'),
+  ])
+  + g.panel.logs.options.withWrapLogMessage(true)
+  + g.panel.logs.options.withSortOrder('Descending')
+  + g.panel.logs.options.withShowTime(true);
 
 // ── Dashboard assembly ────────────────────────────────────────────────────
 

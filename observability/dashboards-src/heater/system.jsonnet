@@ -117,7 +117,9 @@ local logsPanel =
   ])
   + g.panel.logs.options.withDedupStrategy('none')
   + g.panel.logs.options.withShowLabels(false)
-  + g.panel.logs.options.withWrapLogMessage(true);
+  + g.panel.logs.options.withWrapLogMessage(true)
+  + g.panel.logs.options.withSortOrder('Descending')
+  + g.panel.logs.options.withShowTime(true);
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 

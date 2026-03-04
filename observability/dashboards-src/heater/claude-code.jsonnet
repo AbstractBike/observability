@@ -93,7 +93,7 @@ local costTs =
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
 local apiWaitTs =
-  g.panel.timeSeries.new('API Wait Time (p95)')
+  g.panel.timeSeries.new('API Wait Time (max)')
   + c.tsPos(0, 1)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ('max(claude_prompt_api_wait_ms{host="heater",project=~"$project"})', 'api wait ms'),
