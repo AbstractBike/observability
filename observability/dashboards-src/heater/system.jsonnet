@@ -64,7 +64,7 @@ local cpuTs =
   g.panel.timeSeries.new('CPU Usage by Mode')
   + c.tsPos(0, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('rate(node_cpu_seconds_total{mode!="idle",host="heater"}[5m]) * 100', '{{cpu}} {{mode}}'),
+    c.vmQ('(rate(node_cpu_seconds_total{mode!="idle",host="heater"}[5m]) or vector(0)) * 100', '{{cpu}} {{mode}}'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('percent')
   + g.panel.timeSeries.standardOptions.withMax(100)
@@ -76,10 +76,10 @@ local memTs =
   g.panel.timeSeries.new('Memory Breakdown')
   + c.tsPos(1, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('node_memory_MemTotal_bytes{host="heater"}', 'Total'),
-    c.vmQ('node_memory_MemTotal_bytes{host="heater"} - node_memory_MemAvailable_bytes{host="heater"}', 'Used'),
-    c.vmQ('node_memory_Buffers_bytes{host="heater"}', 'Buffers'),
-    c.vmQ('node_memory_Cached_bytes{host="heater"}', 'Cached'),
+    c.vmQ('(node_memory_MemTotal_bytes{host="heater"}) or vector(0)', 'Total'),
+    c.vmQ('((node_memory_MemTotal_bytes{host="heater"} - node_memory_MemAvailable_bytes{host="heater"}) or vector(0))', 'Used'),
+    c.vmQ('(node_memory_Buffers_bytes{host="heater"}) or vector(0)', 'Buffers'),
+    c.vmQ('(node_memory_Cached_bytes{host="heater"}) or vector(0)', 'Cached'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('bytes')
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(20)
@@ -89,8 +89,8 @@ local diskIoTs =
   g.panel.timeSeries.new('Disk I/O')
   + c.tsPos(0, 1)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('rate(node_disk_read_bytes_total{host="heater"}[5m])', 'Read {{device}}'),
-    c.vmQ('rate(node_disk_written_bytes_total{host="heater"}[5m])', 'Write {{device}}'),
+    c.vmQ('(rate(node_disk_read_bytes_total{host="heater"}[5m]) or vector(0))', 'Read {{device}}'),
+    c.vmQ('(rate(node_disk_written_bytes_total{host="heater"}[5m]) or vector(0))', 'Write {{device}}'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('Bps')
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
@@ -100,8 +100,8 @@ local netIoTs =
   g.panel.timeSeries.new('Network I/O')
   + c.tsPos(1, 1)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('rate(node_network_receive_bytes_total{host="heater",device!~"lo|veth.*|docker.*|br.*"}[5m])', 'RX {{device}}'),
-    c.vmQ('rate(node_network_transmit_bytes_total{host="heater",device!~"lo|veth.*|docker.*|br.*"}[5m])', 'TX {{device}}'),
+    c.vmQ('(rate(node_network_receive_bytes_total{host="heater",device!~"lo|veth.*|docker.*|br.*"}[5m]) or vector(0))', 'RX {{device}}'),
+    c.vmQ('(rate(node_network_transmit_bytes_total{host="heater",device!~"lo|veth.*|docker.*|br.*"}[5m]) or vector(0))', 'TX {{device}}'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('Bps')
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)

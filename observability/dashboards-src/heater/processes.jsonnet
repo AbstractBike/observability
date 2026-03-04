@@ -54,7 +54,7 @@ local cpuByProcessTs =
   + c.tsPos(0, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
-      'topk(10, sum by (groupname) (rate(namedprocess_namegroup_cpu_seconds_total{host="heater"}[5m]))) * 100',
+      'topk(10, (sum by (groupname) (rate(namedprocess_namegroup_cpu_seconds_total{host="heater"}[5m])) or vector(0))) * 100',
       '{{groupname}}'
     ),
   ])
@@ -67,7 +67,7 @@ local memByProcessTs =
   + c.tsPos(1, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
-      'topk(10, sum by (groupname) (namedprocess_namegroup_memory_bytes{host="heater",memtype="resident"}))',
+      'topk(10, (sum by (groupname) (namedprocess_namegroup_memory_bytes{host="heater",memtype="resident"})) or vector(0))',
       '{{groupname}}'
     ),
   ])
@@ -80,7 +80,7 @@ local cpuTable =
   + c.pos(0, 13, 12, 8)
   + g.panel.table.queryOptions.withTargets([
     c.vmQ(
-      'topk(20, sum by (groupname) (rate(namedprocess_namegroup_cpu_seconds_total{host="heater"}[5m]))) * 100',
+      'topk(20, (sum by (groupname) (rate(namedprocess_namegroup_cpu_seconds_total{host="heater"}[5m])) or vector(0))) * 100',
       '{{groupname}}'
     ),
   ])
@@ -92,7 +92,7 @@ local memTable =
   + c.pos(12, 13, 12, 8)
   + g.panel.table.queryOptions.withTargets([
     c.vmQ(
-      'topk(20, sum by (groupname) (namedprocess_namegroup_memory_bytes{host="heater",memtype="resident"}))',
+      'topk(20, (sum by (groupname) (namedprocess_namegroup_memory_bytes{host="heater",memtype="resident"})) or vector(0))',
       '{{groupname}}'
     ),
   ])

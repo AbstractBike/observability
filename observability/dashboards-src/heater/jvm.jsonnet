@@ -16,7 +16,7 @@ local heapUsedPct =
   + c.statPos(0)
   + g.panel.gauge.queryOptions.withTargets([
     c.vmQ(
-      'sum(jvm_memory_used_bytes{host="heater",area="heap"}) / sum(jvm_memory_max_bytes{host="heater",area="heap"}) * 100'
+      '(sum(jvm_memory_used_bytes{host="heater",area="heap"}) or vector(0)) / (sum(jvm_memory_max_bytes{host="heater",area="heap"}) or vector(0)) * 100'
     ),
   ])
   + g.panel.gauge.standardOptions.withUnit('percent')
@@ -33,7 +33,7 @@ local heapUsedBytes =
   g.panel.stat.new('Heap Used')
   + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(jvm_memory_used_bytes{host="heater",area="heap"})'),
+    c.vmQ('(sum(jvm_memory_used_bytes{host="heater",area="heap"})) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('bytes')
   + g.panel.stat.options.withColorMode('value')
@@ -53,7 +53,7 @@ local threadCount =
   g.panel.stat.new('Live Threads')
   + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('jvm_threads_current{host="heater"}'),
+    c.vmQ('(jvm_threads_current{host="heater"}) or vector(0)'),
   ])
   + g.panel.stat.options.withColorMode('value');
 
@@ -61,9 +61,9 @@ local heapTs =
   g.panel.timeSeries.new('Heap Memory (Used / Committed / Max)')
   + c.tsPos(0, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('sum(jvm_memory_used_bytes{host="heater",area="heap"})', 'Used'),
-    c.vmQ('sum(jvm_memory_committed_bytes{host="heater",area="heap"})', 'Committed'),
-    c.vmQ('sum(jvm_memory_max_bytes{host="heater",area="heap"})', 'Max'),
+    c.vmQ('(sum(jvm_memory_used_bytes{host="heater",area="heap"})) or vector(0)', 'Used'),
+    c.vmQ('(sum(jvm_memory_committed_bytes{host="heater",area="heap"})) or vector(0)', 'Committed'),
+    c.vmQ('(sum(jvm_memory_max_bytes{host="heater",area="heap"})) or vector(0)', 'Max'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('bytes')
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(10)
@@ -73,8 +73,8 @@ local nonHeapTs =
   g.panel.timeSeries.new('Non-Heap Memory (Used / Committed)')
   + c.tsPos(1, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('sum(jvm_memory_used_bytes{host="heater",area="nonheap"})', 'Used'),
-    c.vmQ('sum(jvm_memory_committed_bytes{host="heater",area="nonheap"})', 'Committed'),
+    c.vmQ('(sum(jvm_memory_used_bytes{host="heater",area="nonheap"})) or vector(0)', 'Used'),
+    c.vmQ('(sum(jvm_memory_committed_bytes{host="heater",area="nonheap"})) or vector(0)', 'Committed'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('bytes')
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(10)
@@ -84,7 +84,7 @@ local gcPauseTs =
   g.panel.timeSeries.new('GC Pause Time (rate)')
   + c.tsPos(0, 1)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('rate(jvm_gc_collection_seconds_sum{host="heater"}[5m])', '{{gc}}'),
+    c.vmQ('(rate(jvm_gc_collection_seconds_sum{host="heater"}[5m]) or vector(0))', '{{gc}}'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('s')
   + g.panel.timeSeries.options.tooltip.withMode('multi');
@@ -93,9 +93,9 @@ local threadsTs =
   g.panel.timeSeries.new('Threads')
   + c.tsPos(1, 1)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('jvm_threads_current{host="heater"}', 'Total'),
-    c.vmQ('jvm_threads_daemon{host="heater"}', 'Daemon'),
-    c.vmQ('jvm_threads_deadlocked{host="heater"}', 'Deadlocked'),
+    c.vmQ('(jvm_threads_current{host="heater"}) or vector(0)', 'Total'),
+    c.vmQ('(jvm_threads_daemon{host="heater"}) or vector(0)', 'Daemon'),
+    c.vmQ('(jvm_threads_deadlocked{host="heater"}) or vector(0)', 'Deadlocked'),
   ])
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
