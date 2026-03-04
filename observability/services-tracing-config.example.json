@@ -1,0 +1,283 @@
+{
+  "description": "Service registry for distributed tracing dashboard provisioning",
+  "version": "1.0",
+  "metadata": {
+    "generatedAt": "2026-03-04T12:00:00Z",
+    "totalServices": 15,
+    "categories": ["application", "database", "cache", "queue", "infrastructure"]
+  },
+  "services": [
+    {
+      "name": "api-gateway",
+      "type": "application",
+      "description": "REST API gateway - entry point for all client requests",
+      "team": "Platform",
+      "enabled": true,
+      "instrumentation": "skywalking-java-agent",
+      "metricsExposed": true,
+      "logsStructured": true
+    },
+    {
+      "name": "auth-service",
+      "type": "application",
+      "description": "Authentication and authorization service",
+      "team": "Security",
+      "enabled": true,
+      "instrumentation": "skywalking-python-sdk",
+      "metricsExposed": true,
+      "logsStructured": true
+    },
+    {
+      "name": "payment-service",
+      "type": "application",
+      "description": "Payment processing microservice",
+      "team": "Finance",
+      "enabled": true,
+      "instrumentation": "skywalking-go-sdk",
+      "metricsExposed": true,
+      "logsStructured": true
+    },
+    {
+      "name": "notification-service",
+      "type": "application",
+      "description": "Email and push notification dispatcher",
+      "team": "Platform",
+      "enabled": true,
+      "instrumentation": "skywalking-nodejs-sdk",
+      "metricsExposed": true,
+      "logsStructured": true
+    },
+    {
+      "name": "data-processor",
+      "type": "application",
+      "description": "Asynchronous data processing pipeline",
+      "team": "Data",
+      "enabled": true,
+      "instrumentation": "skywalking-rust-sdk",
+      "metricsExposed": true,
+      "logsStructured": true
+    },
+    {
+      "name": "PostgreSQL",
+      "type": "database",
+      "databaseType": "postgresql",
+      "description": "Primary relational database",
+      "team": "Data",
+      "enabled": true,
+      "instrumentation": "skywalking-query-tracing",
+      "metricsExposed": true,
+      "logsStructured": true,
+      "dashboardPath": "postgres-query-tracing.jsonnet"
+    },
+    {
+      "name": "Elasticsearch",
+      "type": "database",
+      "databaseType": "elasticsearch",
+      "description": "Search and analytics engine",
+      "team": "Data",
+      "enabled": true,
+      "instrumentation": "skywalking-query-tracing",
+      "metricsExposed": true,
+      "logsStructured": true,
+      "dashboardPath": "elasticsearch-query-tracing.jsonnet"
+    },
+    {
+      "name": "Redis",
+      "type": "cache",
+      "description": "In-memory cache for session and data caching",
+      "team": "Platform",
+      "enabled": true,
+      "instrumentation": "skywalking-operation-tracing",
+      "metricsExposed": true,
+      "logsStructured": false
+    },
+    {
+      "name": "Memcached",
+      "type": "cache",
+      "description": "Distributed memory caching system",
+      "team": "Platform",
+      "enabled": false,
+      "instrumentation": "skywalking-operation-tracing",
+      "metricsExposed": false,
+      "logsStructured": false
+    },
+    {
+      "name": "Kafka",
+      "type": "queue",
+      "description": "Distributed event streaming platform",
+      "team": "Data",
+      "enabled": true,
+      "instrumentation": "skywalking-message-tracing",
+      "metricsExposed": true,
+      "logsStructured": false
+    },
+    {
+      "name": "RabbitMQ",
+      "type": "queue",
+      "description": "Message broker for task queues",
+      "team": "Platform",
+      "enabled": true,
+      "instrumentation": "skywalking-message-tracing",
+      "metricsExposed": true,
+      "logsStructured": false
+    },
+    {
+      "name": "nginx",
+      "type": "infrastructure",
+      "description": "Reverse proxy and load balancer",
+      "team": "Platform",
+      "enabled": true,
+      "instrumentation": "skywalking-rover-ebpf",
+      "metricsExposed": true,
+      "logsStructured": false
+    },
+    {
+      "name": "grafana",
+      "type": "infrastructure",
+      "description": "Observability dashboards and alerts",
+      "team": "Platform",
+      "enabled": true,
+      "instrumentation": "skywalking-java-agent",
+      "metricsExposed": true,
+      "logsStructured": true
+    },
+    {
+      "name": "temporal-server",
+      "type": "infrastructure",
+      "description": "Workflow orchestration engine",
+      "team": "Platform",
+      "enabled": true,
+      "instrumentation": "skywalking-go-sdk",
+      "metricsExposed": true,
+      "logsStructured": true
+    },
+    {
+      "name": "prometheus-victoriametrics",
+      "type": "infrastructure",
+      "description": "Metrics storage and query engine",
+      "team": "Platform",
+      "enabled": true,
+      "instrumentation": "skywalking-rover-ebpf",
+      "metricsExposed": true,
+      "logsStructured": false
+    }
+  ],
+  "instrumentation": {
+    "skywalking-java-agent": {
+      "description": "SkyWalking Java Agent (automatic, -javaagent:agent.jar)",
+      "languages": ["Java"],
+      "overhead": "low (< 5%)",
+      "setup": "JVM flag"
+    },
+    "skywalking-python-sdk": {
+      "description": "apache-skywalking SDK for Python",
+      "languages": ["Python"],
+      "overhead": "medium (5-10%)",
+      "setup": "pip install + agent.start()"
+    },
+    "skywalking-go-sdk": {
+      "description": "go2sky SDK for Go",
+      "languages": ["Go"],
+      "overhead": "low (< 5%)",
+      "setup": "import + initialize tracer"
+    },
+    "skywalking-nodejs-sdk": {
+      "description": "skywalking-backend-js for Node.js",
+      "languages": ["JavaScript", "TypeScript"],
+      "overhead": "medium (5-10%)",
+      "setup": "npm install + require()"
+    },
+    "skywalking-rust-sdk": {
+      "description": "tracing + OpenTelemetry for Rust",
+      "languages": ["Rust"],
+      "overhead": "low (< 5%)",
+      "setup": "Cargo + tracing setup"
+    },
+    "skywalking-rover-ebpf": {
+      "description": "SkyWalking Rover (eBPF automatic instrumentation)",
+      "languages": ["All"],
+      "overhead": "kernel-level (< 10% system-wide)",
+      "setup": "Zero - automatic per-process"
+    },
+    "skywalking-query-tracing": {
+      "description": "Database query tracing via spans",
+      "databases": ["PostgreSQL", "MySQL", "Elasticsearch"],
+      "overhead": "low",
+      "setup": "JDBC/driver instrumentation"
+    },
+    "skywalking-operation-tracing": {
+      "description": "Cache operation tracing (get, set, delete)",
+      "services": ["Redis", "Memcached"],
+      "overhead": "low",
+      "setup": "Client SDK instrumentation"
+    },
+    "skywalking-message-tracing": {
+      "description": "Message broker tracing (publish, consume)",
+      "services": ["Kafka", "RabbitMQ"],
+      "overhead": "medium",
+      "setup": "Producer/Consumer instrumentation"
+    }
+  },
+  "dashboardMappings": {
+    "api-gateway": "api-gateway-tracing.jsonnet",
+    "auth-service": "auth-service-tracing.jsonnet",
+    "payment-service": "payment-service-tracing.jsonnet",
+    "notification-service": "notification-service-tracing.jsonnet",
+    "data-processor": "data-processor-tracing.jsonnet",
+    "PostgreSQL": "postgres-query-tracing.jsonnet",
+    "Elasticsearch": "elasticsearch-query-tracing.jsonnet",
+    "Redis": "redis-cache-tracing.jsonnet",
+    "Kafka": "kafka-message-tracing.jsonnet",
+    "RabbitMQ": "rabbitmq-message-tracing.jsonnet",
+    "nginx": "nginx-tracing.jsonnet",
+    "grafana": "grafana-tracing.jsonnet",
+    "temporal-server": "temporal-server-tracing.jsonnet",
+    "prometheus-victoriametrics": "victoriametrics-tracing.jsonnet"
+  },
+  "teams": {
+    "Platform": {
+      "description": "Core platform infrastructure team",
+      "serviceCount": 7
+    },
+    "Data": {
+      "description": "Data engineering and processing team",
+      "serviceCount": 4
+    },
+    "Security": {
+      "description": "Security and authentication team",
+      "serviceCount": 1
+    },
+    "Finance": {
+      "description": "Financial services team",
+      "serviceCount": 1
+    }
+  },
+  "correlationStrategy": {
+    "traceId": {
+      "field": "trace_id",
+      "sources": ["SkyWalking agent", "JSON logs", "SkyWalking metrics exemplars"],
+      "usage": "Link logs to traces, metrics to spans"
+    },
+    "service": {
+      "field": "service",
+      "sources": ["SkyWalking service_name", "log field", "metric label"],
+      "usage": "Filter by service across all signals"
+    },
+    "operation": {
+      "field": "operation",
+      "sources": ["SkyWalking operation name", "span type"],
+      "usage": "Identify slow operations within service"
+    },
+    "timestamp": {
+      "field": "@timestamp",
+      "sources": ["Trace timestamp", "log timestamp", "metric timestamp"],
+      "usage": "Correlate signals in time window"
+    }
+  },
+  "dataFlowPaths": {
+    "traceToLogs": "trace_id in log → search VictoriaLogs → find all logs for this trace",
+    "logsToTraces": "trace_id in log → link to SkyWalking UI → see full trace waterfall",
+    "metricsToTraces": "Spike in latency metric → find traces during spike window → analyze span distribution",
+    "tracesToMetrics": "Slow trace → identify operation → see operation rate/error in metrics"
+  }
+}
