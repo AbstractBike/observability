@@ -21,7 +21,7 @@ local cpmStat =
   g.panel.stat.new('Calls/min')
   + c.statPos(0)
   + g.panel.stat.queryOptions.withTargets([
-    c.swQ('service_cpm{service="' + serenaService + '"}'),
+    c.swQ('service_cpm{service="' + serenaService + '"} or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('short');
 
@@ -29,7 +29,7 @@ local respTimeStat =
   g.panel.stat.new('Avg Response Time')
   + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
-    c.swQ('service_resp_time{service="' + serenaService + '"}'),
+    c.swQ('service_resp_time{service="' + serenaService + '"} or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('ms')
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')
@@ -43,7 +43,7 @@ local slaStat =
   g.panel.stat.new('Success Rate (SLA)')
   + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
-    c.swQ('service_sla{service="' + serenaService + '"} / 100'),
+    c.swQ('(service_sla{service="' + serenaService + '"} / 100) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')

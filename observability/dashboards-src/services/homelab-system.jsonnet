@@ -11,7 +11,7 @@ local cpuStat =
   g.panel.stat.new('CPU Usage')
   + c.statPos(0)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('100 - avg(rate(host_cpu_seconds_total{mode="idle",host="homelab"}[5m])) * 100'),
+    c.vmQ('(100 - avg(rate(host_cpu_seconds_total{mode="idle",host="homelab"}[5m])) * 100) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.withMax(100)
@@ -24,7 +24,7 @@ local memStat =
   g.panel.stat.new('Memory Used')
   + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('(1 - host_memory_available_bytes{host="homelab"} / (host_memory_free_bytes{host="homelab"} + host_memory_available_bytes{host="homelab"} + host_memory_active_bytes{host="homelab"} + host_memory_buffers_bytes{host="homelab"} + host_memory_cached_bytes{host="homelab"})) * 100'),
+    c.vmQ('((1 - host_memory_available_bytes{host="homelab"} / (host_memory_free_bytes{host="homelab"} + host_memory_available_bytes{host="homelab"} + host_memory_active_bytes{host="homelab"} + host_memory_buffers_bytes{host="homelab"} + host_memory_cached_bytes{host="homelab"})) * 100) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.withMax(100)
@@ -37,7 +37,7 @@ local diskStat =
   g.panel.stat.new('Root Disk Used')
   + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('host_filesystem_used_ratio{host="homelab",mountpoint="/"} * 100'),
+    c.vmQ('(host_filesystem_used_ratio{host="homelab",mountpoint="/"} * 100) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.withMax(100)
@@ -50,7 +50,7 @@ local loadStat =
   g.panel.stat.new('Load Avg (1m)')
   + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('host_load1{host="homelab"}'),
+    c.vmQ('host_load1{host="homelab"} or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withDecimals(2)
   + g.panel.stat.options.withColorMode('value')

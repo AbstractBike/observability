@@ -13,7 +13,7 @@ local totalProcs =
   g.panel.stat.new('Total Processes')
   + c.statPos(0)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(namedprocess_namegroup_num_procs{host="heater"})'),
+    c.vmQ('sum(namedprocess_namegroup_num_procs{host="heater"}) or vector(0)'),
   ])
   + g.panel.stat.options.withColorMode('value');
 
@@ -21,7 +21,7 @@ local totalThreads =
   g.panel.stat.new('Total Threads')
   + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(namedprocess_namegroup_num_threads{host="heater"})'),
+    c.vmQ('sum(namedprocess_namegroup_num_threads{host="heater"}) or vector(0)'),
   ])
   + g.panel.stat.options.withColorMode('value');
 
@@ -30,7 +30,7 @@ local topCpuStat =
   + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ(
-      'topk(1, sum by (groupname) (rate(namedprocess_namegroup_cpu_seconds_total{host="heater"}[5m]))) * 100',
+      '(topk(1, sum by (groupname) (rate(namedprocess_namegroup_cpu_seconds_total{host="heater"}[5m]))) * 100) or vector(0)',
       '{{groupname}}'
     ),
   ])
@@ -42,7 +42,7 @@ local topMemStat =
   + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ(
-      'topk(1, sum by (groupname) (namedprocess_namegroup_memory_bytes{host="heater",memtype="resident"}))',
+      'topk(1, sum by (groupname) (namedprocess_namegroup_memory_bytes{host="heater",memtype="resident"})) or vector(0)',
       '{{groupname}}'
     ),
   ])
