@@ -225,21 +225,21 @@ g.dashboard.new('Observability — Distributed Tracing')
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Service Overview') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('📊 Service Overview') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   serviceCountStat, avgLatencyStat, errorRateStat, tracesTotal24hStat,
 
-  g.panel.row.new('Performance Trends') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚡ Performance Trends') + c.pos(0, 4, 24, 1),
   errorRateByServiceTs, latencyByServiceTs,
   traceVolumeTs, spanDistributionTs,
 
-  g.panel.row.new('Analysis & Correlation') + c.pos(0, 8, 24, 1),
+  g.panel.row.new('🔍 Analysis & Correlation') + c.pos(0, 8, 24, 1),
   recentTracesPanel,
   topEndpointsTable,
 
-  g.panel.row.new('Instrumentation Guide') + c.pos(0, 17, 24, 1),
+  g.panel.row.new('📝 Instrumentation Guide') + c.pos(0, 17, 24, 1),
   correlationGuidePanel,
 
-  g.panel.row.new('Logs') + c.pos(0, 22, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 22, 24, 1),
   logsPanel,
 ])

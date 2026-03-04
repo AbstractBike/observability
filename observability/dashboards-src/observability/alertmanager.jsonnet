@@ -69,11 +69,11 @@ g.dashboard.new('Observability — Alertmanager')
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   receivedStat, firedStat, failedStat, silencesStat,
-  g.panel.row.new('Detail') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚠️ Alert Routing') + c.pos(0, 4, 24, 1),
   notifTs, alertsTs,
-  g.panel.row.new('Logs') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 12, 24, 1),
   logsPanel,
 ])

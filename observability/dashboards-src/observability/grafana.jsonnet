@@ -120,13 +120,13 @@ g.dashboard.new('Observability — Grafana')
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   httpRateStat, activeAlertsStat, dashboardsStat, dbConnStat,
-  g.panel.row.new('HTTP Traffic') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚡ HTTP Traffic') + c.pos(0, 4, 24, 1),
   httpRateTs, httpLatTs,
-  g.panel.row.new('Datasources') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('🔧 Datasources') + c.pos(0, 12, 24, 1),
   dsRateTs, dsLatTs,
-  g.panel.row.new('Logs') + c.pos(0, 20, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 20, 24, 1),
   logsPanel,
 ])

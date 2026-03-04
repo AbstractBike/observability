@@ -132,15 +132,15 @@ g.dashboard.new('Observability — SkyWalking')
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   uptimeStat, threadsStat, heapStat, cpuStat,
-  g.panel.row.new('JVM') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚡ JVM Performance') + c.pos(0, 4, 24, 1),
   heapTs, gcTs,
-  g.panel.row.new('Traces') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('📡 Traces') + c.pos(0, 12, 24, 1),
   recentTracesPanel, traceLatencyPanel,
-  g.panel.row.new('SkyWalking UI') + c.pos(0, 18, 24, 1),
+  g.panel.row.new('🔗 SkyWalking UI') + c.pos(0, 18, 24, 1),
   swUiLink,
-  g.panel.row.new('Logs') + c.pos(0, 22, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 22, 24, 1),
   oapLogsPanel,
 ])
