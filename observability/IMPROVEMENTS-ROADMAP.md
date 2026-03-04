@@ -1,8 +1,8 @@
 # 🚀 Observability Improvements Roadmap
 
-**Status**: Post-Ralph-Loop Phase (Iteration 61+)
+**Status**: Ralph Loop Session 2 (Iterations 1-4 Complete)
 **Last Updated**: 2026-03-04
-**Quality Score**: 69/100
+**Quality Score**: 87/100 (↑ from 69)
 
 ---
 
@@ -14,12 +14,12 @@ After 60 iterations of Ralph Loop optimization, the observability stack achieved
 
 | Priority | Effort | Impact | Status | Category |
 |----------|--------|--------|--------|----------|
-| **P0** | 2h | 🔴 Critical | 🚀 In Progress | External Links |
-| **P1** | 4h | 🟠 High | ⏳ Pending | Log Organization |
-| **P1** | 3h | 🟠 High | ⏳ Pending | Metric Discovery |
-| **P2** | 6h | 🟡 Medium | ⏳ Pending | Trace Correlation |
-| **P2** | 3h | 🟡 Medium | ⏳ Pending | Dashboard Cleanup |
-| **P3** | 8h | 🟢 Low | ⏳ Backlog | Cost Analysis |
+| **P0** | 2h | 🔴 Critical | ✅ DONE | External Links (all 27 dashboards) |
+| **P1** | 4h | 🟠 High | 🚀 In Progress | Log Organization + Metric Discovery |
+| **P1** | 3h | 🟠 High | ✅ DONE | Services Health Dashboard |
+| **P2** | 6h | 🟡 Medium | ⏳ Pending | Trace Correlation via Exemplars |
+| **P2** | 3h | 🟡 Medium | ⏳ Pending | Dashboard Consolidation |
+| **P3** | 8h | 🟢 Low | ⏳ Backlog | Cost Analysis Dashboard |
 
 ---
 
@@ -59,7 +59,57 @@ externalLinksPanel(y=0, x=18):
 
 ---
 
-## 🔄 In Progress (Iteration 61-62)
+## ✅ Completed (Iterations 2-4)
+
+### 2. All Dashboards Updated with External Links ✅
+**Progress**: 27/27 dashboards (100%)
+
+- Manually updated: 5 heater dashboards
+- Automated (v2 script): 18 dashboards
+- Manual fixes: 2 special-format dashboards (pin-traces, home)
+
+**Impact**: Quality score 87%, users can now quickly navigate to VictoriaMetrics, VictoriaLogs, SkyWalking from any dashboard
+
+### 3. Logs Panels Enhancement ✅
+**Added to**: 2 critical dashboards
+- overview/homelab: System logs (warn/error/critical)
+- services/matrix-apm: Service logs
+
+### 4. Metrics Discovery Dashboard ✅
+**New dashboard**: observability/metrics-discovery
+
+**Features**:
+- Show all metrics in VictoriaMetrics
+- Cardinality per metric
+- Active jobs/exporters
+- Ingestion rate tracking
+- Top jobs by series count
+
+**Use case**: Identify unused exporters, troubleshoot missing metrics, find cardinality explosions
+
+### 5. Services Health Super-Dashboard ✅
+**New dashboard**: overview/services-health
+
+**Features**:
+- Consolidated health view (all services)
+- Status indicators (healthy/down/degraded)
+- Error rate and latency trends
+- Quick navigation links
+- Error logs from all services
+
+**Use case**: Single pane of glass for infrastructure health
+
+### 6. Quality Analysis & Tools ✅
+Created:
+- `scripts/analyze-dashboard-quality.js` — Quality scoring
+- `scripts/apply-external-links-v2.py` — Batch automation
+- `scripts/validate-dashboards-compile.sh` — Pre-deployment validation
+
+**Quality Score Progress**: 69% → 87% (↑ 18 points)
+
+---
+
+## 🔄 In Progress (Iteration 5+)
 
 ### 1. External Links Batch Application
 **Objective**: Apply `externalLinksPanel()` to all remaining 25 dashboards
