@@ -14,7 +14,7 @@ local reqRate =
   g.panel.stat.new('Requests / min')
   + c.pos(0, 1, 6, 4)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('(sum(rate(meter_service_resp_time_count[1m])) or vector(0)) * 60'),
+    c.vmQ('(sum(rate(meter_service_resp_time_count[5m])) or vector(0)) * 60'),
   ])
   + g.panel.stat.standardOptions.withUnit('reqpm')
   + g.panel.stat.standardOptions.withDecimals(0)
@@ -27,7 +27,7 @@ local errorRate =
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ(|||
       (((sum(rate(meter_service_resp_time_count{status="ERROR"}[1m])) or vector(0))
-      / (sum(rate(meter_service_resp_time_count[1m])) or vector(0)))) * 100 or vector(0)
+      / (sum(rate(meter_service_resp_time_count[5m])) or vector(0)))) * 100 or vector(0)
     |||),
   ])
   + g.panel.stat.standardOptions.withUnit('percent')
@@ -90,7 +90,7 @@ local errorByService =
       |||
         topk(5,
           ((sum by(service) (rate(meter_service_resp_time_count{status="ERROR"}[1m])) or vector(0))
-          / (sum by(service) (rate(meter_service_resp_time_count[1m])) or vector(0))) * 100 or vector(0)
+          / (sum by(service) (rate(meter_service_resp_time_count[5m])) or vector(0))) * 100 or vector(0)
         )
       |||,
       '{{service}}'
@@ -108,7 +108,7 @@ local throughputTs =
   + c.pos(0, 15, 24, 7)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
-      '(sum by(service) (rate(meter_service_resp_time_count[1m])) or vector(0)) * 60',
+      '(sum by(service) (rate(meter_service_resp_time_count[5m])) or vector(0)) * 60',
       '{{service}}'
     ),
   ])
