@@ -17,9 +17,11 @@ local c = import 'lib/common.libsonnet';
 
 // ── SLO Status Indicators ──────────────────────────────────────────────────
 
+local alertPanel = c.alertCountPanel('observability-slo', col=0);
+
 local overallSloHealthStat =
   g.panel.stat.new('Overall SLO Health')
-  + c.statPos(0)
+  + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('((count(count by (service) (skywalking_trace_status_total{status="success"})) / count(count by (service) (skywalking_trace_status_total))) * 100) or vector(100)'),
   ])
@@ -35,7 +37,7 @@ local overallSloHealthStat =
 
 local availabilitySloStat =
   g.panel.stat.new('Availability SLO')
-  + c.statPos(1)
+  + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('((count(up{job=~".*"}) / count(count by (job) (up{job=~".*"}))) * 100) or vector(100)'),
   ])
@@ -50,7 +52,7 @@ local availabilitySloStat =
 
 local latencySloStat =
   g.panel.stat.new('Latency SLO (P95)')
-  + c.statPos(2)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('histogram_quantile(0.95, sum by(le) (rate(skywalking_trace_latency_bucket[5m]))) or vector(0)'),
   ])
@@ -65,7 +67,7 @@ local latencySloStat =
 
 local errorBudgetStat =
   g.panel.stat.new('Error Budget Remaining')
-  + c.statPos(3)
+  + c.statPos(4)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(100 - ((count(skywalking_trace_status_total{status="error"}[30d]) / count(skywalking_trace_status_total[30d])) * 100)) or vector(100)'),
   ])
@@ -173,6 +175,15 @@ local sloViolationInfo =
     - **Tier 3** (batch, non-critical): 95%, <30s latency
   |||);
 
+// ── Troubleshooting Guide ──────────────────────────────────────────────────
+
+local troubleGuide = c.serviceTroubleshootingGuide('observability-slo', [
+  { symptom: 'SLO Violation', runbook: 'slo/violation-response', check: 'Check which metrics violated (availability/latency/error)' },
+  { symptom: 'Error Budget Exhausted', runbook: 'slo/error-budget', check: 'Monitor "Error Budget Remaining" stat urgently' },
+  { symptom: 'Service Compliance Degrading', runbook: 'slo/compliance-trend', check: 'Check "SLO Compliance by Service" trends' },
+  { symptom: 'Availability Drop', runbook: 'slo/availability', check: 'Correlate with "Services Health" dashboard' },
+], y=17);
+
 // ── Error Budget Burndown ──────────────────────────────────────────────────
 
 local errorBudgetBurndownTs =
@@ -205,23 +216,26 @@ local sloComplianceTs =
 g.dashboard.new('Service Level Objectives (SLO) Overview')
 + g.dashboard.withUid('slo-overview')
 + g.dashboard.withDescription('SLO compliance tracking: availability, latency, error rates, error budget burndown.')
-+ g.dashboard.withTags(['observability', 'slo', 'slr', 'reliability', 'compliance'])
++ g.dashboard.withTags(['observability', 'slo', 'slr', 'reliability', 'compliance', 'critical'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('SLO Status') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('📊 SLO Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  overallSloHealthStat, availabilitySloStat, latencySloStat, errorBudgetStat,
+  alertPanel, overallSloHealthStat, availabilitySloStat, latencySloStat, errorBudgetStat,
 
-  g.panel.row.new('Compliance Trends') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('📈 Compliance Trends') + c.pos(0, 4, 24, 1),
   availabilityTrendTs, latencyTrendTs,
 
-  g.panel.row.new('Service Compliance') + c.pos(0, 6, 24, 1),
+  g.panel.row.new('🎯 Service Compliance') + c.pos(0, 6, 24, 1),
   serviceSloTable,
 
-  g.panel.row.new('SLO Management') + c.pos(0, 14, 24, 1),
+  g.panel.row.new('⚠️ SLO Management') + c.pos(0, 14, 24, 1),
   sloViolationInfo,
 
-  g.panel.row.new('Error Budget & Trends') + c.pos(0, 17, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 22, 24, 1),
+  troubleGuide,
+
+  g.panel.row.new('💾 Error Budget & Trends') + c.pos(0, 30, 24, 1),
   errorBudgetBurndownTs, sloComplianceTs,
 ])
