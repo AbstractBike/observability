@@ -9,6 +9,10 @@
 local g = import 'github.com/grafana/grafonnet/gen/grafonnet-v11.4.0/main.libsonnet';
 local c = import 'lib/common.libsonnet';
 
+// ── Alert Panel ─────────────────────────────────────────────────────────────
+
+local alertPanel = c.alertCountPanel('homelab', col=0);
+
 // ── Host vitals (y=1) ────────────────────────────────────────────────────────
 
 local cpuStat =
@@ -132,18 +136,28 @@ local sloStat(title, expr, targetPct, col) =
   ])
   + g.panel.stat.options.withColorMode('background');
 
+// ── Troubleshooting Guide ──────────────────────────────────────────────────
+
+local troubleGuide = c.serviceTroubleshootingGuide('homelab', [
+  { symptom: 'Host CPU High', runbook: 'host/cpu-spike', check: 'Monitor CPU stat and check top processes in "Services" grid' },
+  { symptom: 'Memory Pressure', runbook: 'host/memory-pressure', check: 'Review RAM usage and service memory consumption' },
+  { symptom: 'Disk Space Low', runbook: 'host/disk-cleanup', check: 'Check Disk / percentage and identify large files' },
+  { symptom: 'Service Outage', runbook: 'host/service-recovery', check: 'Review "Services" grid and SLO compliance stats' },
+], y=19);
+
 // ── Dashboard assembly ────────────────────────────────────────────────────────
 
 g.dashboard.new('Homelab \u2014 Overview')
 + g.dashboard.withUid('homelab-overview')
 + g.dashboard.withDescription('Command center: host health, service status, SLO compliance.')
-+ g.dashboard.withTags(['homelab', 'overview'])
++ g.dashboard.withTags(['homelab', 'overview', 'critical'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar])
 + g.dashboard.withPanels(
   [
     g.panel.row.new('🏠 Homelab — Host') + c.pos(0, 0, 24, 1),
     c.externalLinksPanel(y=1, x=18),
+    alertPanel,
     cpuStat,
     ramStat,
     diskStat,
@@ -158,7 +172,9 @@ g.dashboard.new('Homelab \u2014 Overview')
     sloStat('PostgreSQL',   '(1 - slo:postgresql:error_ratio_30d) * 100',   99.9, 1),
     sloStat('Redis',        '(1 - slo:redis:error_ratio_30d) * 100',        99.9, 2),
     sloStat('Grafana',      '(1 - slo:grafana:error_ratio_30d) * 100',      99.0, 3),
-    g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
+    g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 19, 24, 1),
+    troubleGuide,
+    g.panel.row.new('📝 Logs') + c.pos(0, 27, 24, 1),
     systemLogsPanel,
   ]
 )

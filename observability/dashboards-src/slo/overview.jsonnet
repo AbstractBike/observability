@@ -1,9 +1,11 @@
 local g = import 'github.com/grafana/grafonnet/gen/grafonnet-v11.4.0/main.libsonnet';
 local c = import 'lib/common.libsonnet';
 
+local alertPanel = c.alertCountPanel('slo', col=0);
+
 local sloStatPanel(title, errorRatioExpr, targetPct, col) =
   g.panel.stat.new(title)
-  + c.statPos(col)
+  + c.statPos(col + 1)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('((1 - ' + errorRatioExpr + ') * 100) or vector(0)'),
   ])
@@ -49,14 +51,24 @@ local guidancePanel =
     - **[Performance & Optimization](/d/performance-optimization)** — System performance tracking
   |||);
 
+// ── Troubleshooting Guide ──────────────────────────────────────────────────
+
+local troubleGuide = c.serviceTroubleshootingGuide('slo', [
+  { symptom: 'SLO Violation Alert', runbook: 'slo/violation', check: 'Review specific service compliance stat and error budget burndown' },
+  { symptom: 'Budget Exhausted', runbook: 'slo/budget-exhausted', check: 'Check "Error Budget Remaining" charts for affected service' },
+  { symptom: 'Unexpected Spike', runbook: 'slo/spike-investigation', check: 'Correlate error budget drop with specific timestamp in logs' },
+  { symptom: 'SLO Target Change', runbook: 'slo/target-update', check: 'Verify new target percentage is correctly configured' },
+], y=12);
+
 g.dashboard.new('SLO — Overview')
 + g.dashboard.withUid('slo-overview')
 + g.dashboard.withDescription('Global SLO compliance table and error budget burn rates.')
-+ g.dashboard.withTags(['slo', 'overview'])
++ g.dashboard.withTags(['slo', 'overview', 'critical'])
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('📊 30-day Compliance') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
+  alertPanel,
   sloStatPanel('Host Uptime (99.5%)', 'slo:host_uptime:error_ratio_30d', 99.5, 0),
   sloStatPanel('PostgreSQL (99.9%)', 'slo:postgresql:error_ratio_30d', 99.9, 1),
   sloStatPanel('Redis (99.9%)', 'slo:redis:error_ratio_30d', 99.9, 2),
@@ -70,4 +82,7 @@ g.dashboard.new('SLO — Overview')
 
   g.panel.row.new('💡 Guidance') + c.pos(0, 11, 24, 1),
   guidancePanel,
+
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 14, 24, 1),
+  troubleGuide,
 ])
