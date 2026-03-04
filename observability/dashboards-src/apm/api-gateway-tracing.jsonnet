@@ -17,9 +17,11 @@ local c = import 'lib/common.libsonnet';
 
 // ── Service Tracing Stats ──────────────────────────────────────────────────
 
+local alertPanel = c.alertCountPanel('api-gateway', col=0);
+
 local tracesPerMinStat =
   g.panel.stat.new('Traces/min')
-  + c.statPos(0)
+  + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('rate(skywalking_trace_total{service="api-gateway"}[1m]) or vector(0)'),
   ])
@@ -29,7 +31,7 @@ local tracesPerMinStat =
 
 local errorRateStat =
   g.panel.stat.new('Error Rate')
-  + c.statPos(1)
+  + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(count(skywalking_trace_status_total{service="api-gateway",status="error"}) / count(skywalking_trace_status_total{service="api-gateway"})) * 100 or vector(0)'),
   ])
@@ -44,7 +46,7 @@ local errorRateStat =
 
 local avgLatencyStat =
   g.panel.stat.new('Avg Latency')
-  + c.statPos(2)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(histogram_quantile(0.50, sum by(le) (rate(skywalking_trace_latency_bucket{service="api-gateway"}[5m]))) or vector(0))'),
   ])
@@ -53,7 +55,7 @@ local avgLatencyStat =
 
 local p99LatencyStat =
   g.panel.stat.new('P99 Latency')
-  + c.statPos(3)
+  + c.statPos(4)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(histogram_quantile(0.99, sum by(le) (rate(skywalking_trace_latency_bucket{service="api-gateway"}[5m]))) or vector(0))'),
   ])
@@ -170,12 +172,21 @@ local guidancePanel =
 
 local logsPanel = c.serviceLogsPanel('API Gateway Logs', 'api-gateway', y=19);
 
+// ── Troubleshooting guide ──────────────────────────────────────────────────
+
+local troubleGuide = c.serviceTroubleshootingGuide('api-gateway', [
+  { symptom: 'High Latency', runbook: 'api-gateway/latency', check: 'Check p99/p95 in "Latency Percentiles"' },
+  { symptom: 'Error Rate Spike', runbook: 'api-gateway/errors', check: 'Monitor "Error Rate" stat and check "Trace Volume"' },
+  { symptom: 'Slow Operations', runbook: 'api-gateway/slow-operations', check: 'Check "Operations by Avg Latency" table' },
+  { symptom: 'High Trace Volume', runbook: 'api-gateway/volume', check: 'Monitor "Trace Volume (Success/Error)"' },
+], y=20);
+
 // ── Dashboard ──────────────────────────────────────────────────────────────
 
 g.dashboard.new('api-gateway — Distributed Tracing')
 + g.dashboard.withUid('tracing-api-gateway')
 + g.dashboard.withDescription('Distributed tracing for api-gateway: trace latency, error rates, operation breakdown, span analysis, and logs correlation.')
-+ g.dashboard.withTags(['observability', 'tracing', 'service', 'apm', 'api-gateway'])
++ g.dashboard.withTags(['observability', 'tracing', 'service', 'apm', 'api-gateway', 'critical'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
@@ -192,7 +203,8 @@ g.dashboard.new('api-gateway — Distributed Tracing')
 
   g.panel.row.new('🛠️ Troubleshooting') + c.pos(0, 14, 24, 1),
   guidancePanel,
+  troubleGuide,
 
-  g.panel.row.new('📝 Logs') + c.pos(0, 18, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 25, 24, 1),
   logsPanel,
 ])
