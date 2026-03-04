@@ -168,7 +168,7 @@ local guidancePanel =
 
 // ── Logs panel ────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel(`${serviceName} Logs`, 'api-gateway', y=19);
+local logsPanel = c.serviceLogsPanel('API Gateway Logs', 'api-gateway', y=19);
 
 // ── Dashboard ──────────────────────────────────────────────────────────────
 

@@ -275,7 +275,7 @@ local config = {
         }
         .ext-links-container { display: flex; gap: 4px; }
       </style>
-    ||;
+    |||;
     local linkHtml = linkStyle + '<div class="ext-links-container">' +
       std.join('', [
         '<a class="ext-link-btn" href="' + link.url + '" target="_blank" title="' + link.title + '">' + link.icon + '</a>'

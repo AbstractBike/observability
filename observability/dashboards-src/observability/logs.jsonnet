@@ -98,7 +98,6 @@ local liveLogsPanel =
   + g.panel.logs.options.withSortOrder('Descending')
   + g.panel.logs.options.withEnableLogDetails(true)
   + g.panel.logs.options.withShowTime(true)
-  + g.panel.logs.fieldConfig.defaults.custom.withLogLevel('trace')
   + {
     fieldConfig: {
       overrides: [
