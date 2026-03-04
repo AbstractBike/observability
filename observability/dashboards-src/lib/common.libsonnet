@@ -169,6 +169,38 @@ local config = {
       { color: 'red', value: 20 },
     ]),
 
+  // ── Threshold Context (Historical Reference Lines) ────────────────────────
+  // Add historical context to thresholds by showing reference lines
+  // Usage: Add to timeSeries panel to show p95 baseline
+  // + self.withReferenceLines([
+  //     { value: 100, label: 'p95 baseline', color: '#FFB31A' },
+  //     { value: 50, label: 'p50 baseline', color: '#1A9850' }
+  //   ])
+
+  withReferenceLines(lines=[]):
+    {
+      fieldConfig: {
+        defaults: {
+          custom: {
+            lineWidth: 1,
+            fillOpacity: 0,
+            showPoints: 'never',
+          },
+        },
+        overrides: [
+          {
+            matcher: { id: 'byName', options: line.label },
+            properties: [
+              { id: 'color', value: { mode: 'fixed', fixedColor: line.color } },
+              { id: 'custom.lineWidth', value: 2 },
+              { id: 'custom.lineStyle', value: 'dash' },
+            ],
+          }
+          for line in lines
+        ],
+      },
+    },
+
   // ── External links panel ──────────────────────────────────────────────────
 
   // Small external links button in top-right corner (2 cells wide, 1 tall)
@@ -217,6 +249,36 @@ local config = {
   // Usage: c.runbookLink('High CPU Usage', 'troubleshooting/cpu')
   runbookLink(title, path):
     '[📖 ' + title + ' Runbook](https://wiki.pin/runbooks/' + path + ')',
+
+  // ── Panel naming conventions ──────────────────────────────────────────────
+  // Standard format: {MetricType} — {Service} — {Context}
+  // Examples:
+  //   "Latency — API Gateway — p99"
+  //   "Error Rate — PostgreSQL — 5m avg"
+  //   "CPU Usage — VictoriaMetrics — peak"
+
+  // Helper to create standard panel title
+  panelTitle(metricType, service='', context=''):
+    local parts = [metricType] + (if service != '' then [service] else []) + (if context != '' then [context] else []);
+    std.join(' — ', parts),
+
+  // ── Error handling & fallbacks ─────────────────────────────────────────────
+
+  // Create an error panel when datasource is unavailable
+  errorPanel(title, message, y=0):
+    g.panel.text.new(title)
+    + self.pos(0, y, 24, 3)
+    + g.panel.text.panelOptions.withTransparent(false)
+    + g.panel.text.options.withMode('markdown')
+    + g.panel.text.options.withContent('⚠️ **' + message + '**'),
+
+  // Datasource availability check helper
+  // Returns either the target or an error panel
+  withFallback(normalTarget, fallbackTitle, fallbackMessage, y=0):
+    [
+      normalTarget,
+      self.errorPanel(fallbackTitle, fallbackMessage, y),
+    ],
 
   // ── Configuration access ──────────────────────────────────────────────────
 

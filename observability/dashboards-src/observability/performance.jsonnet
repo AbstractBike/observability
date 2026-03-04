@@ -14,7 +14,7 @@ local c = import 'lib/common.libsonnet';
 // ── Performance Stats ──────────────────────────────────────────────────────
 
 local avgQueryLatencyStat =
-  g.panel.stat.new('Avg Query Latency')
+  g.panel.stat.new('Latency — Query Engines — p50')
   + c.statPos(0)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(histogram_quantile(0.5, sum by(le) (rate(http_request_duration_seconds_bucket{instance=~".*:3000|.*:8428|.*:9428"}[5m]))) or vector(0)) * 1000'),
@@ -30,7 +30,7 @@ local avgQueryLatencyStat =
   + g.panel.stat.options.withColorMode('background');
 
 local p99QueryLatencyStat =
-  g.panel.stat.new('P99 Query Latency')
+  g.panel.stat.new('Latency — Query Engines — p99')
   + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(histogram_quantile(0.99, sum by(le) (rate(http_request_duration_seconds_bucket{instance=~".*:3000|.*:8428|.*:9428"}[5m]))) or vector(0)) * 1000'),
@@ -92,7 +92,7 @@ local queryLatencyTs =
 // ── Storage Growth ─────────────────────────────────────────────────────────
 
 local storageGrowthTs =
-  g.panel.timeSeries.new('Storage Usage Growth')
+  g.panel.timeSeries.new('Storage — VictoriaMetrics — growth trend')
   + c.tsPos(1, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ('vm_data_size_bytes or vector(0)', 'Total'),
@@ -105,7 +105,7 @@ local storageGrowthTs =
 // ── Cardinality Growth ─────────────────────────────────────────────────────
 
 local cardinalityTs =
-  g.panel.timeSeries.new('Metric Cardinality Over Time')
+  g.panel.timeSeries.new('Cardinality — Metrics — series growth')
   + c.tsPos(0, 1)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ('count({__name__=~".+"}) or vector(0)', 'Total Series'),
