@@ -30,7 +30,7 @@ local cpmStat =
   g.panel.stat.new('Calls / min')
   + c.statPos(0)
   + g.panel.stat.queryOptions.withTargets([
-    c.swQ('service_cpm{service="$service"} or vector(0)'),
+    c.swQ('(service_cpm{service="$service"}) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('short')
   + g.panel.stat.options.withColorMode('value')
@@ -43,7 +43,7 @@ local respTimeStat =
   g.panel.stat.new('Avg Response Time')
   + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
-    c.swQ('service_resp_time{service="$service"} or vector(0)'),
+    c.swQ('(service_resp_time{service="$service"}) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('ms')
   + g.panel.stat.options.withColorMode('value')
@@ -55,7 +55,7 @@ local errorRateStat =
   g.panel.stat.new('Error Rate')
   + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
-    c.swQ('service_error_rate{service="$service"} or vector(0)'),
+    c.swQ('(service_error_rate{service="$service"}) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')
@@ -73,7 +73,7 @@ local apdexStat =
   g.panel.stat.new('Apdex Score')
   + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
-    c.swQ('(service_apdex{service="$service"} / 10000) or vector(0)'),
+    c.swQ('((service_apdex{service="$service"} / 10000)) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('short')
   + g.panel.stat.standardOptions.withDecimals(2)
@@ -94,7 +94,7 @@ local cpmTs =
   g.panel.timeSeries.new('Calls per Minute')
   + c.tsPos(0, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.swQ('service_cpm{service="$service"}', 'cpm'),
+    c.swQ('(service_cpm{service="$service"}) or vector(0)', 'cpm'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('short')
   + g.panel.timeSeries.options.tooltip.withMode('single');
@@ -103,11 +103,11 @@ local latencyTs =
   g.panel.timeSeries.new('Response Time Percentiles (ms)')
   + c.tsPos(1, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.swQ('service_percentile{service="$service",le="50"}',  'p50'),
-    c.swQ('service_percentile{service="$service",le="75"}',  'p75'),
-    c.swQ('service_percentile{service="$service",le="90"}',  'p90'),
-    c.swQ('service_percentile{service="$service",le="95"}',  'p95'),
-    c.swQ('service_percentile{service="$service",le="99"}',  'p99'),
+    c.swQ('(service_percentile{service="$service",le="50"}) or vector(0)',  'p50'),
+    c.swQ('(service_percentile{service="$service",le="75"}) or vector(0)',  'p75'),
+    c.swQ('(service_percentile{service="$service",le="90"}) or vector(0)',  'p90'),
+    c.swQ('(service_percentile{service="$service",le="95"}) or vector(0)',  'p95'),
+    c.swQ('(service_percentile{service="$service",le="99"}) or vector(0)',  'p99'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('ms')
   + g.panel.timeSeries.options.tooltip.withMode('multi');
@@ -116,7 +116,7 @@ local errorRateTs =
   g.panel.timeSeries.new('Error Rate (%)')
   + c.tsPos(0, 1)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.swQ('service_error_rate{service="$service"}', 'error %'),
+    c.swQ('(service_error_rate{service="$service"}) or vector(0)', 'error %'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('percent')
   + g.panel.timeSeries.standardOptions.thresholds.withMode('absolute')
@@ -130,7 +130,7 @@ local throughputTs =
   g.panel.timeSeries.new('Endpoint Throughput (top 5)')
   + c.tsPos(1, 1)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.swQ('topk(5, endpoint_cpm{service="$service"})', '{{endpoint}}'),
+    c.swQ('topk(5, (endpoint_cpm{service="$service"}) or vector(0))', '{{endpoint}}'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('short')
   + g.panel.timeSeries.options.tooltip.withMode('multi');
@@ -141,7 +141,7 @@ local jvmCpuTs =
   g.panel.timeSeries.new('JVM CPU Usage (%)')
   + c.tsPos(0, 2)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.swQ('instance_jvm_cpu{service="$service",service_instance_id=~"$instance"}', '{{service_instance_id}}'),
+    c.swQ('(instance_jvm_cpu{service="$service",service_instance_id=~"$instance"}) or vector(0)', '{{service_instance_id}}'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('percent')
   + g.panel.timeSeries.standardOptions.withMax(100)
@@ -151,8 +151,8 @@ local jvmHeapTs =
   g.panel.timeSeries.new('JVM Heap Memory')
   + c.tsPos(1, 2)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.swQ('instance_jvm_memory_used{service="$service",service_instance_id=~"$instance",name="heap"}',  'heap used'),
-    c.swQ('instance_jvm_memory_max{service="$service",service_instance_id=~"$instance",name="heap"}',   'heap max'),
+    c.swQ('(instance_jvm_memory_used{service="$service",service_instance_id=~"$instance",name="heap"}) or vector(0)',  'heap used'),
+    c.swQ('(instance_jvm_memory_max{service="$service",service_instance_id=~"$instance",name="heap"}) or vector(0)',   'heap max'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('bytes')
   + g.panel.timeSeries.options.tooltip.withMode('multi');
@@ -161,8 +161,8 @@ local jvmGcTs =
   g.panel.timeSeries.new('GC Time (ms/min)')
   + c.tsPos(0, 3)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.swQ('instance_jvm_young_gc_time{service="$service",service_instance_id=~"$instance"}', 'young GC'),
-    c.swQ('instance_jvm_old_gc_time{service="$service",service_instance_id=~"$instance"}',   'old GC'),
+    c.swQ('(instance_jvm_young_gc_time{service="$service",service_instance_id=~"$instance"}) or vector(0)', 'young GC'),
+    c.swQ('(instance_jvm_old_gc_time{service="$service",service_instance_id=~"$instance"}) or vector(0)',   'old GC'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('ms')
   + g.panel.timeSeries.options.tooltip.withMode('multi');
@@ -171,9 +171,9 @@ local jvmThreadTs =
   g.panel.timeSeries.new('JVM Thread Count')
   + c.tsPos(1, 3)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.swQ('instance_jvm_thread_live_count{service="$service",service_instance_id=~"$instance"}',    'live'),
-    c.swQ('instance_jvm_thread_daemon_count{service="$service",service_instance_id=~"$instance"}',  'daemon'),
-    c.swQ('instance_jvm_thread_peak_count{service="$service",service_instance_id=~"$instance"}',    'peak'),
+    c.swQ('(instance_jvm_thread_live_count{service="$service",service_instance_id=~"$instance"}) or vector(0)',    'live'),
+    c.swQ('(instance_jvm_thread_daemon_count{service="$service",service_instance_id=~"$instance"}) or vector(0)',  'daemon'),
+    c.swQ('(instance_jvm_thread_peak_count{service="$service",service_instance_id=~"$instance"}) or vector(0)',    'peak'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('short')
   + g.panel.timeSeries.options.tooltip.withMode('multi');

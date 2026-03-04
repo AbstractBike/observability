@@ -21,7 +21,7 @@ local cpmStat =
   g.panel.stat.new('Calls/min')
   + c.statPos(0)
   + g.panel.stat.queryOptions.withTargets([
-    c.swQ('service_cpm{service="' + serenaService + '"} or vector(0)'),
+    c.swQ('(service_cpm{service="' + serenaService + '"}) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('short');
 
@@ -29,7 +29,7 @@ local respTimeStat =
   g.panel.stat.new('Avg Response Time')
   + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
-    c.swQ('service_resp_time{service="' + serenaService + '"} or vector(0)'),
+    c.swQ('(service_resp_time{service="' + serenaService + '"}) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('ms')
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')
@@ -43,7 +43,7 @@ local slaStat =
   g.panel.stat.new('Success Rate (SLA)')
   + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
-    c.swQ('(service_sla{service="' + serenaService + '"} / 100) or vector(0)'),
+    c.swQ('((service_sla{service="' + serenaService + '"} / 100)) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')
@@ -58,7 +58,7 @@ local errorRateStat =
   g.panel.stat.new('Error Rate')
   + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
-    c.swQ('service_error_rate{service="' + serenaService + '"}'),
+    c.swQ('(service_error_rate{service="' + serenaService + '"}) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')
@@ -75,7 +75,7 @@ local cpmTs =
   g.panel.timeSeries.new('Calls/min')
   + c.tsPos(0, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.swQ('service_cpm{service="' + serenaService + '"}', 'cpm'),
+    c.swQ('(service_cpm{service="' + serenaService + '"}) or vector(0)', 'cpm'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('short')
   + g.panel.timeSeries.options.tooltip.withMode('single');
@@ -84,10 +84,10 @@ local latencyTs =
   g.panel.timeSeries.new('Response Time Percentiles (ms)')
   + c.tsPos(1, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.swQ('service_percentile{service="' + serenaService + '",le="50"}',  'p50'),
-    c.swQ('service_percentile{service="' + serenaService + '",le="75"}',  'p75'),
-    c.swQ('service_percentile{service="' + serenaService + '",le="90"}',  'p90'),
-    c.swQ('service_percentile{service="' + serenaService + '",le="99"}',  'p99'),
+    c.swQ('(service_percentile{service="' + serenaService + '",le="50"}) or vector(0)',  'p50'),
+    c.swQ('(service_percentile{service="' + serenaService + '",le="75"}) or vector(0)',  'p75'),
+    c.swQ('(service_percentile{service="' + serenaService + '",le="90"}) or vector(0)',  'p90'),
+    c.swQ('(service_percentile{service="' + serenaService + '",le="99"}) or vector(0)',  'p99'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('ms')
   + g.panel.timeSeries.options.tooltip.withMode('multi');
@@ -96,7 +96,7 @@ local errorRateTs =
   g.panel.timeSeries.new('Error Rate (%)')
   + c.tsPos(0, 1)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.swQ('service_error_rate{service="' + serenaService + '"}', 'error %'),
+    c.swQ('(service_error_rate{service="' + serenaService + '"}) or vector(0)', 'error %'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('percent')
   + g.panel.timeSeries.options.tooltip.withMode('single');
@@ -107,7 +107,7 @@ local toolCpmTs =
   g.panel.timeSeries.new('Calls/min per Tool')
   + c.tsPos(1, 1)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.swQ('topk(10, endpoint_cpm{service="' + serenaService + '"})', '{{endpoint}}'),
+    c.swQ('topk(10, (endpoint_cpm{service="' + serenaService + '"}) or vector(0))', '{{endpoint}}'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('short')
   + g.panel.timeSeries.options.tooltip.withMode('multi');
@@ -116,7 +116,7 @@ local toolLatencyTs =
   g.panel.timeSeries.new('Avg Latency per Tool (ms)')
   + c.tsPos(0, 2)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.swQ('topk(10, endpoint_resp_time{service="' + serenaService + '"})', '{{endpoint}}'),
+    c.swQ('topk(10, (endpoint_resp_time{service="' + serenaService + '"}) or vector(0))', '{{endpoint}}'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('ms')
   + g.panel.timeSeries.options.tooltip.withMode('multi');
