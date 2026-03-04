@@ -221,15 +221,36 @@ g.dashboard.new('Observability — Dashboard Index')
   + g.dashboard.variable.custom.generalOptions.withCurrent('All', ''),
 ])
 + g.dashboard.withPanels([
+  g.panel.row.new('📋 Dashboard Navigator') + c.pos(0, 0, 24, 1),
   overviewText,
+
+  g.panel.row.new('🎯 Core Observability') + c.pos(0, 2, 24, 1),
   coreObsText,
+
+  g.panel.row.new('⚡ Performance & Optimization') + c.pos(0, 3, 24, 1),
   perfText,
+
+  g.panel.row.new('🏗️ Infrastructure & Databases') + c.pos(0, 4, 24, 1),
   infraText,
+
+  g.panel.row.new('🔧 Observability Stack Components') + c.pos(0, 5, 24, 1),
   stackText,
+
+  g.panel.row.new('📡 Application Tracing & APM') + c.pos(0, 6, 24, 1),
   tracingText,
+
+  g.panel.row.new('📈 SLOs & Health Scoring') + c.pos(0, 7, 24, 1),
   sloText,
+
+  g.panel.row.new('🔄 Data Pipelines & Processing') + c.pos(0, 8, 24, 1),
   pipelineText,
+
+  g.panel.row.new('🖥️ Host-Specific Dashboards') + c.pos(0, 9, 24, 1),
   hostText,
+
+  g.panel.row.new('🔬 Internal/Meta Observability') + c.pos(0, 10, 24, 1),
   metaText,
+
+  g.panel.row.new('💡 Tips & Quick Links') + c.pos(0, 11, 24, 1),
   tipsText,
 ])

@@ -280,6 +280,36 @@ local config = {
       self.errorPanel(fallbackTitle, fallbackMessage, y),
     ],
 
+  // ── Row styling helpers (P5 - Aesthetics) ──────────────────────────────────
+
+  // Standardized row headers with consistent iconography
+  // Usage: g.panel.row.new(c.rowTitle('📊 Status', 'core')) + c.pos(...)
+  rowTitle(emoji_and_title, category=''):
+    emoji_and_title,
+
+  // Row styling function
+  styledRow(title, category='observability'):
+    local colors = {
+      status: '#1f77b4',        // Blue
+      trends: '#ff7f0e',        // Orange
+      errors: '#d62728',        // Red
+      performance: '#2ca02c',   // Green
+      info: '#9467bd',          // Purple
+      logs: '#8c564b',          // Brown
+      core: '#1f77b4',          // Blue
+    };
+    g.panel.row.new(title)
+    + {
+      collapsed: false,
+      datasource: null,
+      fieldConfig: { defaults: {}, overrides: [] },
+      gridPos: { h: 1, w: 24, x: 0, y: 0 },
+      id: 1,
+      options: { foldedObject: {} },
+      targets: [],
+      type: 'row',
+    },
+
   // ── Configuration access ──────────────────────────────────────────────────
 
   config: config,
