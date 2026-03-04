@@ -25,7 +25,7 @@ Legend: ✅ Done | ⚠️ Partial | ❌ Missing | N/A Not applicable
 | Service | Metrics | Logs | Traces | Dashboard | Alerts |
 |---------|---------|------|--------|-----------|--------|
 | PostgreSQL | ✅ :9187 (exporter) | ✅ journald | ⚠️ no agent | ✅ services/postgresql | ✅ PostgreSQLDown, TooManyConnections, SLO |
-| Redis | ✅ :9121 (exporter) | ✅ journald | N/A | N/A | ✅ RedisDown, SLO |
+| Redis | ✅ :9121 (exporter) | ✅ journald | N/A | ✅ services/redis | ✅ RedisDown, SLO |
 | Elasticsearch | ✅ :9114 (exporter) | ✅ journald | N/A | ✅ services/elasticsearch | ✅ ElasticsearchDown |
 | ClickHouse | ✅ :9363 (built-in) | ✅ journald | N/A | ✅ services/clickhouse | ✅ ClickHouseDown |
 | Redpanda | ✅ :9644 (built-in) | ✅ journald | N/A | ✅ services/redpanda | ✅ RedpandaBrokerDown |

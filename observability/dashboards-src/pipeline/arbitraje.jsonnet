@@ -18,9 +18,20 @@ local c = import 'lib/common.libsonnet';
 // HTTP            : http_server_requests_seconds
 
 local app = 'market.scalable';
-local host = '192.168.0.3';  // heater — where bootRun executes
 
-local q(expr, legend='') = c.vmQ(expr, legend);
+// Prod instance runs on homelab (192.168.0.4).
+// The $instance variable defaults to homelab so this dashboard only shows prod metrics.
+local instanceVar =
+  g.dashboard.variable.custom.new('instance', [
+    { key: 'homelab (prod)', value: '192.168.0.4.*' },
+    { key: 'heater (dev)', value: '192.168.0.3.*' },
+    { key: 'all', value: '.*' },
+  ])
+  + g.dashboard.variable.custom.generalOptions.withLabel('Instance')
+  + g.dashboard.variable.custom.generalOptions.withCurrent('homelab (prod)', '192.168.0.4.*');
+
+local q(expr, legend='') =
+  c.vmQ(std.strReplace(expr, 'application="%s"' % app, 'application="%s",instance=~"$instance"' % app), legend);
 
 // ── Row 0: Key Stats ──────────────────────────────────────────────────────────
 
@@ -143,22 +154,16 @@ local cpuAndGcTs =
 
 // ── Row 4: Logs ───────────────────────────────────────────────────────────────
 
-local logsPanel =
-  g.panel.logs.new('Arbitraje Logs')
-  + c.logPos(29)
-  + g.panel.logs.queryOptions.withTargets([
-    c.vlogsQ('{job="arbitraje"} | _msg:~"(arbitrage|opportunity|profit|ERROR|WARN|Exception)"'),
-  ])
-  + g.panel.logs.options.withWrapLogMessage(true)
-  + g.panel.logs.options.withSortOrder('Descending');
+local logsPanel = c.serviceLogsPanel('Arbitraje Logs', 'arbitraje', y=29);
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
 g.dashboard.new('Arbitraje — Market Scalable')
 + g.dashboard.withUid('arbitraje-main')
-+ g.dashboard.withDescription('Arbitrage engine: scan rate, opportunities, Binance API health, JVM. RED method.')
++ g.dashboard.withDescription('Prod instance: arbitrage engine scan rate, opportunities, Binance API health, JVM. Default filter: homelab (192.168.0.4).')
 + g.dashboard.withTags(['arbitraje', 'trading', 'pipeline'])
 + c.dashboardDefaults
++ g.dashboard.withVariables([instanceVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Key Stats') + c.pos(0, 0, 24, 1),
   scanRateStat, pathsRateStat, maxProfitStat, circuitBreakerStat,

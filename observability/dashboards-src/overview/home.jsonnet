@@ -246,7 +246,14 @@ local alertmgrDbCard   = cdbCard('🔔', 'Alertmanager',    'rules · silences',
 local vmalertDbCard    = cdbCard('📢', 'VM Alert',        'eval · firing',     'observability-vmalert',      pipeColor, c.pos(8,  43, 4, 4));
 local sloDbCard        = cdbCard('📊', 'SLO Overview',    'error budgets',     'slo-overview',               pipeColor, c.pos(12, 43, 4, 4));
 local serenaBackDbCard = cdbCard('🧠', 'Serena Backends', 'lsp · indexing',    'overview-serena-backends',   pipeColor, c.pos(16, 43, 4, 4));
-local matrixApmDbCard  = cdbCard('💬', 'Matrix APM',      'requests · spans',  'matrix-apm-skywalking',      pipeColor, c.pos(20, 43, 4, 4));
+local logsDbCard       = cdbCard('📋', 'Logs',            'all-services · levels', 'observability-logs',        pipeColor, c.pos(20, 43, 4, 4));
+local matrixApmDbCard  = cdbCard('💬', 'Matrix APM',      'requests · spans',  'matrix-apm-skywalking',      pipeColor, c.pos(0,  47, 4, 4));
+
+// ── New Dashboards row (y=51) ─────────────────────────────────────────────
+local newRow  = g.panel.row.new('New Dashboards') + c.pos(0, 51, 24, 1);
+local newCard = card('New Dashboards', '📂', 'New Dashboards',
+                     'dashboards_new/ · auto-provisioned',
+                     '/dashboards', dashColor, 'new', c.pos(0, 52, 6, 4));
 
 // ── Row separators ───────────────────────────────────────────────────────────
 
@@ -287,5 +294,6 @@ g.dashboard.new('Pin SI — Home')
     servicesRow,
     temporalDbCard, postgresDbCard, redisDbCard, clickhouseDbCard, elasticDbCard, redpandaDbCard,
     pipelineRow,
-    vectorDbCard, alertmgrDbCard, vmalertDbCard, sloDbCard, serenaBackDbCard, matrixApmDbCard,
+    vectorDbCard, alertmgrDbCard, vmalertDbCard, sloDbCard, serenaBackDbCard, logsDbCard, matrixApmDbCard,
+    newRow, newCard,
   ])
