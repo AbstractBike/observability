@@ -287,6 +287,53 @@ local config = {
     + g.panel.text.options.withMode('html')
     + g.panel.text.options.withContent(linkHtml),
 
+  // ── Alert Panel Helpers ───────────────────────────────────────────────────
+
+  // Alert count stat panel (colored by alert state)
+  // Usage: c.alertCountPanel('postgresql', col=0)
+  // Returns a stat panel showing count of ALERTS{service="<service>", alertstate="firing"}
+  alertCountPanel(serviceName, col=0):
+    g.panel.stat.new('🚨 Active Alerts')
+    + self.statPos(col)
+    + g.panel.stat.queryOptions.withTargets([
+      self.vmQ('count(ALERTS{service="' + serviceName + '",alertstate="firing"}) or vector(0)'),
+    ])
+    + g.panel.stat.standardOptions.withUnit('short')
+    + g.panel.stat.standardOptions.thresholds.withMode('absolute')
+    + g.panel.stat.standardOptions.thresholds.withSteps([
+      { color: 'green', value: null },
+      { color: 'yellow', value: 1 },
+      { color: 'red', value: 3 },
+    ])
+    + g.panel.stat.options.withColorMode('background')
+    + g.panel.stat.options.withGraphMode('none'),
+
+  // Service troubleshooting guide panel
+  // Usage: c.serviceTroubleshootingGuide('postgresql', [
+  //   { symptom: 'High CPU', runbook: 'postgresql/high-cpu', check: 'Check CPU graph' },
+  //   { symptom: 'Slow Queries', runbook: 'postgresql/slow-queries', check: 'Check latency' },
+  // ], y=24)
+  serviceTroubleshootingGuide(serviceName, items=[], y=0):
+    local tableHeader = '| Symptom | Runbook | Quick Check |\n|---------|---------|------------|';
+    local tableRows = std.join('\n', [
+      '| **' + item.symptom + '** | [Runbook](https://wiki.pin/runbooks/' + item.runbook + ') | ' + item.check + ' |'
+      for item in items
+    ]);
+    local workflowGuide = |||
+
+      **On-Call Workflow:**
+      1. Click alert notification → opens this dashboard
+      2. Check "Active Alerts" panel (top-left)
+      3. Find matching symptom in table above
+      4. Click runbook link to follow resolution steps
+      5. Monitor metrics improve in real-time
+    |||;
+    g.panel.text.new('🔧 Troubleshooting Guide')
+    + self.pos(0, y, 24, 5)
+    + g.panel.text.panelOptions.withTransparent(false)
+    + g.panel.text.options.withMode('markdown')
+    + g.panel.text.options.withContent(tableHeader + '\n' + tableRows + workflowGuide),
+
   // ── Runbook helpers ──────────────────────────────────────────────────────
 
   // Create a markdown runbook link helper
