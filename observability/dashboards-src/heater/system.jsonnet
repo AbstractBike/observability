@@ -17,9 +17,11 @@ local load1 =
 
 // ── Stat panels (row y=0) ─────────────────────────────────────────────────────
 
+local alertPanel = c.alertCountPanel('heater', col=0);
+
 local cpuStat =
   g.panel.stat.new('CPU Usage')
-  + c.statPos(0)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([c.vmQ(cpuUsagePct)])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.withMax(100)
@@ -30,7 +32,7 @@ local cpuStat =
 
 local memStat =
   g.panel.stat.new('Memory Used')
-  + c.statPos(1)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([c.vmQ(memUsedPct)])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.withMax(100)
@@ -41,7 +43,7 @@ local memStat =
 
 local diskStat =
   g.panel.stat.new('Root Disk Used')
-  + c.statPos(2)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([c.vmQ(diskRootPct)])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.withMax(100)
@@ -52,7 +54,7 @@ local diskStat =
 
 local loadStat =
   g.panel.stat.new('Load Avg (1m)')
-  + c.statPos(3)
+  + c.statPos(4)
   + g.panel.stat.queryOptions.withTargets([c.vmQ(load1)])
   + g.panel.stat.standardOptions.withDecimals(2)
   + g.panel.stat.options.withColorMode('value')
@@ -121,20 +123,31 @@ local logsPanel =
   + g.panel.logs.options.withSortOrder('Descending')
   + g.panel.logs.options.withShowTime(true);
 
+// ── Troubleshooting Guide ──────────────────────────────────────────────────
+
+local troubleGuide = c.serviceTroubleshootingGuide('heater', [
+  { symptom: 'High CPU Usage', runbook: 'heater/cpu-spike', check: 'Check CPU Usage stat and Performance trends panel' },
+  { symptom: 'Memory Pressure', runbook: 'heater/memory-pressure', check: 'Monitor Memory Used stat and swap usage' },
+  { symptom: 'Disk Space Low', runbook: 'heater/disk-cleanup', check: 'Review Root Disk Used and disk I/O trends' },
+  { symptom: 'System Overload', runbook: 'heater/load-average', check: 'Check Load Avg stat and correlate with Process grid' },
+], y=18);
+
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
 g.dashboard.new('Heater — System')
 + g.dashboard.withUid('heater-system')
 + g.dashboard.withDescription('CPU, memory, disk I/O, network and system logs for the heater machine.')
-+ g.dashboard.withTags(['heater', 'system'])
++ g.dashboard.withTags(['heater', 'system', 'critical'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  cpuStat, memStat, diskStat, loadStat,
+  alertPanel, cpuStat, memStat, diskStat, loadStat,
   g.panel.row.new('⚡ Performance') + c.pos(0, 4, 24, 1),
   cpuTs, memTs, diskIoTs, netIoTs,
-  g.panel.row.new('📝 Logs') + c.pos(0, 20, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 17, 24, 1),
+  troubleGuide,
+  g.panel.row.new('📝 Logs') + c.pos(0, 25, 24, 1),
   logsPanel,
 ])

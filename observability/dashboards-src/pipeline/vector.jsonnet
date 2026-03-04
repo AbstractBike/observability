@@ -17,9 +17,11 @@ local hostVar =
   + g.dashboard.variable.custom.generalOptions.withLabel('Host')
   + g.dashboard.variable.custom.generalOptions.withCurrent('heater', 'heater');
 
+local alertPanel = c.alertCountPanel('vector', col=0);
+
 local uptimeStat =
   g.panel.stat.new('Vector Uptime')
-  + c.statPos(0)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('max(vector_uptime_seconds{host=~"$host"}) or vector(0)', '{{host}}'),
   ])
@@ -29,7 +31,7 @@ local uptimeStat =
 
 local eventsInStat =
   g.panel.stat.new('Events In/sec')
-  + c.statPos(1)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(rate(vector_component_received_events_total{host=~"$host"}[5m])) or vector(0)'),
   ])
@@ -39,7 +41,7 @@ local eventsInStat =
 
 local eventsOutStat =
   g.panel.stat.new('Events Out/sec')
-  + c.statPos(2)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(rate(vector_component_sent_events_total{host=~"$host"}[5m])) or vector(0)'),
   ])
@@ -49,7 +51,7 @@ local eventsOutStat =
 
 local errorRateStat =
   g.panel.stat.new('Error Rate')
-  + c.statPos(3)
+  + c.statPos(4)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(rate(vector_component_errors_total{host=~"$host"}[5m])) or vector(0)'),
   ])
@@ -123,20 +125,31 @@ local logsPanel =
   + g.panel.logs.options.withSortOrder('Descending')
   + g.panel.logs.options.withShowTime(true);
 
+// ── Troubleshooting Guide ──────────────────────────────────────────────────
+
+local troubleGuide = c.serviceTroubleshootingGuide('vector', [
+  { symptom: 'Vector Down', runbook: 'vector/not-running', check: 'Verify Vector Uptime stat and check service logs' },
+  { symptom: 'Events Backlog', runbook: 'vector/backpressure', check: 'Compare Events In/sec vs Out/sec - check for buffering' },
+  { symptom: 'High Error Rate', runbook: 'vector/errors', check: 'Review Error Rate stat and "Errors & Bytes" trends' },
+  { symptom: 'Data Loss', runbook: 'vector/data-loss', check: 'Check processed bytes and component error logs' },
+], y=18);
+
 g.dashboard.new('Pipeline — Vector')
 + g.dashboard.withUid('pipeline-vector')
 + g.dashboard.withDescription('Vector observability pipeline metrics: events in/out, errors and component health for both heater and homelab hosts.')
-+ g.dashboard.withTags(['pipeline', 'vector'])
++ g.dashboard.withTags(['pipeline', 'vector', 'critical'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, hostVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  uptimeStat, eventsInStat, eventsOutStat, errorRateStat,
+  alertPanel, uptimeStat, eventsInStat, eventsOutStat, errorRateStat,
   g.panel.row.new('📤 Throughput') + c.pos(0, 4, 24, 1),
   eventsTs, eventsOutTs,
   g.panel.row.new('⚠️ Errors & Bytes') + c.pos(0, 12, 24, 1),
   errorsTs, bytesTs,
-  g.panel.row.new('📝 Logs') + c.pos(0, 20, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 17, 24, 1),
+  troubleGuide,
+  g.panel.row.new('📝 Logs') + c.pos(0, 25, 24, 1),
   logsPanel,
 ])
