@@ -11,9 +11,11 @@ local c = import 'lib/common.libsonnet';
 // jvm_classes_loaded
 // process_cpu_seconds_total
 
+local alertPanel = c.alertCountPanel('heater-jvm', col=0);
+
 local heapUsedPct =
   g.panel.gauge.new('Heap Used %')
-  + c.statPos(0)
+  + c.statPos(1)
   + g.panel.gauge.queryOptions.withTargets([
     c.vmQ(
       '(sum(jvm_memory_used_bytes{host="heater",area="heap"}) or vector(0)) / (sum(jvm_memory_max_bytes{host="heater",area="heap"}) or vector(0)) * 100'
@@ -31,7 +33,7 @@ local heapUsedPct =
 
 local heapUsedBytes =
   g.panel.stat.new('Heap Used')
-  + c.statPos(1)
+  + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(sum(jvm_memory_used_bytes{host="heater",area="heap"})) or vector(0)'),
   ])
@@ -41,7 +43,7 @@ local heapUsedBytes =
 
 local gcRate =
   g.panel.stat.new('GC Collections/min')
-  + c.statPos(2)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(rate(jvm_gc_collection_seconds_count{host="heater"}[5m]) or vector(0)) * 60'),
   ])
@@ -51,7 +53,7 @@ local gcRate =
 
 local threadCount =
   g.panel.stat.new('Live Threads')
-  + c.statPos(3)
+  + c.statPos(4)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(jvm_threads_current{host="heater"}) or vector(0)'),
   ])
@@ -101,7 +103,7 @@ local threadsTs =
 
 local logsPanel =
   g.panel.logs.new('IntelliJ / JVM Logs')
-  + c.logPos(21)
+  + c.logPos(25)
   + g.panel.logs.queryOptions.withTargets([
     // Filter to kernel and claude-code logs that mention JVM/Java/exceptions.
     c.vlogsQ('{host="heater"} | _msg:~"(?i)(exception|error|jvm|java|intellij)"'),
@@ -110,20 +112,31 @@ local logsPanel =
   + g.panel.logs.options.withSortOrder('Descending')
   + g.panel.logs.options.withShowTime(true);
 
+// ── Troubleshooting Guide ──────────────────────────────────────────────────
+
+local troubleGuide = c.serviceTroubleshootingGuide('jvm', [
+  { symptom: 'High Heap Usage', runbook: 'jvm/memory-leak', check: 'Check Heap Used % gauge and review memory trend panel' },
+  { symptom: 'GC Pauses', runbook: 'jvm/gc-tuning', check: 'Monitor GC Collections/min stat and GC Pause Time trends' },
+  { symptom: 'Thread Leaks', runbook: 'jvm/thread-exhaustion', check: 'Review Live Threads stat and Threads panel for deadlocks' },
+  { symptom: 'OutOfMemoryError', runbook: 'jvm/oom-recovery', check: 'Check Heap Max boundary and review exception logs' },
+], y=18);
+
 g.dashboard.new('Heater — JVM / IntelliJ')
 + g.dashboard.withUid('heater-jvm')
 + g.dashboard.withDescription('JVM heap, GC pauses, threads via JMX exporter (IntelliJ IDEA).')
-+ g.dashboard.withTags(['heater', 'jvm', 'intellij'])
++ g.dashboard.withTags(['heater', 'jvm', 'intellij', 'critical'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  heapUsedPct, heapUsedBytes, gcRate, threadCount,
+  alertPanel, heapUsedPct, heapUsedBytes, gcRate, threadCount,
   g.panel.row.new('💾 Memory') + c.pos(0, 4, 24, 1),
   heapTs, nonHeapTs,
   g.panel.row.new('♻️ GC & Threads') + c.pos(0, 12, 24, 1),
   gcPauseTs, threadsTs,
-  g.panel.row.new('📝 Logs') + c.pos(0, 20, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 18, 24, 1),
+  troubleGuide,
+  g.panel.row.new('📝 Logs') + c.pos(0, 24, 24, 1),
   logsPanel,
 ])

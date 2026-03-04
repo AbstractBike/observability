@@ -7,9 +7,11 @@ local c = import 'lib/common.libsonnet';
 // nvidia_smi_temperature_gpu, nvidia_smi_power_draw_watts
 // nvidia_smi_fan_speed_ratio
 
+local alertPanel = c.alertCountPanel('heater-gpu', col=0);
+
 local gpuUtil =
   g.panel.gauge.new('GPU Utilization')
-  + c.statPos(0)
+  + c.statPos(1)
   + g.panel.gauge.queryOptions.withTargets([
     c.vmQ('(nvidia_smi_utilization_gpu_ratio{host="heater"} * 100) or vector(0)', '{{name}}'),
   ])
@@ -25,7 +27,7 @@ local gpuUtil =
 
 local vramUtil =
   g.panel.gauge.new('VRAM Used')
-  + c.statPos(1)
+  + c.statPos(2)
   + g.panel.gauge.queryOptions.withTargets([
     c.vmQ('(nvidia_smi_memory_used_bytes{host="heater"} / nvidia_smi_memory_total_bytes{host="heater"} * 100) or vector(0)', '{{name}}'),
   ])
@@ -41,7 +43,7 @@ local vramUtil =
 
 local tempStat =
   g.panel.stat.new('Temperature')
-  + c.statPos(2)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('nvidia_smi_temperature_gpu{host="heater"} or vector(0)', '{{name}}'),
   ])
@@ -56,7 +58,7 @@ local tempStat =
 
 local powerStat =
   g.panel.stat.new('Power Draw')
-  + c.statPos(3)
+  + c.statPos(4)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('nvidia_smi_power_draw_watts{host="heater"} or vector(0)', '{{name}}'),
   ])
@@ -108,7 +110,7 @@ local powerTs =
 
 local logsPanel =
   g.panel.logs.new('GPU / CUDA Logs')
-  + c.logPos(21)
+  + c.logPos(25)
   + g.panel.logs.queryOptions.withTargets([
     // Use stream filter (indexed) first, then message regex for efficiency.
     c.vlogsQ('{host="heater",service="kernel"} | _msg:~"(NVIDIA|nvidia|NVRM|cuda|CUDA|GPU|drm)"'),
@@ -117,18 +119,29 @@ local logsPanel =
   + g.panel.logs.options.withSortOrder('Descending')
   + g.panel.logs.options.withShowTime(true);
 
+// ── Troubleshooting Guide ──────────────────────────────────────────────────
+
+local troubleGuide = c.serviceTroubleshootingGuide('gpu', [
+  { symptom: 'GPU Utilization High', runbook: 'gpu/high-utilization', check: 'Monitor GPU Utilization gauge and check active CUDA processes in logs' },
+  { symptom: 'VRAM Exhausted', runbook: 'gpu/memory-pressure', check: 'Review VRAM Used gauge and clear GPU memory cache if needed' },
+  { symptom: 'Temperature High', runbook: 'gpu/thermal-throttle', check: 'Check Temperature & Fan trend panel and improve cooling' },
+  { symptom: 'Power Spike', runbook: 'gpu/power-anomaly', check: 'Review Power Draw trends and adjust workloads' },
+], y=18);
+
 g.dashboard.new('Heater — GPU')
 + g.dashboard.withUid('heater-gpu')
 + g.dashboard.withDescription('NVIDIA GPU utilization, VRAM, temperature, power and GPU-related logs.')
-+ g.dashboard.withTags(['heater', 'gpu', 'nvidia'])
++ g.dashboard.withTags(['heater', 'gpu', 'nvidia', 'critical'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  gpuUtil, vramUtil, tempStat, powerStat,
+  alertPanel, gpuUtil, vramUtil, tempStat, powerStat,
   g.panel.row.new('⚡ Metrics') + c.pos(0, 4, 24, 1),
   gpuUtilTs, vramTs, tempTs, powerTs,
-  g.panel.row.new('📝 Logs') + c.pos(0, 20, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 17, 24, 1),
+  troubleGuide,
+  g.panel.row.new('📝 Logs') + c.pos(0, 24, 24, 1),
   logsPanel,
 ])
