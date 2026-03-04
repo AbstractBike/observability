@@ -121,7 +121,7 @@ local spanDistributionTs =
   + c.tsPos(1, 1)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
-      'topk(5, rate(skywalking_span_total[5m]))',
+      'topk(5, sum by(operation) (rate(skywalking_span_total[5m])))',
       '{{operation}}'
     ),
   ])

@@ -113,7 +113,7 @@ local callVolumeByPairTs =
   + c.tsPos(0, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
-      'topk(5, rate(skywalking_service_relation_total[5m]))',
+      'topk(5, sum by(source_service,dest_service) (rate(skywalking_service_relation_total[5m])))',
       '{{source_service}} → {{dest_service}}'
     ),
   ])
