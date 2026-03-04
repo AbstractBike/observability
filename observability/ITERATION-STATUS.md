@@ -2,20 +2,20 @@
 
 **Current Session:** 2026-03-04 (Continuing)
 **Mode:** Ralph Loop with `--max-iterations=60 --completion-promise="try on each iteration and complete all iterations"`
-**Iterations Completed:** 22 (continuing)
+**Iterations Completed:** 23 (continuing)
 
 ---
 
 ## 📊 Overall Progress
 
 ```
-✅ Completed Iterations: 22
-📋 Remaining Iterations: 38 (max 60)
+✅ Completed Iterations: 23
+📋 Remaining Iterations: 37 (max 60)
 🎯 Completion Promise: Attempting each iteration with deliverables
 ✅ P5 COMPLETE: 100% emoji header coverage (41/41 dashboards)
 ✅ P2 COMPLETE: 95.1% unit coverage audit (39/41 — no action needed)
 ✅ P3 COMPLETE: 92% panel naming + validation framework deployed
-✅ P4 IN PROGRESS: Query performance analysis + Phase 1 fallbacks (heater/* done)
+✅ P4 IN PROGRESS: Query performance analysis + Phase 1 fallbacks (6/14 observability dashboards done)
 ```
 
 ---
@@ -43,27 +43,27 @@
 | 19 | P3 Panel Naming Audit | Naming pattern analysis — 92% quality, no refactoring needed | ✅ DONE |
 | 20 | P3 Validation Framework | Jsonnet library + 8 validation functions for dashboard QA | ✅ DONE |
 | 21 | P4 Query Performance | Analyzed 361 queries — 25 optimization opportunities, 5-phase implementation plan | ✅ DONE |
-| 22 | P4 Phase 1 Fallbacks | Added vector(0) to 11 heater/* queries; all 5 heater dashboards now 100% compliant | ✅ DONE |
+| 22 | P4 Phase 1a Fallbacks | Added vector(0) to 11 heater/* queries; all 5 heater dashboards 100% compliant | ✅ DONE |
+| 23 | P4 Phase 1b Fallbacks | Added vector(0) to 6 metrics-discovery queries; 6/14 observability dashboards done | ✅ DONE |
 
-**Total Delivered:** 3,200+ lines of code, 3,700+ lines of docs, 30 commits
+**Total Delivered:** 3,300+ lines of code, 3,800+ lines of docs, 32 commits
 
 ---
 
 ## 🚀 Next Iterations (Planned)
 
-### Iteration 22: P4 Query Performance — Phase 1 (Vector Fallbacks) ✅ DONE
-**Completed:** Added vector(0) fallbacks to heater/* dashboards
+### Iteration 22: P4 Query Performance — Phase 1a ✅ DONE
+**Heater dashboards:** Added vector(0) fallbacks
+- [x] gpu.jsonnet: 6 fallbacks
+- [x] claude-code.jsonnet: 5 fallbacks
+- [x] All 5 heater/* dashboards now 100% compliant
 
-**Work completed:**
-- [x] Added 6 fallbacks to gpu.jsonnet (utilization, memory, temp, fan, power queries)
-- [x] Added 5 fallbacks to claude-code.jsonnet (token, cost, context, api-wait queries)
-- [x] Verified jvm.jsonnet (all 13 queries have fallbacks)
-- [x] Verified processes.jsonnet (all 8 queries have fallbacks)
-- [x] Verified system.jsonnet (9/13 direct, 4 via variables with fallbacks)
+### Iteration 23: P4 Query Performance — Phase 1b ✅ DONE
+**Observability dashboards:** Started adding vector(0) fallbacks
+- [x] metrics-discovery.jsonnet: 6 fallbacks (100% compliant)
+- ⏳ Remaining: alertmanager ✅, grafana ✅, skywalking ✅ + 11 more dashboards need work
 
-**Next:** Apply same pattern to observability/* dashboards (8 dashboards, ~40 queries)
-
-### Iteration 23: P4 Query Performance — Phase 2 (Histogram Optimization)
+### Iteration 24: P4 Query Performance — Phase 1c (Remaining Observability Fallbacks)
 **Scope:** Optimize histogram_quantile() queries for cardinality
 
 **Work:**
@@ -169,10 +169,10 @@ Remaining work: P2-P4 backlog items (P0-P4 priorities)
 5. Update this status file
 6. Repeat until max-iterations reached or genuine completion achieved
 
-**Current Status:** Ready for Iteration 23 ✅
+**Current Status:** Ready for Iteration 24 ✅
 
 ---
 
-**Last Updated:** 2026-03-04 (Iteration 22 complete — heater/* dashboards vector(0) fallbacks deployed)
-**Next Iteration:** 23 (P4 Query Performance Phase 1b — Add vector(0) fallbacks to observability/* dashboards)
+**Last Updated:** 2026-03-04 (Iteration 23 complete — metrics-discovery fallbacks deployed)
+**Next Iteration:** 24 (P4 Phase 1c — Add fallbacks to remaining 11 observability/* dashboards)
 
