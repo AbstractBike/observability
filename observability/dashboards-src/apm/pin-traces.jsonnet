@@ -14,11 +14,11 @@ local reqRate =
   g.panel.stat.new('Requests / min')
   + c.pos(0, 1, 6, 4)
   + g.panel.stat.queryOptions.withTargets([
-    c.swQ('sum(rate(meter_service_resp_time_count[1m])) * 60'),
+    c.swQ('sum(rate(meter_service_resp_time_count[1m]) or vector(0)) * 60'),
   ])
   + g.panel.stat.standardOptions.withUnit('reqpm')
   + g.panel.stat.standardOptions.withDecimals(0)
-  + g.panel.stat.options.withColorMode('background')
+  + g.panel.stat.options.withColorMode('value')
   + g.panel.stat.options.withGraphMode('area');
 
 local errorRate =
@@ -26,8 +26,8 @@ local errorRate =
   + c.pos(6, 1, 6, 4)
   + g.panel.stat.queryOptions.withTargets([
     c.swQ(|||
-      sum(rate(meter_service_resp_time_count{status="ERROR"}[1m]))
-      / sum(rate(meter_service_resp_time_count[1m])) * 100
+      (sum(rate(meter_service_resp_time_count{status="ERROR"}[1m]) or vector(0)))
+      / (sum(rate(meter_service_resp_time_count[1m]) or vector(0))) * 100 or vector(0)
     |||),
   ])
   + g.panel.stat.standardOptions.withUnit('percent')
@@ -61,11 +61,11 @@ local serviceCount =
   g.panel.stat.new('Services')
   + c.pos(18, 1, 6, 4)
   + g.panel.stat.queryOptions.withTargets([
-    c.swQ('count(count by(service) (meter_service_resp_time_count))'),
+    c.swQ('count(count by(service) (meter_service_resp_time_count)) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('short')
   + g.panel.stat.standardOptions.withDecimals(0)
-  + g.panel.stat.options.withColorMode('background');
+  + g.panel.stat.options.withColorMode('value');
 
 // ── Row 2: Top Services ──────────────────────────────────────────────────────
 

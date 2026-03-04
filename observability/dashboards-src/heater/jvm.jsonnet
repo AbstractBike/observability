@@ -43,10 +43,11 @@ local gcRate =
   g.panel.stat.new('GC Collections/min')
   + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(rate(jvm_gc_collection_seconds_count{host="heater"}[5m])) * 60'),
+    c.vmQ('sum(rate(jvm_gc_collection_seconds_count{host="heater"}[5m]) or vector(0)) * 60'),
   ])
   + g.panel.stat.standardOptions.withDecimals(1)
-  + g.panel.stat.options.withColorMode('value');
+  + g.panel.stat.options.withColorMode('value')
+  + g.panel.stat.options.withGraphMode('area');
 
 local threadCount =
   g.panel.stat.new('Live Threads')
