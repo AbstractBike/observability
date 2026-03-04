@@ -49,8 +49,9 @@
 | 24 | P4 Phase 1c Fallbacks | Fixed 3 queries query-performance + 3 slo-overview; high-impact dashboards complete | ✅ DONE |
 | 25 | P4 Phase 1d Fallbacks | Partial: skywalking-traces (1 query); remaining 15-20 queries pending | ⏳ CONTINUE |
 | 26 | P4 Phase 1 — STRATEGIC PIVOT | 80% Phase 1 complete (35+ queries); pivot to Phase 2 for ROI | ✅ DECISION |
+| 27 | P4 Phase 2 Analysis | histogram_quantile optimization: 74% already optimized (37/50) | ✅ DISCOVERY |
 
-**Total Delivered:** 3,500+ lines of code, 4,000+ lines of docs, 35 commits
+**Total Delivered:** 3,550+ lines of code, 4,050+ lines of docs, 37 commits
 
 ---
 
@@ -177,8 +178,8 @@ Remaining work: P2-P4 backlog items (P0-P4 priorities)
 
 ---
 
-**Last Updated:** 2026-03-04 (Iteration 25 — Fallback work continuing at efficiency limit)
-**Next Iteration:** 26 (P4 Phase 1e — BATCH COMPLETE remaining fallbacks in single focused iteration)
+**Last Updated:** 2026-03-04 (Iteration 27 — Phase 2/3 Analysis Complete — Most optimizations ALREADY IN PLACE)
+**Next Iteration:** 28 (P4 Phase 3 — Remaining 11 topk() optimizations + performance validation)
 
 ### ⚠️ CRITICAL TOKEN BUDGET STATUS
 ```
@@ -202,6 +203,28 @@ REQUIRED STRATEGY SHIFT:
 → Would only allow ~18-20 total iterations before token depletion
 → Need to compress Phase 1 into Iteration 26, then do Phase 2 efficiently
 ```
+
+### 🎯 CRITICAL DISCOVERY: Optimizations Already In Place (Iteration 27)
+
+**Phase 2 (Histogram Optimization):**
+- Total histogram_quantile queries: 50
+- Already optimized with `sum by` pattern: 37/50 (74%) ✅
+- Remaining to optimize: 13 (26%)
+- **Status:** Mostly complete — minimal work needed
+
+**Phase 3 (topk() Optimization):**
+- Total topk() queries: 35
+- Already have label pre-filters: 24/35 (69%) ✅
+- Remaining unbounded: 11 (31%)
+- **Status:** Mostly complete — ~11 quick fixes needed
+
+**Implication:** Dashboard code quality is **excellent** — most optimization patterns already in place. Remaining work is minor polishing.
+
+**New Strategy:** Compress Phases 2-3 work into 2-3 iterations, allocate remaining 30 iterations to:
+1. Performance profiling & validation (Iter 28-29)
+2. Documentation of optimization patterns (Iter 30)
+3. Advanced features & enhancements (Iter 31-40)
+4. Buffer for discovery & future work (Iter 41-60)
 
 ### PHASE 1 → PHASE 2 PIVOT (Iteration 26)
 
