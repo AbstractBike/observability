@@ -56,7 +56,7 @@ local deployDurationTs =
   + g.panel.timeSeries.queryOptions.withTargets([
     // Wider rate window (30m) captures infrequent deploys; "or vector(0)" shows 0 when idle.
     c.vmQ(
-      'histogram_quantile(0.95, rate(nixos_deploy_duration_seconds_bucket[30m])) or vector(0)',
+      'histogram_quantile(0.95, sum by(le, stage) (rate(nixos_deploy_duration_seconds_bucket[30m]))) or vector(0)',
       'p95 {{stage}}'
     ),
   ])
