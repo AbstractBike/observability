@@ -7,6 +7,8 @@ local c = import 'lib/common.libsonnet';
 //          claude_prompt_context_used_pct, claude_prompt_{input,output}_tokens,
 //          claude_prompt_lines_{added,removed}, claude_prompt_api_wait_ms
 
+local alertPanel = c.alertCountPanel('heater-claude-code', col=0);
+
 local projectVar =
   g.dashboard.variable.query.new('project')
   + g.dashboard.variable.query.queryTypes.withLabelValues(
@@ -21,7 +23,7 @@ local projectVar =
 
 local totalTokensStat =
   g.panel.stat.new('Tokens (current sessions)')
-  + c.statPos(0)
+  + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(claude_prompt_input_tokens{host="heater",project=~"$project"}) + sum(claude_prompt_output_tokens{host="heater",project=~"$project"}) or vector(0)'),
   ])
@@ -32,7 +34,7 @@ local totalTokensStat =
 
 local sessionCostStat =
   g.panel.stat.new('Session Cost (current)')
-  + c.statPos(1)
+  + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(claude_prompt_session_cost_usd{host="heater",project=~"$project"}) or vector(0)'),
   ])
@@ -48,7 +50,7 @@ local sessionCostStat =
 
 local contextUsedStat =
   g.panel.stat.new('Context Used %')
-  + c.statPos(2)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('max(claude_prompt_context_used_pct{host="heater",project=~"$project"}) or vector(0)'),
   ])
@@ -60,7 +62,7 @@ local contextUsedStat =
 
 local linesAddedStat =
   g.panel.stat.new('Lines Added (current session)')
-  + c.statPos(3)
+  + c.statPos(4)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(claude_prompt_lines_added{host="heater",project=~"$project"}) or vector(0)'),
   ])
@@ -119,22 +121,33 @@ local contextTs =
 local logsPanel =
   c.serviceLogsPanel('Claude Code Logs', 'claude-code', host='heater');
 
+// ── Troubleshooting Guide ──────────────────────────────────────────────────
+
+local troubleGuide = c.serviceTroubleshootingGuide('claude-code', [
+  { symptom: 'High Session Cost', runbook: 'claude-code/cost-optimization', check: 'Check Session Cost stat and review Token Usage trends by project' },
+  { symptom: 'Context Window Full', runbook: 'claude-code/context-strategy', check: 'Monitor Context Used % and review prompt sizes in logs' },
+  { symptom: 'API Latency Spike', runbook: 'claude-code/api-delay', check: 'Check API Wait Time trend and correlate with service status' },
+  { symptom: 'Session Failures', runbook: 'claude-code/error-recovery', check: 'Review Claude Code Logs for API errors and rate limits' },
+], y=18);
+
 // ── Dashboard ───────────────────────────────────────────────────────────────
 
 g.dashboard.new('Heater — Claude Code')
 + g.dashboard.withUid('heater-claude-code')
 + g.dashboard.withDescription('Claude Code session metrics: token usage, cost, context and API latency.')
-+ g.dashboard.withTags(['heater', 'claude', 'ai'])
++ g.dashboard.withTags(['heater', 'claude', 'ai', 'critical'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, projectVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Session Stats') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  totalTokensStat, sessionCostStat, contextUsedStat, linesAddedStat,
+  alertPanel, totalTokensStat, sessionCostStat, contextUsedStat, linesAddedStat,
   g.panel.row.new('📈 Usage Trends') + c.pos(0, 4, 24, 1),
   tokensTs, costTs,
   g.panel.row.new('⚡ Performance') + c.pos(0, 12, 24, 1),
   apiWaitTs, contextTs,
-  g.panel.row.new('📝 Logs') + c.pos(0, 20, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 18, 24, 1),
+  troubleGuide,
+  g.panel.row.new('📝 Logs') + c.pos(0, 24, 24, 1),
   logsPanel,
 ])

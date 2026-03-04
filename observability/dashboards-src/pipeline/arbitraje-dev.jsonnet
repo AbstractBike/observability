@@ -40,11 +40,13 @@ local q(expr, legend='') =
   // Inject instance filter into every arbitraje metric to scope to dev
   c.vmQ(std.strReplace(expr, 'application="%s"' % app, 'application="%s",instance=~"$instance"' % app), legend);
 
+local alertPanel = c.alertCountPanel('arbitraje-dev', col=0);
+
 // ── Row 0: Key Stats ──────────────────────────────────────────────────────────
 
 local scanRateStat =
   g.panel.stat.new('Scans / sec')
-  + c.statPos(0)
+  + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
     q('arbitrage_scan_rate{application="%s"}' % app),
   ])
@@ -54,7 +56,7 @@ local scanRateStat =
 
 local pathsRateStat =
   g.panel.stat.new('Paths / sec')
-  + c.statPos(1)
+  + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
     q('arbitrage_paths_rate{application="%s"}' % app),
   ])
@@ -64,7 +66,7 @@ local pathsRateStat =
 
 local maxProfitStat =
   g.panel.stat.new('Max Profit (USDC)')
-  + c.statPos(2)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
     q('arbitrage_max_profit_usdc{application="%s"}' % app),
   ])
@@ -75,7 +77,7 @@ local maxProfitStat =
 
 local circuitBreakerStat =
   g.panel.stat.new('Binance API Circuit (closed=1)')
-  + c.statPos(3)
+  + c.statPos(4)
   + g.panel.stat.queryOptions.withTargets([
     q('resilience4j_circuitbreaker_state{application="%s",name="binanceApi",state="closed"}' % app, 'closed'),
   ])
@@ -161,20 +163,29 @@ local cpuAndGcTs =
 
 // ── Row 4: Logs ───────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('Arbitraje Dev Logs', 'arbitraje', y=29);
+local logsPanel = c.serviceLogsPanel('Arbitraje Dev Logs', 'arbitraje', y=37);
+
+// ── Troubleshooting Guide ──────────────────────────────────────────────────
+
+local troubleGuide = c.serviceTroubleshootingGuide('arbitraje-dev', [
+  { symptom: 'App Crash', runbook: 'arbitraje/crash-recovery', check: 'Check app logs and restart via `./gradlew bootRun` if needed' },
+  { symptom: 'High CPU', runbook: 'arbitraje/cpu-spike', check: 'Monitor CPU & GC Pause panel and review algorithm efficiency' },
+  { symptom: 'Binance Auth Fail', runbook: 'arbitraje/api-creds', check: 'Check Circuit Breaker state and verify Binance API keys in config' },
+  { symptom: 'Memory Leak', runbook: 'arbitraje/memory-profiling', check: 'Review Heap Memory trend and profile with jcmd/jmap' },
+], y=29);
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
 g.dashboard.new('Arbitraje — Dev')
 + g.dashboard.withUid('arbitraje-dev')
 + g.dashboard.withDescription('Dev instance: arbitrage engine scan rate, opportunities, Binance API health, JVM. Runs via bootRun on heater (default filter: 192.168.0.3).')
-+ g.dashboard.withTags(['arbitraje', 'trading', 'pipeline', 'dev'])
++ g.dashboard.withTags(['arbitraje', 'trading', 'pipeline', 'dev', 'critical'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, instanceVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  scanRateStat, pathsRateStat, maxProfitStat, circuitBreakerStat,
+  alertPanel, scanRateStat, pathsRateStat, maxProfitStat, circuitBreakerStat,
 
   g.panel.row.new('⚙️ Arbitrage Engine') + c.pos(0, 4, 24, 1),
   scanDurationTs, opportunitiesTs,
@@ -185,6 +196,9 @@ g.dashboard.new('Arbitraje — Dev')
   g.panel.row.new('⚡ JVM') + c.pos(0, 22, 24, 1),
   jvmHeapTs, cpuAndGcTs,
 
-  g.panel.row.new('📝 Logs') + c.pos(0, 31, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 29, 24, 1),
+  troubleGuide,
+
+  g.panel.row.new('📝 Logs') + c.pos(0, 36, 24, 1),
   logsPanel,
 ])

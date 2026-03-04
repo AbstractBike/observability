@@ -33,11 +33,13 @@ local instanceVar =
 local q(expr, legend='') =
   c.vmQ(std.strReplace(expr, 'application="%s"' % app, 'application="%s",instance=~"$instance"' % app), legend);
 
+local alertPanel = c.alertCountPanel('arbitraje-prod', col=0);
+
 // ── Row 0: Key Stats ──────────────────────────────────────────────────────────
 
 local scanRateStat =
   g.panel.stat.new('Scans / sec')
-  + c.statPos(0)
+  + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
     q('arbitrage_scan_rate{application="%s"}' % app),  // gauge: lifetime avg scans/s
   ])
@@ -47,7 +49,7 @@ local scanRateStat =
 
 local pathsRateStat =
   g.panel.stat.new('Paths / sec')
-  + c.statPos(1)
+  + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
     q('arbitrage_paths_rate{application="%s"}' % app),  // gauge: lifetime avg paths/s
   ])
@@ -57,7 +59,7 @@ local pathsRateStat =
 
 local maxProfitStat =
   g.panel.stat.new('Max Profit (USDC)')
-  + c.statPos(2)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
     q('arbitrage_max_profit_usdc{application="%s"}' % app),
   ])
@@ -68,7 +70,7 @@ local maxProfitStat =
 
 local circuitBreakerStat =
   g.panel.stat.new('Binance API Circuit (closed=1)')
-  + c.statPos(3)
+  + c.statPos(4)
   + g.panel.stat.queryOptions.withTargets([
     q('resilience4j_circuitbreaker_state{application="%s",name="binanceApi",state="closed"}' % app, 'closed'),
   ])
@@ -154,20 +156,29 @@ local cpuAndGcTs =
 
 // ── Row 4: Logs ───────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('Arbitraje Logs', 'arbitraje', y=29);
+local logsPanel = c.serviceLogsPanel('Arbitraje Logs', 'arbitraje', y=37);
+
+// ── Troubleshooting Guide ──────────────────────────────────────────────────
+
+local troubleGuide = c.serviceTroubleshootingGuide('arbitraje', [
+  { symptom: 'Scan Rate Drop', runbook: 'arbitraje/scan-stall', check: 'Check Scans/sec stat and review scan duration trends' },
+  { symptom: 'Binance API Down', runbook: 'arbitraje/api-failure', check: 'Monitor Circuit Breaker state and check Binance latency in logs' },
+  { symptom: 'No Opportunities', runbook: 'arbitraje/market-dry', check: 'Review Opportunities Found metric and market conditions' },
+  { symptom: 'JVM Memory High', runbook: 'arbitraje/oom-risk', check: 'Check Heap Memory panel and review GC activity' },
+], y=29);
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
 g.dashboard.new('Arbitraje — Market Scalable')
 + g.dashboard.withUid('arbitraje-main')
 + g.dashboard.withDescription('Prod instance: arbitrage engine scan rate, opportunities, Binance API health, JVM. Default filter: homelab (192.168.0.4).')
-+ g.dashboard.withTags(['arbitraje', 'trading', 'pipeline'])
++ g.dashboard.withTags(['arbitraje', 'trading', 'pipeline', 'critical'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, instanceVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  scanRateStat, pathsRateStat, maxProfitStat, circuitBreakerStat,
+  alertPanel, scanRateStat, pathsRateStat, maxProfitStat, circuitBreakerStat,
 
   g.panel.row.new('⚙️ Arbitrage Engine') + c.pos(0, 4, 24, 1),
   scanDurationTs, opportunitiesTs,
@@ -178,6 +189,9 @@ g.dashboard.new('Arbitraje — Market Scalable')
   g.panel.row.new('⚡ JVM') + c.pos(0, 22, 24, 1),
   jvmHeapTs, cpuAndGcTs,
 
-  g.panel.row.new('📝 Logs') + c.pos(0, 31, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 29, 24, 1),
+  troubleGuide,
+
+  g.panel.row.new('📝 Logs') + c.pos(0, 36, 24, 1),
   logsPanel,
 ])
