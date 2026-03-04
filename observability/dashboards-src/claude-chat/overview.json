@@ -1,0 +1,203 @@
+{
+  "__inputs": [],
+  "__requires": [],
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "type": "row",
+      "title": "Messages & Activity",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "collapsed": false
+    },
+    {
+      "type": "timeseries",
+      "title": "Messages / min",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "fieldConfig": {
+        "defaults": { "unit": "short" },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "rate(claude_chat_matrix_messages_received_total[5m]) * 60",
+          "legendFormat": "{{room}}"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Active Agents",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "sum(claude_chat_session_active)" }
+      ],
+      "fieldConfig": {
+        "defaults": { "thresholds": { "steps": [
+          { "color": "red", "value": 0 },
+          { "color": "green", "value": 1 }
+        ]}}
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Rooms Configured",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "claude_chat_rooms_configured" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Auth Denied (5m)",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 5 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "sum(increase(claude_chat_auth_checks_total{result=\"denied\"}[5m]))" }
+      ],
+      "fieldConfig": {
+        "defaults": { "thresholds": { "steps": [
+          { "color": "green", "value": 0 },
+          { "color": "red", "value": 1 }
+        ]}}
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Uptime",
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 5 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "claude_chat_uptime_seconds" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+    {
+      "type": "row",
+      "title": "Sessions & Performance",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 },
+      "collapsed": false
+    },
+    {
+      "type": "timeseries",
+      "title": "Response Time p95",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 10 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, rate(claude_chat_session_duration_seconds_bucket[5m]))",
+          "legendFormat": "{{room}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+    {
+      "type": "timeseries",
+      "title": "Error Rate",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 10 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        {
+          "expr": "rate(claude_chat_session_completed_total{exit!=\"success\"}[5m])",
+          "legendFormat": "{{room}} ({{exit}})"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Commands & HTTP",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 18 },
+      "collapsed": false
+    },
+    {
+      "type": "timeseries",
+      "title": "Commands Executed",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 19 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        {
+          "expr": "rate(claude_chat_command_executed_total[5m])",
+          "legendFormat": "{{room}} {{command}} (exit:{{exit_code}})"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "HTTP Requests",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 19 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        {
+          "expr": "rate(claude_chat_http_requests_total[5m])",
+          "legendFormat": "{{method}} {{path}} ({{status}})"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Secrets & Audit",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 27 },
+      "collapsed": false
+    },
+    {
+      "type": "table",
+      "title": "Secret Access Log",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 28 },
+      "datasource": { "type": "victorialogs", "uid": "victorialogs" },
+      "targets": [
+        {
+          "expr": "service:\"claude-chat\" AND event:\"secret_access\"",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Sandbox & Storage",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 36 },
+      "collapsed": false
+    },
+    {
+      "type": "bargauge",
+      "title": "Agent Store Disk Usage",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 37 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        {
+          "expr": "claude_chat_store_bytes",
+          "legendFormat": "{{agent}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "bytes" } }
+    },
+    {
+      "type": "timeseries",
+      "title": "Sandbox Spawn Rate",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 37 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        {
+          "expr": "rate(claude_chat_bwrap_spawns_total[5m])",
+          "legendFormat": "{{room}}"
+        },
+        {
+          "expr": "rate(claude_chat_bwrap_failures_total[5m])",
+          "legendFormat": "failures: {{room}} ({{reason}})"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["claude-chat", "observability"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "title": "Claude Chat Overview",
+  "uid": "claude-chat-overview"
+}

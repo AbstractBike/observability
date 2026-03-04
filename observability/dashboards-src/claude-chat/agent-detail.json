@@ -1,0 +1,204 @@
+{
+  "__inputs": [],
+  "__requires": [],
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "type": "row",
+      "title": "Response Time",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "collapsed": false
+    },
+    {
+      "type": "timeseries",
+      "title": "Response Time Percentiles",
+      "gridPos": { "h": 8, "w": 16, "x": 0, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, rate(claude_chat_session_duration_seconds_bucket{room=\"$agent\"}[5m]))",
+          "legendFormat": "p50"
+        },
+        {
+          "expr": "histogram_quantile(0.95, rate(claude_chat_session_duration_seconds_bucket{room=\"$agent\"}[5m]))",
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "histogram_quantile(0.99, rate(claude_chat_session_duration_seconds_bucket{room=\"$agent\"}[5m]))",
+          "legendFormat": "p99"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+    {
+      "type": "stat",
+      "title": "Active",
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "claude_chat_session_active{room=\"$agent\"}" }
+      ],
+      "fieldConfig": {
+        "defaults": { "thresholds": { "steps": [
+          { "color": "red", "value": 0 },
+          { "color": "green", "value": 1 }
+        ]}}
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Pending Messages",
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "claude_chat_agent_pending_messages{agent=\"$agent\"}" }
+      ],
+      "fieldConfig": {
+        "defaults": { "thresholds": { "steps": [
+          { "color": "green", "value": 0 },
+          { "color": "orange", "value": 1 },
+          { "color": "red", "value": 5 }
+        ]}}
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Timeouts (1h)",
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 5 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "increase(claude_chat_session_completed_total{room=\"$agent\",exit=\"timeout\"}[1h])" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Errors (1h)",
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 5 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        { "expr": "increase(claude_chat_session_completed_total{room=\"$agent\",exit=\"error\"}[1h])" }
+      ],
+      "fieldConfig": {
+        "defaults": { "thresholds": { "steps": [
+          { "color": "green", "value": 0 },
+          { "color": "red", "value": 1 }
+        ]}}
+      }
+    },
+    {
+      "type": "row",
+      "title": "Commands",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 },
+      "collapsed": false
+    },
+    {
+      "type": "barchart",
+      "title": "Commands by Type",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 10 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        {
+          "expr": "increase(claude_chat_command_executed_total{room=\"$agent\"}[1h])",
+          "legendFormat": "{{command}} (exit:{{exit_code}})"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Command Duration",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 10 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, rate(claude_chat_command_duration_seconds_bucket{room=\"$agent\"}[5m]))",
+          "legendFormat": "p95"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+    {
+      "type": "row",
+      "title": "Sessions & Output",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 18 },
+      "collapsed": false
+    },
+    {
+      "type": "timeseries",
+      "title": "Output Size",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 19 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        {
+          "expr": "rate(claude_chat_session_output_bytes{room=\"$agent\"}[5m])",
+          "legendFormat": "bytes/s"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "Bps" } }
+    },
+    {
+      "type": "timeseries",
+      "title": "Resume vs New Sessions",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 19 },
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "targets": [
+        {
+          "expr": "rate(claude_chat_session_resume_total{room=\"$agent\",result=\"resumed\"}[10m])",
+          "legendFormat": "resumed"
+        },
+        {
+          "expr": "rate(claude_chat_session_resume_total{room=\"$agent\",result=\"new\"}[10m])",
+          "legendFormat": "new"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Logs & Traces",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 27 },
+      "collapsed": false
+    },
+    {
+      "type": "logs",
+      "title": "Agent Logs",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 28 },
+      "datasource": { "type": "victorialogs", "uid": "victorialogs" },
+      "targets": [
+        {
+          "expr": "service:\"claude-chat\" AND room:\"$agent\"",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "title": "SkyWalking Traces",
+      "gridPos": { "h": 3, "w": 24, "x": 0, "y": 38 },
+      "options": {
+        "mode": "markdown",
+        "content": "**[Open SkyWalking UI →](http://192.168.0.4:8080/)** | Filter by service: `claude-chat`, endpoint: `$agent`"
+      }
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["claude-chat", "agent-detail"],
+  "templating": {
+    "list": [
+      {
+        "name": "agent",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+        "query": "label_values(claude_chat_session_active, room)",
+        "refresh": 2,
+        "current": {}
+      }
+    ]
+  },
+  "time": { "from": "now-6h", "to": "now" },
+  "title": "Claude Chat Agent Detail",
+  "uid": "claude-chat-agent-detail"
+}

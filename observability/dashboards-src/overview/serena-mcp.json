@@ -1,0 +1,722 @@
+{
+  "uid": "serena-mcp-observability",
+  "title": "Serena MCP — Observability",
+  "tags": [
+    "serena",
+    "mcp",
+    "skywalking"
+  ],
+  "timezone": "browser",
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "version": 1,
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "swds",
+        "label": "SkyWalking PromQL",
+        "type": "datasource",
+        "pluginId": "prometheus",
+        "query": "prometheus",
+        "current": {
+          "text": "SkyWalking-PromQL",
+          "value": "P045857905AB95CE2"
+        },
+        "hide": 0
+      },
+      {
+        "name": "swnat",
+        "label": "SkyWalking Native",
+        "type": "datasource",
+        "pluginId": "apache-skywalking-datasource",
+        "query": "apache-skywalking-datasource",
+        "current": {
+          "text": "SkyWalking",
+          "value": "PA1E57E73C3E6F5F1"
+        },
+        "hide": 0
+      },
+      {
+        "name": "vlogs",
+        "label": "VictoriaLogs",
+        "type": "datasource",
+        "pluginId": "victoriametrics-logs-datasource",
+        "query": "victoriametrics-logs-datasource",
+        "current": {
+          "text": "VictoriaLogs",
+          "value": "PD775F2863313E6C7"
+        },
+        "hide": 0
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "id": 2,
+      "title": "Calls / min",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${swds}"
+      },
+      "targets": [
+        {
+          "expr": "service_cpm{service=\"serena-standalone-rs\",layer=\"GENERAL\"}",
+          "legendFormat": "CPM"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "blue"
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 1,
+        "w": 4,
+        "h": 4
+      }
+    },
+    {
+      "id": 3,
+      "title": "Success Rate (SLA)",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${swds}"
+      },
+      "targets": [
+        {
+          "expr": "service_sla{service=\"serena-standalone-rs\",layer=\"GENERAL\"} / 100",
+          "legendFormat": "SLA"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 1,
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "red"
+              },
+              {
+                "value": 95,
+                "color": "yellow"
+              },
+              {
+                "value": 99,
+                "color": "green"
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "x": 4,
+        "y": 1,
+        "w": 4,
+        "h": 4
+      }
+    },
+    {
+      "id": 4,
+      "title": "Avg Response Time",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${swds}"
+      },
+      "targets": [
+        {
+          "expr": "service_resp_time{service=\"serena-standalone-rs\",layer=\"GENERAL\"}",
+          "legendFormat": "Avg"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 500,
+                "color": "yellow"
+              },
+              {
+                "value": 2000,
+                "color": "red"
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 1,
+        "w": 4,
+        "h": 4
+      }
+    },
+    {
+      "id": 5,
+      "title": "P90 Latency",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${swds}"
+      },
+      "targets": [
+        {
+          "expr": "service_percentile{service=\"serena-standalone-rs\",layer=\"GENERAL\",p=\"90\"}",
+          "legendFormat": "P90"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 1000,
+                "color": "yellow"
+              },
+              {
+                "value": 5000,
+                "color": "red"
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 1,
+        "w": 4,
+        "h": 4
+      }
+    },
+    {
+      "id": 6,
+      "title": "P50 Latency",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${swds}"
+      },
+      "targets": [
+        {
+          "expr": "service_percentile{service=\"serena-standalone-rs\",layer=\"GENERAL\",p=\"50\"}",
+          "legendFormat": "P50"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 500,
+                "color": "yellow"
+              },
+              {
+                "value": 2000,
+                "color": "red"
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 1,
+        "w": 4,
+        "h": 4
+      }
+    },
+    {
+      "id": 100,
+      "title": "Service Up",
+      "type": "stat",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${swds}"
+      },
+      "targets": [
+        {
+          "expr": "vector(1) and on() service_cpm{service=\"serena-standalone-rs\",layer=\"GENERAL\"} > 0",
+          "legendFormat": "UP"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value_and_name"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "UP",
+                  "color": "green"
+                }
+              }
+            },
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "DOWN",
+                  "color": "red"
+                }
+              }
+            }
+          ],
+          "noValue": "DOWN",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "red"
+              },
+              {
+                "value": 1,
+                "color": "green"
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "x": 20,
+        "y": 1,
+        "w": 4,
+        "h": 4
+      }
+    },
+    {
+      "id": 10,
+      "title": "Metrics",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "id": 11,
+      "title": "Tool Calls per Minute",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${swds}"
+      },
+      "targets": [
+        {
+          "expr": "service_cpm{service=\"serena-standalone-rs\",layer=\"GENERAL\"}",
+          "legendFormat": "CPM"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 6,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "id": 12,
+      "title": "Latency Percentiles (ms)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${swds}"
+      },
+      "targets": [
+        {
+          "expr": "service_percentile{service=\"serena-standalone-rs\",layer=\"GENERAL\",p=\"50\"}",
+          "legendFormat": "P50"
+        },
+        {
+          "expr": "service_percentile{service=\"serena-standalone-rs\",layer=\"GENERAL\",p=\"75\"}",
+          "legendFormat": "P75"
+        },
+        {
+          "expr": "service_percentile{service=\"serena-standalone-rs\",layer=\"GENERAL\",p=\"90\"}",
+          "legendFormat": "P90"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 5
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 6,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "id": 13,
+      "title": "Avg Response Time (ms)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${swds}"
+      },
+      "targets": [
+        {
+          "expr": "service_resp_time{service=\"serena-standalone-rs\",layer=\"GENERAL\"}",
+          "legendFormat": "Avg Response Time"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "green"
+              },
+              {
+                "value": 1000,
+                "color": "yellow"
+              },
+              {
+                "value": 5000,
+                "color": "red"
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 14,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "id": 14,
+      "title": "Success Rate % (SLA)",
+      "type": "timeseries",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${swds}"
+      },
+      "targets": [
+        {
+          "expr": "service_sla{service=\"serena-standalone-rs\",layer=\"GENERAL\"} / 100",
+          "legendFormat": "SLA %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "value": null,
+                "color": "red"
+              },
+              {
+                "value": 95,
+                "color": "yellow"
+              },
+              {
+                "value": 99,
+                "color": "green"
+              }
+            ]
+          }
+        }
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 14,
+        "w": 12,
+        "h": 8
+      }
+    },
+    {
+      "id": 20,
+      "title": "Traces",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 22,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "id": 21,
+      "title": "Recent Tool Call Traces",
+      "type": "table",
+      "datasource": {
+        "type": "apache-skywalking-datasource",
+        "uid": "${swnat}"
+      },
+      "targets": [
+        {
+          "queryType": "QUERY_TRACES",
+          "serviceId": "",
+          "serviceName": "serena-standalone-rs",
+          "endpointName": "",
+          "duration": {
+            "start": "now-1h",
+            "end": "now",
+            "step": "MINUTE"
+          },
+          "traceState": "ALL",
+          "queryOrder": "BY_START_TIME",
+          "paging": {
+            "pageNum": 1,
+            "pageSize": 20,
+            "needTotal": false
+          },
+          "tags": null
+        }
+      ],
+      "gridPos": {
+        "x": 0,
+        "y": 23,
+        "w": 24,
+        "h": 10
+      }
+    },
+    {
+      "id": 30,
+      "title": "Logs",
+      "type": "row",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 33,
+        "w": 24,
+        "h": 1
+      }
+    },
+    {
+      "id": 31,
+      "title": "serena-standalone logs (heater journal)",
+      "type": "logs",
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${vlogs}"
+      },
+      "targets": [
+        {
+          "expr": "{host=\"heater\",service=\"serena-standalone\"}",
+          "legendFormat": ""
+        }
+      ],
+      "options": {
+        "dedupStrategy": "none",
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 34,
+        "w": 24,
+        "h": 10
+      }
+    },
+    {
+      "id": 32,
+      "title": "OAP Logs (SkyWalking container — homelab)",
+      "type": "logs",
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${vlogs}"
+      },
+      "targets": [
+        {
+          "expr": "{host=\"homelab\",service=\"skywalking-oap\"}",
+          "legendFormat": ""
+        }
+      ],
+      "options": {
+        "dedupStrategy": "none",
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 44,
+        "w": 24,
+        "h": 8
+      }
+    }
+  ]
+}
