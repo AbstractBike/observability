@@ -1,10 +1,27 @@
 local g = import 'github.com/grafana/grafonnet/gen/grafonnet-v11.4.0/main.libsonnet';
 local c = import 'lib/common.libsonnet';
 
+// Alert count panel (colored by alert state)
+local alertCountPanel =
+  g.panel.stat.new('🚨 Active Alerts')
+  + c.pos(0, 1, 4, 3)
+  + g.panel.stat.queryOptions.withTargets([
+    c.vmQ('count(ALERTS{service="elasticsearch",alertstate="firing"}) or vector(0)'),
+  ])
+  + g.panel.stat.standardOptions.withUnit('short')
+  + g.panel.stat.standardOptions.thresholds.withMode('absolute')
+  + g.panel.stat.standardOptions.thresholds.withSteps([
+    { color: 'green', value: null },
+    { color: 'yellow', value: 1 },
+    { color: 'red', value: 3 },
+  ])
+  + g.panel.stat.options.withColorMode('background')
+  + g.panel.stat.options.withGraphMode('none');
+
 // 5-stat layout: up(4w) + health(5w) + nodes(5w) + indexRate(5w) + searchLat(5w) = 24
 local upStat =
   g.panel.stat.new('Elasticsearch Up')
-  + c.pos(0, 1, 4, 3)
+  + c.pos(4, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([c.vmQ('up{job="elasticsearch-exporter"}')])
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')
   + g.panel.stat.standardOptions.thresholds.withSteps([
@@ -16,7 +33,7 @@ local upStat =
 
 local healthStat =
   g.panel.stat.new('Cluster Health')
-  + c.pos(4, 1, 5, 3)
+  + c.pos(8, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('elasticsearch_cluster_health_status{color="green"}'),
   ])
@@ -29,14 +46,14 @@ local healthStat =
 
 local nodesStat =
   g.panel.stat.new('Nodes')
-  + c.pos(9, 1, 5, 3)
+  + c.pos(13, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([c.vmQ('elasticsearch_cluster_health_number_of_nodes')])
   + g.panel.stat.standardOptions.withDecimals(0)
   + g.panel.stat.options.withColorMode('value');
 
 local indexRateStat =
   g.panel.stat.new('Indexing Rate')
-  + c.pos(14, 1, 5, 3)
+  + c.pos(18, 1, 3, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(rate(elasticsearch_indices_indexing_index_total[5m])) or vector(0)'),
   ])
@@ -46,7 +63,7 @@ local indexRateStat =
 
 local searchLatStat =
   g.panel.stat.new('Search Latency (avg)')
-  + c.pos(19, 1, 5, 3)
+  + c.pos(21, 1, 3, 3)
   + g.panel.stat.queryOptions.withTargets([
     // avg latency = total_time / total_count (not a percentile)
     c.vmQ('elasticsearch_indices_search_query_time_seconds / clamp_min(elasticsearch_indices_search_query_total, 1) * 1000'),
@@ -90,20 +107,45 @@ local diskTs =
 
 local logsPanel = c.serviceLogsPanel('Elasticsearch Logs', 'elasticsearch');
 
+// Troubleshooting guide with runbook links
+local troubleshootingPanel =
+  g.panel.text.new('🔧 Troubleshooting Guide')
+  + c.pos(0, 28, 24, 5)
+  + g.panel.text.panelOptions.withTransparent(false)
+  + g.panel.text.options.withMode('markdown')
+  + g.panel.text.options.withContent(|||
+    | Symptom | Runbook | Quick Check |
+    |---------|---------|------------|
+    | **Cluster Not Green** | [Cluster Health](https://wiki.pin/runbooks/elasticsearch/cluster-health) | Check "Cluster Health" stat |
+    | **High JVM Memory** | [JVM Tuning](https://wiki.pin/runbooks/elasticsearch/jvm-tuning) | Look at "JVM Heap Used" graph |
+    | **Slow Searches** | [Search Performance](https://wiki.pin/runbooks/elasticsearch/search-perf) | Check "Search Latency" stat |
+    | **Disk Space Low** | [Disk Management](https://wiki.pin/runbooks/elasticsearch/disk-management) | View "Disk Store Size" chart |
+    | **Index Failures** | [Indexing Issues](https://wiki.pin/runbooks/elasticsearch/indexing) | Monitor "Indexing Rate" graph |
+
+    **On-Call Workflow:**
+    1. Click alert notification → opens this dashboard
+    2. Check "Active Alerts" panel (top-left)
+    3. Find matching symptom in troubleshooting table
+    4. Click runbook link to resolve
+    5. Monitor cluster health improve
+  |||);
+
 g.dashboard.new('Services — Elasticsearch')
 + g.dashboard.withUid('services-elasticsearch')
-+ g.dashboard.withDescription('Elasticsearch cluster health, indexing rate, search latency, JVM heap.')
-+ g.dashboard.withTags(['services', 'elasticsearch'])
++ g.dashboard.withDescription('Elasticsearch cluster health, indexing rate, search latency, JVM heap, and alerts.')
++ g.dashboard.withTags(['services', 'elasticsearch', 'search', 'critical'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  upStat, healthStat, nodesStat, indexRateStat, searchLatStat,
+  alertCountPanel, upStat, healthStat, nodesStat, indexRateStat, searchLatStat,
   g.panel.row.new('🔍 Indexing & Search') + c.pos(0, 4, 24, 1),
   indexTs, searchTs,
   g.panel.row.new('🏗️ JVM & Disk') + c.pos(0, 12, 24, 1),
   jvmTs, diskTs,
   g.panel.row.new('📝 Logs') + c.pos(0, 20, 24, 1),
   logsPanel,
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 27, 24, 1),
+  troubleshootingPanel,
 ])
