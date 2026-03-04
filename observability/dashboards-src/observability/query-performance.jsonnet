@@ -11,9 +11,11 @@ local c = import 'lib/common.libsonnet';
 
 // ── Average Query Time ──────────────────────────────────────────────────────
 
+local alertPanel = c.alertCountPanel('grafana', col=0);
+
 local avgQueryTimeStat =
   g.panel.stat.new('Latency — Query Executor — avg')
-  + c.statPos(0)
+  + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(histogram_quantile(0.5, sum by(le) (rate(grafana_query_duration_seconds_bucket[5m]))) or vector(0)) * 1000', 'ms'),
   ])
@@ -31,7 +33,7 @@ local avgQueryTimeStat =
 
 local p99QueryTimeStat =
   g.panel.stat.new('Latency — Query Executor — p99')
-  + c.statPos(1)
+  + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(histogram_quantile(0.99, sum by(le) (rate(grafana_query_duration_seconds_bucket[5m]))) or vector(0)) * 1000', 'ms'),
   ])
@@ -49,7 +51,7 @@ local p99QueryTimeStat =
 
 local queryErrorRateStat =
   g.panel.stat.new('Error Rate — Queries — 5m')
-  + c.statPos(2)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(sum(rate(grafana_query_errors_total[5m])) / sum(rate(grafana_queries_total[5m])) or vector(0)) * 100', '%'),
   ])
@@ -67,7 +69,7 @@ local queryErrorRateStat =
 
 local totalQueriesStat =
   g.panel.stat.new('Throughput — Queries — /sec')
-  + c.statPos(3)
+  + c.statPos(4)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(rate(grafana_queries_total[5m])) or vector(0)', 'queries/sec'),
   ])
@@ -142,6 +144,15 @@ local queryThroughputTs =
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
+// ── Troubleshooting Guide ───────────────────────────────────────────────────
+
+local troubleGuide = c.serviceTroubleshootingGuide('grafana', [
+  { symptom: 'High Query Latency', runbook: 'grafana/query-latency', check: 'Check p99 latency and "Slowest Queries by Datasource"' },
+  { symptom: 'Query Errors Spike', runbook: 'grafana/query-errors', check: 'Monitor "Error Rate" stat and errors by datasource' },
+  { symptom: 'Slow Datasource', runbook: 'grafana/datasource-perf', check: 'Identify slow datasource in "Slowest Queries" chart' },
+  { symptom: 'Dashboard Loading Slow', runbook: 'grafana/dashboard-speed', check: 'Check throughput and consider reducing refresh rate' },
+], y=17);
+
 // ── Info Panel ──────────────────────────────────────────────────────────────
 
 local infoPanel =
@@ -180,18 +191,21 @@ local infoPanel =
 g.dashboard.new('Observability — Query Performance')
 + g.dashboard.withUid('query-performance')
 + g.dashboard.withDescription('Grafana query execution profiling: latency distribution, errors by datasource, throughput trends. Identify slow datasources and optimize dashboard refresh.')
-+ g.dashboard.withTags(['observability', 'meta', 'performance', 'troubleshooting'])
++ g.dashboard.withTags(['observability', 'meta', 'performance', 'troubleshooting', 'critical'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  avgQueryTimeStat, p99QueryTimeStat, queryErrorRateStat, totalQueriesStat,
+  alertPanel, avgQueryTimeStat, p99QueryTimeStat, queryErrorRateStat, totalQueriesStat,
 
   g.panel.row.new('📈 Trends') + c.pos(0, 4, 24, 1),
   queryTimeDistributionTs, slowestQueriesTs,
   queryErrorsTs, queryThroughputTs,
 
-  g.panel.row.new('ℹ️ Info') + c.pos(0, 17, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 16, 24, 1),
+  troubleGuide,
+
+  g.panel.row.new('ℹ️ Info') + c.pos(0, 24, 24, 1),
   infoPanel,
 ])
