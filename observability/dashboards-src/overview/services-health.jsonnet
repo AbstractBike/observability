@@ -9,9 +9,11 @@ local c = import 'lib/common.libsonnet';
 
 // ── Health Summary Stats ───────────────────────────────────────────────────
 
+local alertPanel = c.alertCountPanel('observability', col=0);
+
 local healthyServicesStat =
   g.panel.stat.new('✅ Healthy Services')
-  + c.statPos(0)
+  + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('count(up{job=~"(postgres|redis|temporal|grafana|alertmanager|victoriametrics|victorialogs|vector|skywalking-oap)"} == 1) or vector(0)'),
   ])
@@ -27,7 +29,7 @@ local healthyServicesStat =
 
 local downServicesStat =
   g.panel.stat.new('❌ Down Services')
-  + c.statPos(1)
+  + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('count(up{job=~"(postgres|redis|temporal|grafana|alertmanager|victoriametrics|victorialogs|vector|skywalking-oap)"} == 0) or vector(0)'),
   ])
@@ -43,7 +45,7 @@ local downServicesStat =
 
 local errorRateStat =
   g.panel.stat.new('⚠️ Avg Error Rate')
-  + c.statPos(2)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('avg(rate(http_requests_total{status=~"5.."}[5m]) or vector(0)) * 100'),
   ])
@@ -59,7 +61,7 @@ local errorRateStat =
 
 local avgLatencyStat =
   g.panel.stat.new('⏱️ Avg Latency')
-  + c.statPos(3)
+  + c.statPos(4)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(histogram_quantile(0.95, sum by(le) (rate(http_request_duration_seconds_bucket[5m])))) or vector(0)'),
   ])
@@ -158,22 +160,31 @@ local infoPanel =
   |||)
   + g.panel.text.options.withMode('markdown');
 
+// ── Troubleshooting Guide ──────────────────────────────────────────────────
+
+local troubleGuide = c.serviceTroubleshootingGuide('observability', [
+  { symptom: 'Service Down', runbook: 'services/outage-response', check: 'Check "Down Services" stat and service grid for specific issue' },
+  { symptom: 'Error Rate Spike', runbook: 'services/error-spike', check: 'Review "Avg Error Rate" and correlate with service logs' },
+  { symptom: 'Latency Degradation', runbook: 'services/latency-issue', check: 'Monitor "Avg Latency" trend and check database performance' },
+  { symptom: 'Multi-Service Failures', runbook: 'services/cascade-failure', check: 'Check infrastructure health and resource contention' },
+], y=20);
+
 // ── Logs panel ────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('Error Logs (all services)', 'homelab', y=22, host='homelab');
+local logsPanel = c.serviceLogsPanel('Error Logs (all services)', 'homelab', y=28, host='homelab');
 
 // ── Dashboard ──────────────────────────────────────────────────────────────
 
 g.dashboard.new('Overview — Services Health')
 + g.dashboard.withUid('services-health')
 + g.dashboard.withDescription('Infrastructure health summary: service status, error rates, latency trends, quick navigation.')
-+ g.dashboard.withTags(['overview', 'health', 'services', 'sla'])
++ g.dashboard.withTags(['overview', 'health', 'services', 'sla', 'critical'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Health Summary') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  healthyServicesStat, downServicesStat, errorRateStat, avgLatencyStat,
+  alertPanel, healthyServicesStat, downServicesStat, errorRateStat, avgLatencyStat,
 
   g.panel.row.new('⚡ Service Status') + c.pos(0, 4, 24, 1),
 ]
@@ -185,6 +196,9 @@ g.dashboard.new('Overview — Services Health')
   g.panel.row.new('🔗 Navigation & Info') + c.pos(0, 18, 24, 1),
   infoPanel,
 
-  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 19, 24, 1),
+  troubleGuide,
+
+  g.panel.row.new('📝 Logs') + c.pos(0, 27, 24, 1),
   logsPanel,
 ])
