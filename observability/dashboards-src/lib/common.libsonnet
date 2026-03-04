@@ -59,6 +59,19 @@ local g = import 'github.com/grafana/grafonnet/gen/grafonnet-v11.4.0/main.libson
   tsPos(col, row): self.pos(col * 12, 5 + row * 8, 12, 8), // col 0-1, row 0-1
   logPos(y):     self.pos(0, y, 24, 10),
 
+  // Standard logs panel for service dashboards.
+  // host defaults to "homelab"; pass host="heater" for developer-machine services.
+  serviceLogsPanel(title, service, y=21, host='homelab'):
+    g.panel.logs.new(title)
+    + self.logPos(y)
+    + g.panel.logs.queryOptions.withTargets([
+      self.vlogsQ('{host="' + host + '",service="' + service + '"}'),
+    ])
+    + g.panel.logs.options.withWrapLogMessage(true)
+    + g.panel.logs.options.withSortOrder('Descending')
+    + g.panel.logs.options.withEnableLogDetails(true)
+    + g.panel.logs.options.withShowTime(true),
+
   // ── Standard panel decorations ─────────────────────────────────────────────
 
   // Standard percentage thresholds: green < 70% < yellow < 90% < red.
