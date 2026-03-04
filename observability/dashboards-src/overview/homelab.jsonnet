@@ -15,7 +15,7 @@ local cpuStat =
   g.panel.stat.new('CPU')
   + c.pos(0, 1, 6, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('100 - avg(rate(host_cpu_seconds_total{mode="idle",host="homelab"}[5m])) * 100'),
+    c.vmQ('(100 - avg(rate(host_cpu_seconds_total{mode="idle",host="homelab"}[5m])) * 100) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.withMax(100)
@@ -28,7 +28,7 @@ local ramStat =
   g.panel.stat.new('RAM')
   + c.pos(6, 1, 6, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('host_memory_used_bytes{host="homelab"} / host_memory_total_bytes{host="homelab"} * 100'),
+    c.vmQ('(host_memory_used_bytes{host="homelab"} / host_memory_total_bytes{host="homelab"} * 100) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.withMax(100)
@@ -41,7 +41,7 @@ local diskStat =
   g.panel.stat.new('Disk /')
   + c.pos(12, 1, 6, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('host_filesystem_used_ratio{host="homelab",mountpoint="/"} * 100'),
+    c.vmQ('(host_filesystem_used_ratio{host="homelab",mountpoint="/"} * 100) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.withMax(100)
@@ -55,7 +55,7 @@ local uptimeStat =
   + c.pos(18, 1, 6, 3)
   + g.panel.stat.queryOptions.withTargets([
     // host_uptime from Vector host_metrics source (actual OS uptime, seconds)
-    c.vmQ('host_uptime{host="homelab"}'),
+    c.vmQ('host_uptime{host="homelab"} or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('s')
   + g.panel.stat.options.withColorMode('value')
@@ -69,7 +69,7 @@ local svcStat(title, upExpr, col, row) =
   g.panel.stat.new(title)
   + c.pos(col * 6, 5 + row * 3, 6, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ(upExpr),
+    c.vmQ('(' + upExpr + ') or vector(0)'),
   ])
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')
   + g.panel.stat.standardOptions.thresholds.withSteps([
@@ -108,7 +108,7 @@ local sloStat(title, expr, targetPct, col) =
   g.panel.stat.new(title)
   + c.pos(col * 6, 19, 6, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ(expr),
+    c.vmQ('(' + expr + ') or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.withDecimals(2)
