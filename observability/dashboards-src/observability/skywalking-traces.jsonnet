@@ -22,7 +22,7 @@ local serviceCountStat =
   g.panel.stat.new('Traced Services')
   + c.statPos(0)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('count(count by (job) ({__name__=~"skywalking.*"}))'),
+    c.vmQ('count(count by (job) ({__name__=~"skywalking.*"})) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('short')
   + g.panel.stat.options.withColorMode('value')
