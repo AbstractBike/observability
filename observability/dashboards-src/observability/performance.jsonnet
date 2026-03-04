@@ -1,0 +1,195 @@
+// Performance & Optimization Dashboard
+//
+// Track system performance metrics, identify bottlenecks, and optimize infrastructure.
+// Monitors:
+// - Query latency (Grafana, VictoriaMetrics)
+// - Storage usage and cardinality growth
+// - CPU/Memory utilization by service
+// - Data ingestion rates
+// - Cache hit rates
+
+local g = import 'github.com/grafana/grafonnet/gen/grafonnet-v11.4.0/main.libsonnet';
+local c = import 'lib/common.libsonnet';
+
+// ── Performance Stats ──────────────────────────────────────────────────────
+
+local avgQueryLatencyStat =
+  g.panel.stat.new('Avg Query Latency')
+  + c.statPos(0)
+  + g.panel.stat.queryOptions.withTargets([
+    c.vmQ('(histogram_quantile(0.5, sum by(le) (rate(http_request_duration_seconds_bucket{instance=~".*:3000|.*:8428|.*:9428"}[5m]))) or vector(0)) * 1000'),
+  ])
+  + g.panel.stat.standardOptions.withUnit('ms')
+  + g.panel.stat.standardOptions.withDecimals(0)
+  + g.panel.stat.standardOptions.thresholds.withMode('absolute')
+  + g.panel.stat.standardOptions.thresholds.withSteps([
+    { color: 'green', value: null },
+    { color: 'yellow', value: 500 },
+    { color: 'red', value: 2000 },
+  ])
+  + g.panel.stat.options.withColorMode('background');
+
+local p99QueryLatencyStat =
+  g.panel.stat.new('P99 Query Latency')
+  + c.statPos(1)
+  + g.panel.stat.queryOptions.withTargets([
+    c.vmQ('(histogram_quantile(0.99, sum by(le) (rate(http_request_duration_seconds_bucket{instance=~".*:3000|.*:8428|.*:9428"}[5m]))) or vector(0)) * 1000'),
+  ])
+  + g.panel.stat.standardOptions.withUnit('ms')
+  + g.panel.stat.standardOptions.withDecimals(0)
+  + g.panel.stat.standardOptions.thresholds.withMode('absolute')
+  + g.panel.stat.standardOptions.thresholds.withSteps([
+    { color: 'green', value: null },
+    { color: 'yellow', value: 1000 },
+    { color: 'red', value: 5000 },
+  ])
+  + g.panel.stat.options.withColorMode('background');
+
+local totalMetricsStat =
+  g.panel.stat.new('Total Metrics')
+  + c.statPos(2)
+  + g.panel.stat.queryOptions.withTargets([
+    c.vmQ('count({__name__=~".+"})'),
+  ])
+  + g.panel.stat.standardOptions.withUnit('short')
+  + g.panel.stat.options.withColorMode('value')
+  + g.panel.stat.options.withGraphMode('area');
+
+local storageUsedStat =
+  g.panel.stat.new('Storage Used')
+  + c.statPos(3)
+  + g.panel.stat.queryOptions.withTargets([
+    c.vmQ('vm_data_size_bytes or vector(0)'),
+  ])
+  + g.panel.stat.standardOptions.withUnit('bytes')
+  + g.panel.stat.standardOptions.withDecimals(1)
+  + g.panel.stat.options.withColorMode('value')
+  + g.panel.stat.options.withGraphMode('line');
+
+// ── Query Latency Trends ───────────────────────────────────────────────────
+
+local queryLatencyTs =
+  g.panel.timeSeries.new('HTTP Request Latency (p50/p95/p99)')
+  + c.tsPos(0, 0)
+  + g.panel.timeSeries.queryOptions.withTargets([
+    c.vmQ(
+      'histogram_quantile(0.50, sum by(le) (rate(http_request_duration_seconds_bucket{instance=~".*:3000|.*:8428|.*:9428"}[5m]))) * 1000',
+      'p50'
+    ),
+    c.vmQ(
+      'histogram_quantile(0.95, sum by(le) (rate(http_request_duration_seconds_bucket{instance=~".*:3000|.*:8428|.*:9428"}[5m]))) * 1000',
+      'p95'
+    ),
+    c.vmQ(
+      'histogram_quantile(0.99, sum by(le) (rate(http_request_duration_seconds_bucket{instance=~".*:3000|.*:8428|.*:9428"}[5m]))) * 1000',
+      'p99'
+    ),
+  ])
+  + g.panel.timeSeries.standardOptions.withUnit('ms')
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
+  + g.panel.timeSeries.options.tooltip.withMode('multi');
+
+// ── Storage Growth ─────────────────────────────────────────────────────────
+
+local storageGrowthTs =
+  g.panel.timeSeries.new('Storage Usage Growth')
+  + c.tsPos(1, 0)
+  + g.panel.timeSeries.queryOptions.withTargets([
+    c.vmQ('vm_data_size_bytes or vector(0)', 'Total'),
+    c.vmQ('rate(vm_data_size_bytes[1h]) or vector(0)', 'Growth Rate'),
+  ])
+  + g.panel.timeSeries.standardOptions.withUnit('bytes')
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
+  + g.panel.timeSeries.options.tooltip.withMode('multi');
+
+// ── Cardinality Growth ─────────────────────────────────────────────────────
+
+local cardinalityTs =
+  g.panel.timeSeries.new('Metric Cardinality Over Time')
+  + c.tsPos(0, 1)
+  + g.panel.timeSeries.queryOptions.withTargets([
+    c.vmQ('count({__name__=~".+"}) or vector(0)', 'Total Series'),
+    c.vmQ('count(count by (__name__) ({__name__=~".+"})) or vector(0)', 'Unique Metrics'),
+  ])
+  + g.panel.timeSeries.standardOptions.withUnit('short')
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
+  + g.panel.timeSeries.options.tooltip.withMode('multi');
+
+// ── CPU Usage by Service ───────────────────────────────────────────────────
+
+local cpuByServiceTs =
+  g.panel.timeSeries.new('CPU Usage by Service (5m avg)')
+  + c.tsPos(1, 1)
+  + g.panel.timeSeries.queryOptions.withTargets([
+    c.vmQ(
+      '(100 - avg by (job) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) or vector(0)',
+      '{{job}}'
+    ),
+  ])
+  + g.panel.timeSeries.standardOptions.withUnit('percent')
+  + g.panel.timeSeries.standardOptions.withMax(100)
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
+  + g.panel.timeSeries.options.tooltip.withMode('multi');
+
+// ── Performance Insights ───────────────────────────────────────────────────
+
+local insightsPanel =
+  g.panel.text.new('⚡ Performance Optimization Guide')
+  + c.pos(0, 19, 24, 3)
+  + g.panel.text.options.withContent(|||
+    ### Key Performance Indicators
+
+    1. **Query Latency**: Target < 500ms (p50), < 2s (p99)
+       - If high: Check VictoriaMetrics load, enable caching
+
+    2. **Storage Growth**: Monitor daily growth rate
+       - If fast growth: Check cardinality explosion, reduce retention
+
+    3. **Cardinality**: Lower is better (less storage, faster queries)
+       - Each unique metric + labels = 1 series
+       - High cardinality jobs: Check for unbounded labels
+
+    4. **CPU Usage**: Monitor per-service spikes
+       - Target: < 70% sustained, < 90% peak
+       - If high: Profile queries, add query optimization rules
+
+    ### Optimization Actions
+
+    | Problem | Solution | Impact |
+    |---------|----------|--------|
+    | High cardinality | Remove high-cardinality labels | ⬇️ 50% storage |
+    | Slow queries | Increase aggregation window | ⬇️ 10x latency |
+    | Storage growth | Reduce retention | ⬇️ 30% storage |
+    | High CPU | Enable query caching | ⬇️ 40% CPU |
+
+    See [IMPROVEMENTS-ROADMAP.md](./IMPROVEMENTS-ROADMAP.md) for cost analysis.
+  |||)
+  + g.panel.text.options.withMode('markdown');
+
+// ── Logs panel ────────────────────────────────────────────────────────────
+
+local logsPanel = c.serviceLogsPanel('Performance & Error Logs', 'victoriametrics', y=22);
+
+// ── Dashboard ──────────────────────────────────────────────────────────────
+
+g.dashboard.new('Observability — Performance & Optimization')
++ g.dashboard.withUid('performance-optimization')
++ g.dashboard.withDescription('System performance tracking: query latency, storage usage, cardinality growth, CPU utilization. Identify optimization opportunities.')
++ g.dashboard.withTags(['observability', 'performance', 'optimization', 'troubleshooting'])
++ c.dashboardDefaults
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
++ g.dashboard.withPanels([
+  g.panel.row.new('Performance Stats') + c.pos(0, 0, 24, 1),
+  c.externalLinksPanel(y=1),
+  avgQueryLatencyStat, p99QueryLatencyStat, totalMetricsStat, storageUsedStat,
+
+  g.panel.row.new('Trends & Growth') + c.pos(0, 4, 24, 1),
+  queryLatencyTs, storageGrowthTs,
+  cardinalityTs, cpuByServiceTs,
+
+  g.panel.row.new('Optimization Guide') + c.pos(0, 18, 24, 1),
+  insightsPanel,
+
+  g.panel.row.new('Logs') + c.pos(0, 21, 24, 1),
+  logsPanel,
+])
