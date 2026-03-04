@@ -23,7 +23,7 @@ local stagingLagStat =
   g.panel.stat.new('Staging Lag (commits)')
   + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('nixos_staging_lag_commits'),
+    c.vmQ('nixos_staging_lag_commits or vector(0)'),
   ])
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')
   + g.panel.stat.standardOptions.thresholds.withSteps([
@@ -37,7 +37,7 @@ local generationsStat =
   g.panel.stat.new('NixOS Generations')
   + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('nixos_generations_total'),
+    c.vmQ('nixos_generations_total or vector(0)'),
   ])
   + g.panel.stat.options.withColorMode('value')
   + g.panel.stat.options.withGraphMode('none');

@@ -5,7 +5,7 @@ local sloStatPanel(title, errorRatioExpr, targetPct, col) =
   g.panel.stat.new(title)
   + c.statPos(col)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('(1 - ' + errorRatioExpr + ') * 100'),
+    c.vmQ('((1 - ' + errorRatioExpr + ') * 100) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.withDecimals(3)
@@ -22,7 +22,7 @@ local budgetTs(title, errorRatioExpr, targetErrorRatio, col, row) =
   + c.tsPos(col, row)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
-      '(1 - (' + errorRatioExpr + ' / ' + std.toString(targetErrorRatio) + ')) * 100',
+      '((1 - (' + errorRatioExpr + ' / ' + std.toString(targetErrorRatio) + ')) * 100) or vector(0)',
       'budget remaining %'
     ),
   ])
