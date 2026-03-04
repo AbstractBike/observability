@@ -18,9 +18,11 @@ local c = import 'lib/common.libsonnet';
 // ── Service Metrics ──────────────────────────────────────────────────────────
 
 // Number of services currently traced
+local alertPanel = c.alertCountPanel('skywalking', col=0);
+
 local serviceCountStat =
   g.panel.stat.new('Traced Services')
-  + c.statPos(0)
+  + c.statPos(1)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('count(count by (job) ({__name__=~"skywalking.*"})) or vector(0)'),
   ])
@@ -31,7 +33,7 @@ local serviceCountStat =
 // Avg latency across all services (p95)
 local avgLatencyStat =
   g.panel.stat.new('Avg Latency (p95)')
-  + c.statPos(1)
+  + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(histogram_quantile(0.95, sum by(le) (rate(skywalking_trace_latency_bucket[5m]))) or vector(0))'),
   ])
@@ -47,7 +49,7 @@ local avgLatencyStat =
 // Error rate across all services
 local errorRateStat =
   g.panel.stat.new('Trace Error Rate')
-  + c.statPos(2)
+  + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(count(skywalking_trace_status_total{status="error"}) / count(skywalking_trace_status_total)) * 100 or vector(0)'),
   ])
@@ -63,7 +65,7 @@ local errorRateStat =
 // Total traces in last 24h
 local tracesTotal24hStat =
   g.panel.stat.new('Traces (24h)')
-  + c.statPos(3)
+  + c.statPos(4)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('increase(skywalking_trace_total[24h]) or vector(0)'),
   ])
@@ -212,22 +214,31 @@ local correlationGuidePanel =
     - **SkyWalking UI**: `http://traces.pin` (service maps, trace details)
   |||);
 
+// ── Troubleshooting Guide ──────────────────────────────────────────────────
+
+local troubleGuide = c.serviceTroubleshootingGuide('skywalking', [
+  { symptom: 'Trace Volume Drop', runbook: 'skywalking/trace-volume', check: 'Monitor "Trace Volume" chart and OAP availability' },
+  { symptom: 'High Error Rate', runbook: 'skywalking/error-rate', check: 'Check "Error Rate by Service" for problematic services' },
+  { symptom: 'Latency Spike', runbook: 'skywalking/latency', check: 'Compare "Latency P95 by Service" with performance metrics' },
+  { symptom: 'Missing Traces', runbook: 'skywalking/trace-ingestion', check: 'Verify agent connections and OAP pipeline health' },
+], y=20);
+
 // ── Logs panel ────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('SkyWalking OAP Logs', 'skywalking-oap', y=23);
+local logsPanel = c.serviceLogsPanel('SkyWalking OAP Logs', 'skywalking-oap', y=28);
 
 // ── Dashboard ──────────────────────────────────────────────────────────────────
 
 g.dashboard.new('Observability — Distributed Tracing')
 + g.dashboard.withUid('skywalking-traces')
 + g.dashboard.withDescription('Distributed tracing across all services: trace volumes, error rates, latency, service dependencies. Includes trace-to-logs correlation guide.')
-+ g.dashboard.withTags(['observability', 'tracing', 'skywalking', 'distributed-tracing', 'apm'])
++ g.dashboard.withTags(['observability', 'tracing', 'skywalking', 'distributed-tracing', 'apm', 'critical'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Service Overview') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
-  serviceCountStat, avgLatencyStat, errorRateStat, tracesTotal24hStat,
+  alertPanel, serviceCountStat, avgLatencyStat, errorRateStat, tracesTotal24hStat,
 
   g.panel.row.new('⚡ Performance Trends') + c.pos(0, 4, 24, 1),
   errorRateByServiceTs, latencyByServiceTs,
@@ -240,6 +251,9 @@ g.dashboard.new('Observability — Distributed Tracing')
   g.panel.row.new('📝 Instrumentation Guide') + c.pos(0, 17, 24, 1),
   correlationGuidePanel,
 
-  g.panel.row.new('📝 Logs') + c.pos(0, 22, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 21, 24, 1),
+  troubleGuide,
+
+  g.panel.row.new('📝 Logs') + c.pos(0, 29, 24, 1),
   logsPanel,
 ])
