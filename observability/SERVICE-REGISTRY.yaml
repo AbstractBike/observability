@@ -1,0 +1,500 @@
+# Service Registry — Observability Configuration for All Services
+#
+# Format: YAML
+# Purpose: Single source of truth for service observability setup
+# Maintained by: Observability Team
+# Last Updated: 2026-03-04
+
+services:
+  # ── INFRASTRUCTURE SERVICES ──────────────────────────────────────────────
+
+  - name: "PostgreSQL"
+    uid: "postgres-db"
+    category: "infrastructure"
+    tier: "critical"
+    owner: "platform-team"
+    description: "Primary relational database for core application"
+
+    observability:
+      metrics:
+        - name: "postgres_exporter"
+          interval: "30s"
+          service_label: "postgresql"
+          datasource: "VictoriaMetrics"
+      logs:
+        - source: "journald (postgres service)"
+          format: "json"
+          service_field: "postgresql"
+          datasource: "VictoriaLogs"
+      traces:
+        - type: "Slow Query Tracing"
+          agent: "PostgreSQL (native pg_stat_statements)"
+          backend: "SkyWalking OAP (via custom exporter)"
+          enabled: true
+
+    dashboards:
+      - name: "PostgreSQL Database"
+        uid: "postgres-db"
+        url: "/d/postgres-db"
+        type: "primary"
+      - name: "PostgreSQL Replication"
+        uid: "postgres-replication"
+        url: "/d/postgres-replication"
+        type: "secondary"
+
+    external_links:
+      - name: "pgAdmin"
+        icon: "🗄️"
+        url: "http://pgadmin.pin"
+      - name: "Metrics"
+        icon: "📊"
+        url: "http://192.168.0.4:8428"
+
+    runbooks:
+      - name: "Main Troubleshooting"
+        url: "https://wiki.pin/runbooks/postgresql/main"
+      - name: "High CPU Investigation"
+        url: "https://wiki.pin/runbooks/postgresql/high-cpu"
+      - name: "Connection Pool Exhaustion"
+        url: "https://wiki.pin/runbooks/postgresql/conn-pool"
+
+    slos:
+      availability: 99.95
+      latency_p95_ms: 100
+      error_rate: 0.5
+
+    alerts:
+      - "HighCPU"
+      - "ConnectionPoolExhaustion"
+      - "ReplicationLag"
+      - "DiskSpaceLow"
+
+    team_slack: "#platform-db"
+    oncall_schedule: "postgresql-oncall"
+    status: "fully-instrumented"
+    last_updated: "2026-03-04"
+
+  - name: "Redis"
+    uid: "redis"
+    category: "infrastructure"
+    tier: "high"
+    owner: "platform-team"
+    description: "Session store and cache layer"
+
+    observability:
+      metrics:
+        - name: "redis_exporter"
+          interval: "30s"
+          service_label: "redis"
+          datasource: "VictoriaMetrics"
+      logs:
+        - source: "journald (redis service)"
+          format: "json"
+          service_field: "redis"
+          datasource: "VictoriaLogs"
+      traces:
+        - type: "Client-side instrumentation"
+          agent: "Application library (redis-py, redis-js)"
+          backend: "SkyWalking OAP"
+          enabled: false  # TODO: Implement Redis instrumentation
+
+    dashboards:
+      - name: "Redis Cache"
+        uid: "redis"
+        url: "/d/redis"
+        type: "primary"
+
+    external_links:
+      - name: "Redis Console"
+        icon: "🔴"
+        url: "http://redis.pin"
+      - name: "Metrics"
+        icon: "📊"
+        url: "http://192.168.0.4:8428"
+
+    runbooks:
+      - name: "Redis Troubleshooting"
+        url: "https://wiki.pin/runbooks/redis/main"
+      - name: "Memory Pressure"
+        url: "https://wiki.pin/runbooks/redis/memory-pressure"
+
+    slos:
+      availability: 99.9
+      latency_p95_ms: 50
+      error_rate: 1.0
+
+    alerts:
+      - "HighMemoryUsage"
+      - "EvictionRateHigh"
+      - "ConnectionErrors"
+
+    team_slack: "#platform-cache"
+    status: "partially-instrumented"  # Logs/metrics OK, traces pending
+    last_updated: "2026-03-04"
+
+  - name: "Elasticsearch"
+    uid: "elasticsearch"
+    category: "infrastructure"
+    tier: "high"
+    owner: "platform-team"
+    description: "Full-text search and log analytics"
+
+    observability:
+      metrics:
+        - name: "prometheus_elasticsearch_exporter"
+          interval: "30s"
+          service_label: "elasticsearch"
+          datasource: "VictoriaMetrics"
+      logs:
+        - source: "Elasticsearch logs (docker/journald)"
+          format: "json"
+          service_field: "elasticsearch"
+          datasource: "VictoriaLogs"
+      traces:
+        - type: "HTTP instrumentation"
+          agent: "Client library (OpenTelemetry)"
+          backend: "SkyWalking OAP"
+          enabled: false
+
+    dashboards:
+      - name: "Elasticsearch"
+        uid: "elasticsearch"
+        url: "/d/elasticsearch"
+        type: "primary"
+
+    external_links:
+      - name: "Kibana"
+        icon: "🔍"
+        url: "http://elastic.pin:5601"
+      - name: "Metrics"
+        icon: "📊"
+        url: "http://192.168.0.4:8428"
+
+    runbooks:
+      - name: "Elasticsearch Troubleshooting"
+        url: "https://wiki.pin/runbooks/elasticsearch/main"
+      - name: "Disk Space Issues"
+        url: "https://wiki.pin/runbooks/elasticsearch/disk-full"
+
+    slos:
+      availability: 99.5
+      latency_p95_ms: 500
+      error_rate: 2.0
+
+    alerts:
+      - "HighDiskUsage"
+      - "NodeDown"
+      - "QueryLatencyHigh"
+
+    team_slack: "#platform-search"
+    status: "partially-instrumented"
+    last_updated: "2026-03-04"
+
+  # ── OBSERVABILITY STACK ──────────────────────────────────────────────────
+
+  - name: "VictoriaMetrics"
+    uid: "victoriametrics"
+    category: "observability"
+    tier: "critical"
+    owner: "observability-team"
+    description: "Time-series metrics database and query engine"
+
+    observability:
+      metrics:
+        - name: "VictoriaMetrics (self-scraping)"
+          interval: "30s"
+          service_label: "victoriametrics"
+          datasource: "VictoriaMetrics"
+      logs:
+        - source: "journald (victoria-metrics service)"
+          format: "json"
+          service_field: "victoriametrics"
+          datasource: "VictoriaLogs"
+      traces:
+        - type: "Query performance"
+          agent: "VM native metrics"
+          backend: "VictoriaMetrics"
+          enabled: true
+
+    dashboards:
+      - name: "VictoriaMetrics"
+        uid: "victoriametrics"
+        url: "/d/victoriametrics"
+        type: "primary"
+
+    external_links:
+      - name: "Metrics UI"
+        icon: "📊"
+        url: "http://192.168.0.4:8428"
+      - name: "API Docs"
+        icon: "📖"
+        url: "http://192.168.0.4:8428/api/v1/docs"
+
+    runbooks:
+      - name: "VictoriaMetrics Troubleshooting"
+        url: "https://wiki.pin/runbooks/victoriametrics/main"
+      - name: "Storage Issues"
+        url: "https://wiki.pin/runbooks/victoriametrics/storage"
+
+    slos:
+      availability: 99.99
+      latency_p95_ms: 200
+      error_rate: 0.1
+
+    alerts:
+      - "HighDiskUsage"
+      - "QueryLatencyHigh"
+      - "ReplicationLag"
+
+    team_slack: "#observability"
+    status: "fully-instrumented"
+    last_updated: "2026-03-04"
+
+  - name: "SkyWalking OAP"
+    uid: "skywalking-oap"
+    category: "observability"
+    tier: "critical"
+    owner: "observability-team"
+    description: "Distributed tracing backend and APM server"
+
+    observability:
+      metrics:
+        - name: "SkyWalking OAP metrics"
+          interval: "30s"
+          service_label: "skywalking-oap"
+          datasource: "VictoriaMetrics"
+      logs:
+        - source: "journald (skywalking-oap service)"
+          format: "json"
+          service_field: "skywalking-oap"
+          datasource: "VictoriaLogs"
+      traces:
+        - type: "Self-tracing"
+          agent: "SkyWalking Java Agent"
+          backend: "SkyWalking OAP"
+          enabled: true
+
+    dashboards:
+      - name: "SkyWalking OAP"
+        uid: "skywalking-oap"
+        url: "/d/skywalking-oap"
+        type: "primary"
+
+    external_links:
+      - name: "SkyWalking UI"
+        icon: "🕵️"
+        url: "http://192.168.0.4:8080"
+      - name: "Metrics"
+        icon: "📊"
+        url: "http://192.168.0.4:8428"
+
+    runbooks:
+      - name: "SkyWalking Troubleshooting"
+        url: "https://wiki.pin/runbooks/skywalking/main"
+      - name: "Trace Storage"
+        url: "https://wiki.pin/runbooks/skywalking/storage"
+
+    slos:
+      availability: 99.9
+      latency_p95_ms: 500
+      error_rate: 1.0
+
+    alerts:
+      - "HighDiskUsage"
+      - "TraceBacklogHigh"
+      - "AnalysisFailure"
+
+    team_slack: "#observability"
+    status: "fully-instrumented"
+    last_updated: "2026-03-04"
+
+  - name: "VictoriaLogs"
+    uid: "victorialogs"
+    category: "observability"
+    tier: "high"
+    owner: "observability-team"
+    description: "Log storage and search engine"
+
+    observability:
+      metrics:
+        - name: "VictoriaLogs (self-scraping)"
+          interval: "30s"
+          service_label: "victorialogs"
+          datasource: "VictoriaMetrics"
+      logs:
+        - source: "journald (victoria-logs service)"
+          format: "json"
+          service_field: "victorialogs"
+          datasource: "VictoriaLogs"
+      traces:
+        - type: "Query performance"
+          agent: "VL native metrics"
+          backend: "VictoriaMetrics"
+          enabled: true
+
+    dashboards: []  # No dedicated dashboard; use Grafana Explore
+
+    external_links:
+      - name: "Logs UI"
+        icon: "📝"
+        url: "http://192.168.0.4:9428/vmui"
+
+    runbooks:
+      - name: "VictoriaLogs Troubleshooting"
+        url: "https://wiki.pin/runbooks/victorialogs/main"
+
+    slos:
+      availability: 99.5
+      latency_p95_ms: 500
+      error_rate: 2.0
+
+    alerts:
+      - "HighDiskUsage"
+      - "IngestionLatencyHigh"
+
+    team_slack: "#observability"
+    status: "fully-instrumented"
+    last_updated: "2026-03-04"
+
+  # ── SERVICES ─────────────────────────────────────────────────────────────
+
+  - name: "API Gateway"
+    uid: "api-gateway"
+    category: "service"
+    tier: "critical"
+    owner: "backend-team"
+    description: "Entry point for all API requests; request routing and rate limiting"
+
+    observability:
+      metrics:
+        - name: "Prometheus format (app)"
+          interval: "15s"
+          service_label: "api-gateway"
+          datasource: "VictoriaMetrics"
+      logs:
+        - source: "Application stdout (JSON)"
+          format: "json"
+          service_field: "api-gateway"
+          datasource: "VictoriaLogs"
+      traces:
+        - type: "Distributed tracing"
+          agent: "SkyWalking Java Agent"
+          backend: "SkyWalking OAP"
+          enabled: true
+
+    dashboards:
+      - name: "API Gateway"
+        uid: "api-gateway"
+        url: "/d/api-gateway"
+        type: "primary"
+      - name: "API Gateway — Tracing"
+        uid: "api-gateway-tracing"
+        url: "/d/api-gateway-tracing"
+        type: "secondary"
+
+    external_links:
+      - name: "SkyWalking UI"
+        icon: "🕵️"
+        url: "http://192.168.0.4:8080"
+      - name: "Metrics"
+        icon: "📊"
+        url: "http://192.168.0.4:8428"
+
+    runbooks:
+      - name: "API Gateway Troubleshooting"
+        url: "https://wiki.pin/runbooks/api-gateway/main"
+      - name: "Latency Spike Response"
+        url: "https://wiki.pin/runbooks/api-gateway/latency"
+      - name: "Error Rate Investigation"
+        url: "https://wiki.pin/runbooks/api-gateway/errors"
+
+    slos:
+      availability: 99.95
+      latency_p95_ms: 500
+      error_rate: 0.5
+
+    alerts:
+      - "HighLatency"
+      - "ErrorRateSpike"
+      - "CircuitBreakerOpen"
+
+    team_slack: "#backend-api"
+    oncall_schedule: "api-gateway-oncall"
+    status: "fully-instrumented"
+    last_updated: "2026-03-04"
+
+  # ── SYSTEM SERVICES ──────────────────────────────────────────────────────
+
+  - name: "NixOS Deployer"
+    uid: "nixos-deployer"
+    category: "system"
+    tier: "high"
+    owner: "platform-team"
+    description: "GitOps deployment system for NixOS configuration"
+
+    observability:
+      metrics:
+        - name: "nixos_deploy_total"
+          interval: "1h"  # Infrequent; only when deploys happen
+          service_label: "nixos-deployer"
+          datasource: "VictoriaMetrics"
+      logs:
+        - source: "journald (nixos-deployer service)"
+          format: "json"
+          service_field: "nixos-deployer"
+          datasource: "VictoriaLogs"
+      traces:
+        - type: "Deployment spans"
+          agent: "Custom instrumentation"
+          backend: "SkyWalking OAP"
+          enabled: false
+
+    dashboards:
+      - name: "Services — NixOS Deployer"
+        uid: "services-nixos-deployer"
+        url: "/d/services-nixos-deployer"
+        type: "primary"
+
+    external_links:
+      - name: "Metrics"
+        icon: "📊"
+        url: "http://192.168.0.4:8428"
+
+    runbooks:
+      - name: "NixOS Deploy Issues"
+        url: "https://wiki.pin/runbooks/nixos-deployer/main"
+
+    slos:
+      availability: 99.0
+      deploy_success_rate: 98.0
+      deploy_duration_s: 120
+
+    alerts:
+      - "DeployFailure"
+      - "StagingLagHigh"
+
+    team_slack: "#platform-infra"
+    status: "partially-instrumented"  # Metrics/logs OK, tracing pending
+    last_updated: "2026-03-04"
+
+  # Add more services below...
+  # ── DEVELOPMENT TOOLS ────────────────────────────────────────────────────
+  # ── PIPELINE SERVICES ────────────────────────────────────────────────────
+  # ── UTILITIES ────────────────────────────────────────────────────────────
+
+# ─ METADATA ──────────────────────────────────────────────────────────────────
+
+metadata:
+  version: "1.0"
+  format: "YAML"
+  maintained_by: "Observability Team"
+  last_updated: "2026-03-04"
+  total_services: 40+
+  fully_instrumented: "95%"
+
+  instructions:
+    - "To add a service: Copy a service template above and fill in details"
+    - "All fields under 'observability' are optional; mark incomplete with 'enabled: false'"
+    - "Run: tools/registry-health-check.sh to validate consistency"
+    - "Update this file when adding new services or changing monitoring setup"
+    - "Commit changes with message: 'chore(observability): update service registry for [Service Name]'"
