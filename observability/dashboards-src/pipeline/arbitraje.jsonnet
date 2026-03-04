@@ -166,6 +166,7 @@ g.dashboard.new('Arbitraje — Market Scalable')
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, instanceVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Key Stats') + c.pos(0, 0, 24, 1),
+  c.externalLinksPanel(y=1),
   scanRateStat, pathsRateStat, maxProfitStat, circuitBreakerStat,
 
   g.panel.row.new('Arbitrage Engine') + c.pos(0, 4, 24, 1),

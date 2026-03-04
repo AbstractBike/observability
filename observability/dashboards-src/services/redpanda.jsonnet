@@ -77,6 +77,7 @@ g.dashboard.new('Services — Redpanda')
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
+  c.externalLinksPanel(y=1),
   upStat, uptimeStat, throughputInStat, throughputOutStat, partitionStat,
   g.panel.row.new('Throughput & Lag') + c.pos(0, 4, 24, 1),
   throughputTs, lagTs,

@@ -131,6 +131,7 @@ g.dashboard.new('Heater — System')
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Stats') + c.pos(0, 0, 24, 1),
+  c.externalLinksPanel(y=1),
   cpuStat, memStat, diskStat, loadStat,
   g.panel.row.new('Metrics') + c.pos(0, 4, 24, 1),
   cpuTs, memTs, diskIoTs, netIoTs,

@@ -37,6 +37,7 @@ g.dashboard.new('SLO — Overview')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('30-day Compliance') + c.pos(0, 0, 24, 1),
+  c.externalLinksPanel(y=1),
   sloStatPanel('Host Uptime (99.5%)', 'slo:host_uptime:error_ratio_30d', 99.5, 0),
   sloStatPanel('PostgreSQL (99.9%)', 'slo:postgresql:error_ratio_30d', 99.9, 1),
   sloStatPanel('Redis (99.9%)', 'slo:redis:error_ratio_30d', 99.9, 2),

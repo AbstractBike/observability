@@ -95,6 +95,7 @@ g.dashboard.new('Observability — SkyWalking')
 + g.dashboard.withVariables([c.vmDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
+  c.externalLinksPanel(y=1),
   uptimeStat, threadsStat, heapStat, cpuStat,
   g.panel.row.new('JVM') + c.pos(0, 4, 24, 1),
   heapTs, gcTs,

@@ -98,6 +98,7 @@ g.dashboard.new('Services — Elasticsearch')
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
+  c.externalLinksPanel(y=1),
   upStat, healthStat, nodesStat, indexRateStat, searchLatStat,
   g.panel.row.new('Indexing & Search') + c.pos(0, 4, 24, 1),
   indexTs, searchTs,

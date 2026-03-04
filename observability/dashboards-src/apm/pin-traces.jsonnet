@@ -158,6 +158,7 @@ g.dashboard.new('Pin Traces — APM Overview')
 + g.dashboard.graphTooltip.withSharedCrosshair()
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, c.swDsVar])
 + g.dashboard.withPanels([
+    c.externalLinksPanel(y=0, x=18),
     statsRow, reqRate, errorRate, p99, serviceCount,
     topRow, topServicesByLatency, errorByService,
     throughputRow, throughputTs,

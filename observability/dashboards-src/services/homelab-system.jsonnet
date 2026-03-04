@@ -137,6 +137,7 @@ g.dashboard.new('Services — Homelab System')
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Stats') + c.pos(0, 0, 24, 1),
+  c.externalLinksPanel(y=1),
   cpuStat, memStat, diskStat, loadStat,
   g.panel.row.new('CPU & Memory') + c.pos(0, 4, 24, 1),
   cpuTs, memTs,

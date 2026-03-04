@@ -191,6 +191,7 @@ g.dashboard.new('Services — Matrix APM (SkyWalking)')
 + g.dashboard.withVariables([c.swDsVar, serviceVar, instanceVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Service Overview')   + c.pos(0, 0,  24, 1),
+  c.externalLinksPanel(y=1),
   cpmStat, respTimeStat, errorRateStat, apdexStat,
 
   g.panel.row.new('Request Traffic')    + c.pos(0, 4,  24, 1),

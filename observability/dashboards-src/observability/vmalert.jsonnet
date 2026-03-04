@@ -75,6 +75,7 @@ g.dashboard.new('Observability — vmalert')
 + g.dashboard.withVariables([c.vmDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
+  c.externalLinksPanel(y=1),
   firingCountStat, rulesStat, evalDurStat, errorStat,
   g.panel.row.new('Detail') + c.pos(0, 4, 24, 1),
   firingTs, evalTs,

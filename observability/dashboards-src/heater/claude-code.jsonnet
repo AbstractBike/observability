@@ -129,6 +129,7 @@ g.dashboard.new('Heater — Claude Code')
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, projectVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Session Stats') + c.pos(0, 0, 24, 1),
+  c.externalLinksPanel(y=1),
   totalTokensStat, sessionCostStat, contextUsedStat, linesAddedStat,
   g.panel.row.new('Usage Trends') + c.pos(0, 4, 24, 1),
   tokensTs, costTs,

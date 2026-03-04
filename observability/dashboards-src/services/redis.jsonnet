@@ -83,6 +83,7 @@ g.dashboard.new('Services — Redis')
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
+  c.externalLinksPanel(y=1),
   upStat, memStat, hitRateStat, connStat,
   g.panel.row.new('Operations') + c.pos(0, 4, 24, 1),
   opsTs, memTs,

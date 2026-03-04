@@ -166,6 +166,7 @@ g.dashboard.new('Overview — Serena & Backends')
 
   // Row 0: Serena RED stats
   g.panel.row.new('Serena MCP — RED Metrics') + c.pos(0, 0, 24, 1),
+  c.externalLinksPanel(y=1),
   cpmStat, respTimeStat, slaStat, errorRateStat,
 
   // Row 1: Serena time series

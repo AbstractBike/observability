@@ -104,6 +104,7 @@ g.dashboard.new('Observability — Logs')
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, hostVar, serviceVar, levelVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Log Volume') + c.pos(0, 0, 24, 1),
+  c.externalLinksPanel(y=1),
   logVolumePanel,
   g.panel.row.new('Logs') + c.pos(0, 6, 24, 1),
   liveLogsPanel,
