@@ -1,0 +1,71 @@
+{
+  "description": "Example dashboard provisioning configuration. Copy to dashboards-config.json and customize for your environment.",
+  "services": [
+    {
+      "name": "API Server",
+      "shortName": "api-server",
+      "type": "service"
+    },
+    {
+      "name": "Worker Service",
+      "shortName": "worker-service",
+      "type": "service"
+    },
+    {
+      "name": "Background Jobs",
+      "shortName": "background-jobs",
+      "type": "service"
+    }
+  ],
+  "databases": [
+    {
+      "name": "PostgreSQL Main",
+      "shortName": "postgres-main",
+      "dbType": "postgresql"
+    },
+    {
+      "name": "ClickHouse Analytics",
+      "shortName": "clickhouse-analytics",
+      "dbType": "clickhouse"
+    },
+    {
+      "name": "Elasticsearch Search",
+      "shortName": "elasticsearch-search",
+      "dbType": "elasticsearch"
+    }
+  ],
+  "caches": [
+    {
+      "name": "Redis Primary",
+      "shortName": "redis-primary",
+      "cacheType": "redis"
+    },
+    {
+      "name": "Redis Replica",
+      "shortName": "redis-replica",
+      "cacheType": "redis"
+    },
+    {
+      "name": "Memcached Cluster",
+      "shortName": "memcached-prod",
+      "cacheType": "memcached"
+    }
+  ],
+  "queues": [
+    {
+      "name": "Kafka Production",
+      "shortName": "kafka-prod",
+      "queueType": "kafka"
+    },
+    {
+      "name": "RabbitMQ",
+      "shortName": "rabbitmq-main",
+      "queueType": "rabbitmq"
+    },
+    {
+      "name": "Redpanda Cluster",
+      "shortName": "redpanda-prod",
+      "queueType": "redpanda"
+    }
+  ]
+}
