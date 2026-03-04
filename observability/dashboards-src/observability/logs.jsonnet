@@ -97,7 +97,35 @@ local liveLogsPanel =
   + g.panel.logs.options.withWrapLogMessage(true)
   + g.panel.logs.options.withSortOrder('Descending')
   + g.panel.logs.options.withEnableLogDetails(true)
-  + g.panel.logs.options.withShowTime(true);
+  + g.panel.logs.options.withShowTime(true)
+  + g.panel.logs.fieldConfig.defaults.custom.withLogLevel('trace')
+  + {
+    fieldConfig: {
+      overrides: [
+        {
+          matcher: { id: 'byValue', options: 'error' },
+          properties: [
+            { id: 'color', value: { mode: 'fixed', fixedColor: 'red' } },
+            { id: 'custom.hideFrom', value: { tooltip: false, viz: false, legend: false } },
+          ],
+        },
+        {
+          matcher: { id: 'byValue', options: 'critical' },
+          properties: [
+            { id: 'color', value: { mode: 'fixed', fixedColor: 'dark-red' } },
+            { id: 'custom.hideFrom', value: { tooltip: false, viz: false, legend: false } },
+          ],
+        },
+        {
+          matcher: { id: 'byValue', options: 'warning' },
+          properties: [
+            { id: 'color', value: { mode: 'fixed', fixedColor: 'orange' } },
+            { id: 'custom.hideFrom', value: { tooltip: false, viz: false, legend: false } },
+          ],
+        },
+      ],
+    },
+  };
 
 local errorAnalysisPanel =
   g.panel.text.new('📊 Error Analysis & Related Dashboards')

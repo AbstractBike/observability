@@ -1,5 +1,14 @@
 local g = import 'github.com/grafana/grafonnet/gen/grafonnet-v11.4.0/main.libsonnet';
 
+// ── Global Configuration ───────────────────────────────────────────────────
+
+local config = {
+  // External service URLs
+  skywalking_ui_url: 'http://traces.pin',
+  victoriametrics_url: 'http://192.168.0.4:8428',
+  victorialogs_ui_url: 'http://192.168.0.4:9428/vmui',
+};
+
 {
   // ── Datasource helpers ─────────────────────────────────────────────────────
 
@@ -108,37 +117,49 @@ local g = import 'github.com/grafana/grafonnet/gen/grafonnet-v11.4.0/main.libson
 
   // ── External links panel ──────────────────────────────────────────────────
 
-  // Create a text panel with quick-access links to external systems.
-  // Positioned at top-right corner as a utility panel.
-  externalLinksPanel(y=0, x=18):
+  // Small external links button in top-right corner (2 cells wide, 1 tall)
+  externalLinksPanel(y=0, x=22):
     local linkHtml = |||
       <style>
-        .external-links { display: flex; gap: 8px; flex-wrap: wrap; }
-        .ext-link {
-          display: inline-block;
-          padding: 6px 12px;
+        .ext-link-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 24px;
+          height: 24px;
           background: #2563eb;
           color: white;
           text-decoration: none;
           border-radius: 4px;
           font-size: 12px;
-          font-weight: 500;
+          font-weight: bold;
           cursor: pointer;
-          transition: background 0.2s;
+          margin: 2px;
+          transition: all 0.2s;
+          border: 1px solid #1d4ed8;
         }
-        .ext-link:hover { background: #1d4ed8; }
+        .ext-link-btn:hover {
+          background: #1d4ed8;
+          transform: scale(1.1);
+          box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
+        }
+        .ext-links-container { display: flex; gap: 4px; }
       </style>
-      <div class="external-links">
-        <a class="ext-link" href="http://192.168.0.4:8428" target="_blank">📊 Metrics</a>
-        <a class="ext-link" href="http://192.168.0.4:9428/vmui" target="_blank">📝 Logs</a>
-        <a class="ext-link" href="http://192.168.0.4:8080" target="_blank">🕵️ Traces</a>
+      <div class="ext-links-container">
+        <a class="ext-link-btn" href="http://192.168.0.4:8428" target="_blank" title="VictoriaMetrics Metrics">📊</a>
+        <a class="ext-link-btn" href="http://192.168.0.4:9428/vmui" target="_blank" title="VictoriaLogs UI">📝</a>
+        <a class="ext-link-btn" href="http://192.168.0.4:8080" target="_blank" title="SkyWalking Traces">🕵️</a>
       </div>
     |||;
-    g.panel.text.new('🔗 External Links')
-    + self.pos(x, y, 6, 2)
+    g.panel.text.new('')
+    + self.pos(x, y, 2, 1)
     + g.panel.text.panelOptions.withTransparent(true)
     + g.panel.text.options.withMode('html')
     + g.panel.text.options.withContent(linkHtml),
+
+  // ── Configuration access ──────────────────────────────────────────────────
+
+  config: config,
 
   // ── Common dashboard setup ─────────────────────────────────────────────────
 

@@ -59,33 +59,71 @@ local gcTs =
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
 local swUiLink =
-  g.panel.text.new('SkyWalking UI')
-  + c.pos(0, 13, 24, 3)
+  local skyWalkingUrl = c.config.skywalking_ui_url;
+  g.panel.text.new('SkyWalking UI Links')
+  + c.pos(0, 18, 24, 3)
   + g.panel.text.panelOptions.withTransparent(true)
   + g.panel.text.options.withMode('html')
   + g.panel.text.options.withContent(|||
     <div style="display:flex;align-items:center;justify-content:center;height:100%;gap:24px;font-family:-apple-system,sans-serif;">
-      <a href="http://traces.pin" target="_blank" style="
+      <a href="| + skyWalkingUrl + |" target="_blank" style="
         display:flex;align-items:center;gap:10px;padding:12px 24px;
         background:linear-gradient(135deg,#7c3aed,#5b21b6);
         color:#fff;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px;
         box-shadow:0 2px 8px rgba(124,58,237,0.3);
         transition:transform 0.15s ease;
       " onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">
-        🔍 Open SkyWalking UI — traces.pin
+        🔍 Open SkyWalking UI
       </a>
-      <a href="http://traces.pin/general/service" target="_blank" style="
+      <a href="| + skyWalkingUrl + |/general/service" target="_blank" style="
         display:flex;align-items:center;gap:8px;padding:10px 18px;
         background:#f3f4f6;color:#374151;text-decoration:none;border-radius:6px;font-size:13px;border:1px solid #e5e7eb;
       ">Services →</a>
-      <a href="http://traces.pin/general/topology" target="_blank" style="
+      <a href="| + skyWalkingUrl + |/general/topology" target="_blank" style="
         display:flex;align-items:center;gap:8px;padding:10px 18px;
         background:#f3f4f6;color:#374151;text-decoration:none;border-radius:6px;font-size:13px;border:1px solid #e5e7eb;
       ">Topology →</a>
     </div>
   |||);
 
-local oapLogsPanel = c.serviceLogsPanel('OAP Logs', 'skywalking-oap', y=17);
+local oapLogsPanel = c.serviceLogsPanel('OAP Logs', 'skywalking-oap', y=21);
+
+// ── Recent Traces Panel ────────────────────────────────────────────────────
+local recentTracesPanel =
+  g.panel.table.new('Recent Traces (Last 1h)')
+  + c.pos(0, 6, 12, 6)
+  + g.panel.table.queryOptions.withTargets([
+    c.vmQ(
+      'topk(20, oap_trace_count{job="skywalking-oap"} or vector(0))',
+      'Traces'
+    ),
+  ])
+  + g.panel.table.standardOptions.withUnit('short')
+  + g.panel.table.options.withSortBy([
+    { displayName: 'Traces', desc: true },
+  ]);
+
+// ── Trace Latency Distribution ────────────────────────────────────────────
+local traceLatencyPanel =
+  g.panel.timeSeries.new('Trace Latency (p50/p95/p99)')
+  + c.pos(12, 6, 12, 6)
+  + g.panel.timeSeries.queryOptions.withTargets([
+    c.vmQ(
+      'histogram_quantile(0.5, sum by(le) (rate(oap_trace_in_latency_bucket{job="skywalking-oap"}[5m]))) or vector(0)',
+      'p50'
+    ),
+    c.vmQ(
+      'histogram_quantile(0.95, sum by(le) (rate(oap_trace_in_latency_bucket{job="skywalking-oap"}[5m]))) or vector(0)',
+      'p95'
+    ),
+    c.vmQ(
+      'histogram_quantile(0.99, sum by(le) (rate(oap_trace_in_latency_bucket{job="skywalking-oap"}[5m]))) or vector(0)',
+      'p99'
+    ),
+  ])
+  + g.panel.timeSeries.standardOptions.withUnit('ms')
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
+  + g.panel.timeSeries.options.tooltip.withMode('multi');
 
 g.dashboard.new('Observability — SkyWalking')
 + g.dashboard.withUid('observability-skywalking')
@@ -99,8 +137,10 @@ g.dashboard.new('Observability — SkyWalking')
   uptimeStat, threadsStat, heapStat, cpuStat,
   g.panel.row.new('JVM') + c.pos(0, 4, 24, 1),
   heapTs, gcTs,
-  g.panel.row.new('SkyWalking UI') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('Traces') + c.pos(0, 12, 24, 1),
+  recentTracesPanel, traceLatencyPanel,
+  g.panel.row.new('SkyWalking UI') + c.pos(0, 18, 24, 1),
   swUiLink,
-  g.panel.row.new('Logs') + c.pos(0, 16, 24, 1),
+  g.panel.row.new('Logs') + c.pos(0, 22, 24, 1),
   oapLogsPanel,
 ])
