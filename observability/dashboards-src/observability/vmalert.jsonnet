@@ -72,6 +72,7 @@ g.dashboard.new('Observability — vmalert')
 + g.dashboard.withDescription('vmalert: firing alerts, rule evaluation duration, errors.')
 + g.dashboard.withTags(['observability', 'vmalert', 'alerting'])
 + c.dashboardDefaults
++ g.dashboard.withVariables([c.vmDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
   firingCountStat, rulesStat, evalDurStat, errorStat,

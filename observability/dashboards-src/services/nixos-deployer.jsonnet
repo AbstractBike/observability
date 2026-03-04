@@ -71,6 +71,7 @@ g.dashboard.new('Services — NixOS Deployer')
 + g.dashboard.withDescription('NixOS GitOps deployer: deploy outcomes, duration, staging lag and system generations.')
 + g.dashboard.withTags(['services', 'nixos-deployer', 'gitops'])
 + c.dashboardDefaults
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
   deploySuccessRateStat, stagingLagStat, generationsStat,

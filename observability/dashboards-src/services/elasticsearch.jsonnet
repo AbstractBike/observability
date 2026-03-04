@@ -95,6 +95,7 @@ g.dashboard.new('Services — Elasticsearch')
 + g.dashboard.withDescription('Elasticsearch cluster health, indexing rate, search latency, JVM heap.')
 + g.dashboard.withTags(['services', 'elasticsearch'])
 + c.dashboardDefaults
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
   upStat, healthStat, nodesStat, indexRateStat, searchLatStat,

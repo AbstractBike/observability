@@ -122,6 +122,7 @@ g.dashboard.new('Heater — GPU')
 + g.dashboard.withDescription('NVIDIA GPU utilization, VRAM, temperature, power and GPU-related logs.')
 + g.dashboard.withTags(['heater', 'gpu', 'nvidia'])
 + c.dashboardDefaults
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Stats') + c.pos(0, 0, 24, 1),
   gpuUtil, vramUtil, tempStat, powerStat,

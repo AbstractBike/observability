@@ -115,6 +115,7 @@ g.dashboard.new('Heater — Processes')
 + g.dashboard.withDescription('Per-process CPU, memory, threads and process logs for the heater machine.')
 + g.dashboard.withTags(['heater', 'processes'])
 + c.dashboardDefaults
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Stats') + c.pos(0, 0, 24, 1),
   totalProcs, totalThreads, topCpuStat, topMemStat,

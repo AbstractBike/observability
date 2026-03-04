@@ -128,6 +128,7 @@ g.dashboard.new('Heater — System')
 + g.dashboard.withDescription('CPU, memory, disk I/O, network and system logs for the heater machine.')
 + g.dashboard.withTags(['heater', 'system'])
 + c.dashboardDefaults
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Stats') + c.pos(0, 0, 24, 1),
   cpuStat, memStat, diskStat, loadStat,

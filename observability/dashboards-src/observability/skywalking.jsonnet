@@ -92,6 +92,7 @@ g.dashboard.new('Observability — SkyWalking')
 + g.dashboard.withDescription('SkyWalking OAP JVM health: uptime, heap, GC, CPU. Links to SkyWalking UI.')
 + g.dashboard.withTags(['observability', 'skywalking', 'tracing'])
 + c.dashboardDefaults
++ g.dashboard.withVariables([c.vmDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
   uptimeStat, threadsStat, heapStat, cpuStat,

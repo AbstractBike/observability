@@ -115,6 +115,7 @@ g.dashboard.new('Heater — JVM / IntelliJ')
 + g.dashboard.withDescription('JVM heap, GC pauses, threads via JMX exporter (IntelliJ IDEA).')
 + g.dashboard.withTags(['heater', 'jvm', 'intellij'])
 + c.dashboardDefaults
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Stats') + c.pos(0, 0, 24, 1),
   heapUsedPct, heapUsedBytes, gcRate, threadCount,

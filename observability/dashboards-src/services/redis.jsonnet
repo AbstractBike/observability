@@ -80,6 +80,7 @@ g.dashboard.new('Services — Redis')
 + g.dashboard.withDescription('Redis operations, memory, hit rate, and evictions.')
 + g.dashboard.withTags(['services', 'redis'])
 + c.dashboardDefaults
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
   upStat, memStat, hitRateStat, connStat,

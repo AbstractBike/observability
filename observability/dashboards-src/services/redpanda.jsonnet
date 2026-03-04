@@ -74,6 +74,7 @@ g.dashboard.new('Services — Redpanda')
 + g.dashboard.withDescription('Redpanda broker throughput, consumer lag, partition health.')
 + g.dashboard.withTags(['services', 'redpanda'])
 + c.dashboardDefaults
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
   upStat, uptimeStat, throughputInStat, throughputOutStat, partitionStat,

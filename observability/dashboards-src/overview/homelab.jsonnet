@@ -127,6 +127,7 @@ g.dashboard.new('Homelab \u2014 Overview')
 + g.dashboard.withDescription('Command center: host health, service status, SLO compliance.')
 + g.dashboard.withTags(['homelab', 'overview'])
 + c.dashboardDefaults
++ g.dashboard.withVariables([c.vmDsVar])
 + g.dashboard.withPanels(
   [
     g.panel.row.new('Homelab \u2014 Host') + c.pos(0, 0, 24, 1),

@@ -79,6 +79,7 @@ g.dashboard.new('Services — PostgreSQL')
 + g.dashboard.withDescription('PostgreSQL connections, transactions, locks, and cache hit rate.')
 + g.dashboard.withTags(['services', 'postgresql'])
 + c.dashboardDefaults
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
   upStat, connStat, cacheHitStat, txnStat,

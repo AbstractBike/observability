@@ -88,6 +88,7 @@ g.dashboard.new('Services — Temporal')
 + g.dashboard.withDescription('Temporal workflow starts, completions, task queue depth, latency.')
 + g.dashboard.withTags(['services', 'temporal'])
 + c.dashboardDefaults
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
   upStat, workflowStartStat, taskQueueStat, schedLatStat, errorStat,

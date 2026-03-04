@@ -67,6 +67,7 @@ g.dashboard.new('Observability — Alertmanager')
 + g.dashboard.withDescription('Alertmanager: notifications sent/failed, silences, alert pipeline.')
 + g.dashboard.withTags(['observability', 'alertmanager', 'alerting'])
 + c.dashboardDefaults
++ g.dashboard.withVariables([c.vmDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
   receivedStat, firedStat, failedStat, silencesStat,
