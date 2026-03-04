@@ -274,7 +274,7 @@ local pipelineRow      = g.panel.row.new('Pipeline & APM')       + c.pos(0, 42, 
 
 g.dashboard.new('Pin SI — Home')
 + g.dashboard.withUid('pin-si-home')
-+ g.dashboard.withDescription('Pin Soluciones Informáticas — Observability Hub')
++ g.dashboard.withDescription('Pin Soluciones Informáticas — Central Operations & Observability Hub. Navigation dashboard providing quick access to all observability dashboards (metrics, logs, traces, alerts), infrastructure services (databases, cache, message brokers), and external tools (Temporal, Superset, Matrix Chat, Redpanda Console).')
 + g.dashboard.withTags(['home', 'pin-si'])
 + g.dashboard.withRefresh('30s')
 + g.dashboard.withEditable(false)
