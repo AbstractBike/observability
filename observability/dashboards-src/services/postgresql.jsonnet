@@ -4,7 +4,7 @@ local c = import 'lib/common.libsonnet';
 local upStat =
   g.panel.stat.new('PostgreSQL Up')
   + c.statPos(0)
-  + g.panel.stat.queryOptions.withTargets([c.vmQ('pg_up')])
+  + g.panel.stat.queryOptions.withTargets([c.vmQ('pg_up or vector(0)')])
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')
   + g.panel.stat.standardOptions.thresholds.withSteps([
     { color: 'red', value: null },
@@ -15,7 +15,7 @@ local upStat =
 local connStat =
   g.panel.stat.new('Active Connections')
   + c.statPos(1)
-  + g.panel.stat.queryOptions.withTargets([c.vmQ('sum(pg_stat_activity_count)')])
+  + g.panel.stat.queryOptions.withTargets([c.vmQ('sum(pg_stat_activity_count) or vector(0)')])
   + g.panel.stat.standardOptions.withDecimals(0)
   + g.panel.stat.options.withColorMode('value')
   + g.panel.stat.options.withGraphMode('none');
@@ -24,7 +24,7 @@ local cacheHitStat =
   g.panel.stat.new('Cache Hit Rate')
   + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(pg_stat_database_blks_hit) / (sum(pg_stat_database_blks_hit) + sum(pg_stat_database_blks_read)) * 100'),
+    c.vmQ('(sum(pg_stat_database_blks_hit) / (sum(pg_stat_database_blks_hit) + sum(pg_stat_database_blks_read)) * 100) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('percent')
   + c.freeThresholds;
@@ -33,7 +33,7 @@ local txnStat =
   g.panel.stat.new('Transactions/sec')
   + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(rate(pg_stat_database_xact_commit[5m]) + rate(pg_stat_database_xact_rollback[5m]))'),
+    c.vmQ('(sum(rate(pg_stat_database_xact_commit[5m]) + rate(pg_stat_database_xact_rollback[5m]))) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('reqps');
 

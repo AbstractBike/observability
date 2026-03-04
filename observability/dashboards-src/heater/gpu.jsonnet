@@ -11,7 +11,7 @@ local gpuUtil =
   g.panel.gauge.new('GPU Utilization')
   + c.statPos(0)
   + g.panel.gauge.queryOptions.withTargets([
-    c.vmQ('nvidia_smi_utilization_gpu_ratio{host="heater"} * 100', '{{name}}'),
+    c.vmQ('(nvidia_smi_utilization_gpu_ratio{host="heater"} * 100) or vector(0)', '{{name}}'),
   ])
   + g.panel.gauge.standardOptions.withUnit('percent')
   + g.panel.gauge.standardOptions.withMax(100)
@@ -27,7 +27,7 @@ local vramUtil =
   g.panel.gauge.new('VRAM Used')
   + c.statPos(1)
   + g.panel.gauge.queryOptions.withTargets([
-    c.vmQ('nvidia_smi_memory_used_bytes{host="heater"} / nvidia_smi_memory_total_bytes{host="heater"} * 100', '{{name}}'),
+    c.vmQ('(nvidia_smi_memory_used_bytes{host="heater"} / nvidia_smi_memory_total_bytes{host="heater"} * 100) or vector(0)', '{{name}}'),
   ])
   + g.panel.gauge.standardOptions.withUnit('percent')
   + g.panel.gauge.standardOptions.withMax(100)
@@ -43,7 +43,7 @@ local tempStat =
   g.panel.stat.new('Temperature')
   + c.statPos(2)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('nvidia_smi_temperature_gpu{host="heater"}', '{{name}}'),
+    c.vmQ('nvidia_smi_temperature_gpu{host="heater"} or vector(0)', '{{name}}'),
   ])
   + g.panel.stat.standardOptions.withUnit('celsius')
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')
@@ -58,7 +58,7 @@ local powerStat =
   g.panel.stat.new('Power Draw')
   + c.statPos(3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('nvidia_smi_power_draw_watts{host="heater"}', '{{name}}'),
+    c.vmQ('nvidia_smi_power_draw_watts{host="heater"} or vector(0)', '{{name}}'),
   ])
   + g.panel.stat.standardOptions.withUnit('watt')
   + g.panel.stat.options.withColorMode('value')
@@ -100,7 +100,7 @@ local powerTs =
   g.panel.timeSeries.new('Power Draw')
   + c.tsPos(1, 1)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('nvidia_smi_power_draw_watts{host="heater"}', '{{name}}'),
+    c.vmQ('nvidia_smi_power_draw_watts{host="heater"} or vector(0)', '{{name}}'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('watt')
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(10)

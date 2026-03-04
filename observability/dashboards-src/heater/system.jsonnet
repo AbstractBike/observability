@@ -4,16 +4,16 @@ local c = import 'lib/common.libsonnet';
 // ── Queries ───────────────────────────────────────────────────────────────────
 
 local cpuUsagePct =
-  '100 - avg(rate(node_cpu_seconds_total{mode="idle",host="heater"}[5m])) * 100';
+  '(100 - avg(rate(node_cpu_seconds_total{mode="idle",host="heater"}[5m])) * 100) or vector(0)';
 
 local memUsedPct =
-  '(1 - node_memory_MemAvailable_bytes{host="heater"} / node_memory_MemTotal_bytes{host="heater"}) * 100';
+  '((1 - node_memory_MemAvailable_bytes{host="heater"} / node_memory_MemTotal_bytes{host="heater"}) * 100) or vector(0)';
 
 local diskRootPct =
-  '(1 - node_filesystem_avail_bytes{host="heater",mountpoint="/"} / node_filesystem_size_bytes{host="heater",mountpoint="/"}) * 100';
+  '((1 - node_filesystem_avail_bytes{host="heater",mountpoint="/"} / node_filesystem_size_bytes{host="heater",mountpoint="/"}) * 100) or vector(0)';
 
 local load1 =
-  'node_load1{host="heater"}';
+  'node_load1{host="heater"} or vector(0)';
 
 // ── Stat panels (row y=0) ─────────────────────────────────────────────────────
 
