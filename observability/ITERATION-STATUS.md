@@ -2,8 +2,8 @@
 
 **Current Session:** 2026-03-04 (Continuing)
 **Mode:** Ralph Loop with `--max-iterations=60 --completion-promise="try on each iteration and complete all iterations"`
-**Iterations Completed:** 24 (continuing)
-**Token Status:** 92k remaining for 36 iterations (~2.6k/iteration average)
+**Iterations Completed:** 25 (continuing)
+**Token Status:** 85k remaining for 35 iterations (~2.4k/iteration) — EFFICIENCY CRITICAL
 
 ---
 
@@ -47,8 +47,9 @@
 | 22 | P4 Phase 1a Fallbacks | Added vector(0) to 11 heater/* queries; all 5 heater dashboards 100% compliant | ✅ DONE |
 | 23 | P4 Phase 1b Fallbacks | Added vector(0) to 6 metrics-discovery queries; 6/14 observability dashboards done | ✅ DONE |
 | 24 | P4 Phase 1c Fallbacks | Fixed 3 queries query-performance + 3 slo-overview; high-impact dashboards complete | ✅ DONE |
+| 25 | P4 Phase 1d Fallbacks | Partial: skywalking-traces (1 query); remaining 15-20 queries pending | ⏳ CONTINUE |
 
-**Total Delivered:** 3,400+ lines of code, 3,900+ lines of docs, 33 commits
+**Total Delivered:** 3,450+ lines of code, 3,950+ lines of docs, 34 commits
 
 ---
 
@@ -175,12 +176,36 @@ Remaining work: P2-P4 backlog items (P0-P4 priorities)
 
 ---
 
-**Last Updated:** 2026-03-04 (Iteration 24 complete — query-perf & slo dashboards fallbacks done)
-**Next Iteration:** 25 (P4 Phase 1d — Finish fallbacks: skywalking-traces, performance, service-deps, etc.)
+**Last Updated:** 2026-03-04 (Iteration 25 — Fallback work continuing at efficiency limit)
+**Next Iteration:** 26 (P4 Phase 1e — BATCH COMPLETE remaining fallbacks in single focused iteration)
 
-### ⚠️ Token Budget Status
-- Tokens used this session: ~108k / 200k
-- Remaining: ~92k for 36 iterations (~2.6k per iteration)
-- **Recommendation:** Iterations 25-26 should focus on efficient fallback completion before moving to Phase 2
-- Consider merging remaining observability fallbacks into single iteration if needed
+### ⚠️ CRITICAL TOKEN BUDGET STATUS
+```
+Tokens used: 115k / 200k (57.5%)
+Remaining: 85k for 35 iterations (2.4k average)
+Current pace: 25 iterations at ~4.6k/iter = unsustainable
+
+REQUIRED STRATEGY SHIFT:
+✅ Phase 1 Completion (Iteration 26): BATCH all remaining ~20 fallbacks in ONE iteration
+   → Use sed/replace_all patterns aggressively
+   → Minimal output, maximum efficiency
+   → Target: <3k tokens for complete phase 1 finish
+
+✅ Phase 2+ (Iterations 27-35): High-value optimization work
+   → Histogram optimization: 8-10 iterations (10-15% perf gain)
+   → topk reduction: 5-6 iterations (5-10% perf gain)
+   → Cardinality audit: 2-3 iterations
+   → Buffer: 3-4 iterations for integration/testing
+
+❌ DO NOT CONTINUE current iteration pace
+→ Would only allow ~18-20 total iterations before token depletion
+→ Need to compress Phase 1 into Iteration 26, then do Phase 2 efficiently
+```
+
+### Strategy for Iteration 26
+1. **Read all remaining observability/* files** (skywalking-traces, service-deps, performance, vmalert, alerts, cost-tracking, dashboard-usage, health-scoring)
+2. **Create bulk find/replace patterns** for common missing fallbacks
+3. **Apply all fixes in parallel** using replace_all
+4. **Commit in single batch** with comprehensive message
+5. **Target:** Complete Phase 1 in <3k tokens, ready for Phase 2 in Iteration 27
 
