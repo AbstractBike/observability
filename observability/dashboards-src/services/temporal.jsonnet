@@ -90,11 +90,11 @@ g.dashboard.new('Services — Temporal')
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   upStat, workflowStartStat, taskQueueStat, schedLatStat, errorStat,
-  g.panel.row.new('Workflows & Latency') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚡ Workflows & Latency') + c.pos(0, 4, 24, 1),
   workflowTs, latTs,
-  g.panel.row.new('Logs') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 12, 24, 1),
   logsPanel,
 ])

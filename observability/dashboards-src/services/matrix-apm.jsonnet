@@ -202,22 +202,22 @@ g.dashboard.new('Services — Matrix APM (SkyWalking)')
 + g.dashboard.graphTooltip.withSharedCrosshair()
 + g.dashboard.withVariables([c.swDsVar, serviceVar, instanceVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Service Overview')   + c.pos(0, 0,  24, 1),
+  g.panel.row.new('📊 Service Overview')   + c.pos(0, 0,  24, 1),
   c.externalLinksPanel(y=1),
   cpmStat, respTimeStat, errorRateStat, apdexStat,
 
-  g.panel.row.new('Request Traffic')    + c.pos(0, 4,  24, 1),
+  g.panel.row.new('📤 Request Traffic')    + c.pos(0, 4,  24, 1),
   cpmTs, latencyTs,
 
-  g.panel.row.new('Errors & Endpoints') + c.pos(0, 13, 24, 1),
+  g.panel.row.new('🔴 Errors & Endpoints') + c.pos(0, 13, 24, 1),
   errorRateTs, throughputTs,
 
-  g.panel.row.new('JVM Internals')      + c.pos(0, 22, 24, 1),
+  g.panel.row.new('⚡ JVM Internals')      + c.pos(0, 22, 24, 1),
   jvmCpuTs, jvmHeapTs,
 
-  g.panel.row.new('Garbage Collection & Threads') + c.pos(0, 31, 24, 1),
+  g.panel.row.new('♻️ GC & Threads') + c.pos(0, 31, 24, 1),
   jvmGcTs, jvmThreadTs,
 
-  g.panel.row.new('Logs') + c.pos(0, 39, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 39, 24, 1),
   logsPanel,
 ])
