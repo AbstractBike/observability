@@ -136,7 +136,8 @@ local errorLogsPanel =
   g.panel.logs.new('Service Error Logs')
   + c.logPos(23)
   + g.panel.logs.queryOptions.withTargets([
-    c.vlogsQ('{job=~".+"} | level:string="error" or level:string="critical"'),
+    // Query VictoriaLogs for ERROR/CRITICAL level logs.
+    c.vlogsQ('{level=~"(error|critical)"}'),
   ])
   + g.panel.logs.options.withWrapLogMessage(true)
   + g.panel.logs.options.withSortOrder('Descending')
@@ -155,7 +156,6 @@ g.dashboard.new('Pin Traces — APM Overview')
 + g.dashboard.withRefresh('30s')
 + g.dashboard.withEditable(false)
 + g.dashboard.graphTooltip.withSharedCrosshair()
-+ g.dashboard.withVariables([c.swDsVar])
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, c.swDsVar])
 + g.dashboard.withPanels([
     statsRow, reqRate, errorRate, p99, serviceCount,

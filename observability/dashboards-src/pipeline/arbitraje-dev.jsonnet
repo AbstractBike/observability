@@ -170,7 +170,7 @@ g.dashboard.new('Arbitraje — Dev')
 + g.dashboard.withDescription('Dev instance: arbitrage engine scan rate, opportunities, Binance API health, JVM. Runs via bootRun on heater (default filter: 192.168.0.3).')
 + g.dashboard.withTags(['arbitraje', 'trading', 'pipeline', 'dev'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([instanceVar])
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, instanceVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Key Stats') + c.pos(0, 0, 24, 1),
   scanRateStat, pathsRateStat, maxProfitStat, circuitBreakerStat,

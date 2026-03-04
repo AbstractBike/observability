@@ -163,7 +163,7 @@ g.dashboard.new('Arbitraje — Market Scalable')
 + g.dashboard.withDescription('Prod instance: arbitrage engine scan rate, opportunities, Binance API health, JVM. Default filter: homelab (192.168.0.4).')
 + g.dashboard.withTags(['arbitraje', 'trading', 'pipeline'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([instanceVar])
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, instanceVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Key Stats') + c.pos(0, 0, 24, 1),
   scanRateStat, pathsRateStat, maxProfitStat, circuitBreakerStat,
