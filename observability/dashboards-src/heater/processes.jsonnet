@@ -117,12 +117,12 @@ g.dashboard.new('Heater — Processes')
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Stats') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   totalProcs, totalThreads, topCpuStat, topMemStat,
-  g.panel.row.new('Top 10 Processes') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚡ Top Processes') + c.pos(0, 4, 24, 1),
   cpuByProcessTs, memByProcessTs,
   cpuTable, memTable,
-  g.panel.row.new('Logs') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
   logsPanel,
 ])

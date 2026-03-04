@@ -117,13 +117,13 @@ g.dashboard.new('Heater — JVM / IntelliJ')
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Stats') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   heapUsedPct, heapUsedBytes, gcRate, threadCount,
-  g.panel.row.new('Memory') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('💾 Memory') + c.pos(0, 4, 24, 1),
   heapTs, nonHeapTs,
-  g.panel.row.new('GC & Threads') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('♻️ GC & Threads') + c.pos(0, 12, 24, 1),
   gcPauseTs, threadsTs,
-  g.panel.row.new('Logs') + c.pos(0, 20, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 20, 24, 1),
   logsPanel,
 ])

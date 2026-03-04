@@ -124,11 +124,11 @@ g.dashboard.new('Heater — GPU')
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Stats') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   gpuUtil, vramUtil, tempStat, powerStat,
-  g.panel.row.new('Metrics') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚡ Metrics') + c.pos(0, 4, 24, 1),
   gpuUtilTs, vramTs, tempTs, powerTs,
-  g.panel.row.new('Logs') + c.pos(0, 20, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 20, 24, 1),
   logsPanel,
 ])
