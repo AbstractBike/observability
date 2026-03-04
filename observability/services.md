@@ -38,6 +38,7 @@ Legend: ✅ Done | ⚠️ Partial | ❌ Missing | N/A Not applicable
 | arbitraje (Spring Boot) | ✅ :8081/actuator/prometheus | ✅ journald | ⚠️ SW agent disabled (JDK11 SIGSEGV) | ✅ pipeline/arbitraje | N/A |
 | Serena MCP | ✅ :24226→:24227 (socat) | ✅ journald | N/A | ✅ overview/serena-mcp | N/A |
 | nixos-deployer | ✅ :9110/metrics (Vector prometheus_scrape) | ✅ journald | N/A | ✅ services/nixos-deployer | ✅ NixosDeployFailed, NixosStagingLagHigh, NixosDeployerDown |
+| nixos-mcp | ✅ :9122/metrics (Prometheus) | ✅ journald | N/A | ✅ services/nixos-mcp | ✅ NixosMcpDown, NixosMcpDeployFailing, NixosMcpHighErrorRate |
 
 ## Developer Host (heater — 192.168.0.3)
 
