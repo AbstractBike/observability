@@ -133,19 +133,19 @@ g.dashboard.new('Observability — Dashboard Usage Analytics')
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Usage Summary') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('📊 Usage Summary') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   totalViewsStat, activeUsersStat, avgEngagementStat, topDashboardsStat,
 
-  g.panel.row.new('Dashboard Performance') + c.pos(0, 3, 24, 1),
+  g.panel.row.new('⚡ Dashboard Performance') + c.pos(0, 3, 24, 1),
   topDashboardsTable, underutilizedTable,
 
-  g.panel.row.new('Usage Trends') + c.pos(0, 11, 24, 1),
+  g.panel.row.new('📈 Usage Trends') + c.pos(0, 11, 24, 1),
   usageTrendTs, engagementTs,
 
-  g.panel.row.new('Analytics Guide') + c.pos(0, 18, 24, 1),
+  g.panel.row.new('🎯 Analytics Guide') + c.pos(0, 18, 24, 1),
   guidePanel,
 
-  g.panel.row.new('Logs') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
   logsPanel,
 ])

@@ -127,19 +127,19 @@ g.dashboard.new('Observability — Cost Tracking')
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Cost Summary') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('💰 Cost Summary') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   totalCostStat, cpuCostStat, memoryCostStat, storageCostStat,
 
-  g.panel.row.new('Service Breakdown') + c.pos(0, 3, 24, 1),
+  g.panel.row.new('📊 Service Breakdown') + c.pos(0, 3, 24, 1),
   serviceCostTable,
 
-  g.panel.row.new('Cost Trends') + c.pos(0, 11, 24, 1),
+  g.panel.row.new('📈 Cost Trends') + c.pos(0, 11, 24, 1),
   costTrendTs, cpuVsMemoryTs,
 
-  g.panel.row.new('Optimization Guide') + c.pos(0, 16, 24, 1),
+  g.panel.row.new('🎯 Optimization Guide') + c.pos(0, 16, 24, 1),
   infoPanel,
 
-  g.panel.row.new('Logs') + c.pos(0, 19, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 19, 24, 1),
   logsPanel,
 ])

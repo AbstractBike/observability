@@ -265,28 +265,28 @@ g.dashboard.new('Service Dependencies & Mesh Topology')
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Topology Overview') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('🌐 Topology Overview') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   totalServicesStat, meshHealthStat, avgEndToEndLatencyStat, serviceRelationshipsStat,
 
-  g.panel.row.new('Service Graph') + c.pos(0, 3, 24, 1),
+  g.panel.row.new('📊 Service Graph') + c.pos(0, 3, 24, 1),
   dependencyGraphInfo,
 
-  g.panel.row.new('Service Relations') + c.pos(0, 5, 24, 1),
+  g.panel.row.new('🔗 Service Relations') + c.pos(0, 5, 24, 1),
   serviceLatencyTable,
 
-  g.panel.row.new('Call Patterns') + c.pos(0, 13, 24, 1),
+  g.panel.row.new('📡 Call Patterns') + c.pos(0, 13, 24, 1),
   callVolumeByPairTs, errorRateByPairTs,
 
-  g.panel.row.new('Multi-Hop Tracing') + c.pos(0, 13, 24, 1),
+  g.panel.row.new('🔍 Multi-Hop Tracing') + c.pos(0, 13, 24, 1),
   multiHopTracesInfo,
 
-  g.panel.row.new('Service Hops') + c.pos(0, 16, 24, 1),
+  g.panel.row.new('➡️ Service Hops') + c.pos(0, 16, 24, 1),
   serviceHopCountTable,
 
-  g.panel.row.new('Optimization Guide') + c.pos(0, 22, 24, 1),
+  g.panel.row.new('🎯 Optimization Guide') + c.pos(0, 22, 24, 1),
   criticalPathsInfo,
 
-  g.panel.row.new('Request Logs') + c.pos(0, 26, 24, 1),
+  g.panel.row.new('📝 Request Logs') + c.pos(0, 26, 24, 1),
   logsPanel,
 ])

@@ -147,16 +147,16 @@ g.dashboard.new('Observability — Metric Discovery')
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   totalSeriesStat, uniqueMetricsStat, jobCountStat, ingestionRateStat,
 
-  g.panel.row.new('Metrics Overview') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('📈 Metrics Overview') + c.pos(0, 4, 24, 1),
   topMetricsTs, metricsByJobTs,
 
-  g.panel.row.new('Jobs & Info') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('ℹ️ Jobs & Info') + c.pos(0, 12, 24, 1),
   topJobsTable, infoPanel,
 
-  g.panel.row.new('Logs') + c.pos(0, 16, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 16, 24, 1),
   logsPanel,
 ])
