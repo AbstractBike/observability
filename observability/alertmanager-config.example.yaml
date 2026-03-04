@@ -1,0 +1,220 @@
+# Alertmanager Configuration Example
+# 
+# This file demonstrates how to configure Alertmanager for:
+# - Alert routing and grouping
+# - Multiple notification channels (email, Slack, PagerDuty)
+# - Escalation policies
+# - Alert suppression and silencing
+
+global:
+  # Default timeout for notifications
+  resolve_timeout: 5m
+  # Slack API URL (set via environment variable or secret)
+  slack_api_url: '${SLACK_WEBHOOK_URL}'
+
+# The root route with all parameters. Each incoming alert will be examined
+# and an attempt will be made to match against all child nodes of a route.
+route:
+  # The alerts are grouped by labels
+  group_by: ['alertname', 'cluster', 'service', 'severity']
+  
+  # How long to initially wait to send a notification for a group of alerts
+  group_wait: 30s
+  
+  # How long to wait before sending a notification about new alerts that are
+  # added to a group of alerts for which an initial notification has already been sent
+  group_interval: 5m
+  
+  # How long to wait before re-sending a notification of an alert group
+  repeat_interval: 12h
+  
+  # The default receiver
+  receiver: 'default'
+  
+  # Routes for specific labels and label values
+  routes:
+    # Critical alerts - immediate escalation
+    - match:
+        severity: critical
+      receiver: 'critical'
+      group_wait: 10s
+      group_interval: 1m
+      repeat_interval: 1h
+      continue: true
+      routes:
+        # Critical service alerts - page on-call immediately
+        - match_re:
+            alertname: 'ServiceDown|MultipleServicesDown'
+          receiver: 'pagerduty-critical'
+          group_wait: 10s
+          group_interval: 1m
+          
+        # Database critical - immediate notification
+        - match_re:
+            alertname: 'DatabaseDiskSpaceLow'
+          receiver: 'slack-database'
+          group_wait: 10s
+          
+        # Cache critical - immediate notification
+        - match_re:
+            alertname: 'CacheMemoryCritical'
+          receiver: 'slack-cache'
+          group_wait: 10s
+          
+        # Queue critical - immediate notification
+        - match_re:
+            alertname: 'QueueBrokerDown|ConsumerLagCritical'
+          receiver: 'slack-queue'
+          group_wait: 10s
+    
+    # Warning alerts - grouped notification
+    - match:
+        severity: warning
+      receiver: 'warning'
+      group_wait: 1m
+      group_interval: 5m
+      repeat_interval: 1d
+      routes:
+        # Database warnings - to database channel
+        - match_re:
+            alertname: 'DatabaseSlowQueries|DatabaseCacheHitLow|DatabaseConnectionHigh'
+          receiver: 'slack-database'
+          
+        # Cache warnings - to cache channel
+        - match_re:
+            alertname: 'CacheHitRateLow|CacheEvictionsHigh'
+          receiver: 'slack-cache'
+          
+        # Queue warnings - to queue channel
+        - match_re:
+            alertname: 'ConsumerLagHigh|QueueReplicationDegraded'
+          receiver: 'slack-queue'
+          
+        # Performance warnings
+        - match_re:
+            alertname: 'ErrorRateHigh|LatencyHigh|CPUHigh|MemoryHigh'
+          receiver: 'slack-performance'
+
+# Inhibition rules allow to mute a set of alerts given that another alert is
+# firing. Use this for cases where you have a larger alert that is more important
+# than a sub-alert, or to avoid noise when the root cause of a group of alerts is known.
+inhibit_rules:
+  # If ServiceDown alert is firing, inhibit all other service-related alerts
+  - source_match:
+      alertname: 'ServiceDown'
+    target_match_re:
+      alertname: '.*'
+    equal: ['job']
+  
+  # If MultipleServicesDown is firing, inhibit single ServiceDown alerts
+  - source_match:
+      alertname: 'MultipleServicesDown'
+    target_match:
+      alertname: 'ServiceDown'
+    equal: ['cluster']
+  
+  # If SystemHealthCritical, inhibit component health warnings
+  - source_match:
+      alertname: 'SystemHealthCritical'
+    target_match:
+      alertname: 'SystemHealthDegraded'
+
+# Receivers configure where to send notifications
+receivers:
+  # Default receiver - less urgent notifications
+  - name: 'default'
+    slack_configs:
+      - channel: '#alerts-general'
+        title: 'Alert: {{ .GroupLabels.alertname }}'
+        text: '{{ range .Alerts }}{{ .Annotations.description }}\n{{ end }}'
+        send_resolved: true
+        color: '{{ if eq .Status "firing" }}danger{{ else }}good{{ end }}'
+  
+  # Critical alerts - immediate escalation
+  - name: 'critical'
+    email_configs:
+      - to: 'oncall@example.com'
+        from: 'alertmanager@example.com'
+        smarthost: 'smtp.example.com:587'
+        auth_username: 'alertmanager@example.com'
+        auth_password: '${SMTP_PASSWORD}'
+        headers:
+          Subject: 'CRITICAL: {{ .GroupLabels.alertname }}'
+        html: |
+          <h2>{{ .GroupLabels.alertname }}</h2>
+          <p>{{ range .Alerts }}{{ .Annotations.description }}<br/>{{ end }}</p>
+          <p><strong>Action:</strong> {{ (index .Alerts 0).Annotations.action }}</p>
+    slack_configs:
+      - channel: '#alerts-critical'
+        title: '🔴 CRITICAL: {{ .GroupLabels.alertname }}'
+        text: '{{ range .Alerts }}{{ .Annotations.description }}\nAction: {{ .Annotations.action }}\n{{ end }}'
+        send_resolved: false
+        color: 'danger'
+    pagerduty_configs:
+      - service_key: '${PAGERDUTY_SERVICE_KEY}'
+        description: '{{ .GroupLabels.alertname }}'
+        details:
+          firing: '{{ range .Alerts.Firing }}{{ .Labels.instance }} {{ .Annotations.description }}\n{{ end }}'
+  
+  # PagerDuty for critical service issues
+  - name: 'pagerduty-critical'
+    pagerduty_configs:
+      - service_key: '${PAGERDUTY_SERVICE_KEY}'
+        description: 'Service Issue: {{ .GroupLabels.alertname }}'
+        details:
+          firing: '{{ range .Alerts.Firing }}{{ .Labels.instance }} {{ .Annotations.description }}\n{{ end }}'
+  
+  # Warning alerts
+  - name: 'warning'
+    slack_configs:
+      - channel: '#alerts-warning'
+        title: '⚠️ WARNING: {{ .GroupLabels.alertname }}'
+        text: '{{ range .Alerts }}{{ .Annotations.description }}\nThreshold: {{ .Annotations.threshold }}\n{{ end }}'
+        send_resolved: true
+  
+  # Database-specific channel
+  - name: 'slack-database'
+    slack_configs:
+      - channel: '#alerts-database'
+        title: '🗄️ Database: {{ .GroupLabels.alertname }}'
+        text: '{{ range .Alerts }}{{ .Annotations.description }}\nAction: {{ .Annotations.action }}\n{{ end }}'
+        send_resolved: true
+        color: '{{ if eq .Status "firing" }}warning{{ else }}good{{ end }}'
+  
+  # Cache-specific channel
+  - name: 'slack-cache'
+    slack_configs:
+      - channel: '#alerts-cache'
+        title: '⚡ Cache: {{ .GroupLabels.alertname }}'
+        text: '{{ range .Alerts }}{{ .Annotations.description }}\nAction: {{ .Annotations.action }}\n{{ end }}'
+        send_resolved: true
+        color: '{{ if eq .Status "firing" }}warning{{ else }}good{{ end }}'
+  
+  # Queue-specific channel
+  - name: 'slack-queue'
+    slack_configs:
+      - channel: '#alerts-queue'
+        title: '📤 Queue: {{ .GroupLabels.alertname }}'
+        text: '{{ range .Alerts }}{{ .Annotations.description }}\nAction: {{ .Annotations.action }}\n{{ end }}'
+        send_resolved: true
+        color: '{{ if eq .Status "firing" }}warning{{ else }}good{{ end }}'
+  
+  # Performance alerts
+  - name: 'slack-performance'
+    slack_configs:
+      - channel: '#alerts-performance'
+        title: '⚡ Performance: {{ .GroupLabels.alertname }}'
+        text: '{{ range .Alerts }}{{ .Annotations.description }}\nThreshold: {{ .Annotations.threshold }}\n{{ end }}'
+        send_resolved: true
+        color: 'warning'
+
+# Muting and silencing rules can be managed via the web UI or API
+# Example silences (typically managed via UI):
+# - alertname: ServiceDown
+#   duration: 1h
+#   reason: Planned maintenance
+#
+# - alertname: 'DatabaseSlowQueries'
+#   instance: 'postgres:5432'
+#   duration: 30m
+#   reason: Long-running migration in progress
