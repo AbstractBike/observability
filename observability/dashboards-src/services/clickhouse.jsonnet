@@ -1,7 +1,14 @@
 local g = import 'github.com/grafana/grafonnet/gen/grafonnet-v11.4.0/main.libsonnet';
 local c = import 'lib/common.libsonnet';
 
-// 5-stat layout: up(4w) + queries(5w) + memory(5w) + merges(5w) + connections(5w) = 24
+// ClickHouse metrics come from the Prometheus endpoint (port 9363).
+// Key metric families:
+//   ClickHouseProfileEvents_*   — event counters (use rate() for per-second)
+//   ClickHouseMetrics_*         — current gauges
+//   ClickHouseAsyncMetrics_*    — background gauges (sampled at ~5s intervals)
+
+// ── Stats (y=1) ─────────────────────────────────────────────────────────────
+
 local upStat =
   g.panel.stat.new('ClickHouse Up')
   + c.pos(0, 1, 4, 3)
@@ -16,67 +23,125 @@ local upStat =
 
 local queryStat =
   g.panel.stat.new('Queries/sec')
-  + c.pos(4, 1, 5, 3)
+  + c.pos(4, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('rate(ClickHouseProfileEvents_Query[5m])'),
+    c.vmQ('rate(ClickHouseProfileEvents_Query[5m]) or vector(0)'),
   ])
-  + g.panel.stat.standardOptions.withUnit('reqps');
+  + g.panel.stat.standardOptions.withUnit('reqps')
+  + g.panel.stat.options.withColorMode('value')
+  + g.panel.stat.options.withGraphMode('area');
 
 local memStat =
   g.panel.stat.new('Memory Used')
-  + c.pos(9, 1, 5, 3)
+  + c.pos(8, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('ClickHouseMetrics_MemoryTracking'),
+    c.vmQ('ClickHouseMetrics_MemoryTracking or vector(0)'),
   ])
-  + g.panel.stat.standardOptions.withUnit('bytes');
+  + g.panel.stat.standardOptions.withUnit('bytes')
+  + g.panel.stat.options.withColorMode('value');
 
-local mergesStat =
-  g.panel.stat.new('Active Merges')
-  + c.pos(14, 1, 5, 3)
+local errorRateStat =
+  g.panel.stat.new('Failed Queries/sec')
+  + c.pos(12, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('ClickHouseMetrics_Merge'),
-  ]);
+    c.vmQ('rate(ClickHouseProfileEvents_FailedQuery[5m]) or vector(0)'),
+  ])
+  + g.panel.stat.standardOptions.withUnit('reqps')
+  + g.panel.stat.standardOptions.thresholds.withMode('absolute')
+  + g.panel.stat.standardOptions.thresholds.withSteps([
+    { color: 'green', value: null },
+    { color: 'yellow', value: 0.01 },
+    { color: 'red', value: 0.1 },
+  ])
+  + g.panel.stat.options.withColorMode('background');
+
+local partsStat =
+  g.panel.stat.new('Active Parts')
+  + c.pos(16, 1, 4, 3)
+  + g.panel.stat.queryOptions.withTargets([
+    c.vmQ('ClickHouseMetrics_PartsActive or vector(0)'),
+  ])
+  + g.panel.stat.standardOptions.withDecimals(0)
+  + g.panel.stat.standardOptions.thresholds.withMode('absolute')
+  + g.panel.stat.standardOptions.thresholds.withSteps([
+    { color: 'green', value: null },
+    { color: 'yellow', value: 1000 },
+    { color: 'red', value: 3000 },
+  ])
+  + g.panel.stat.options.withColorMode('background');
 
 local connStat =
   g.panel.stat.new('TCP Connections')
-  + c.pos(19, 1, 5, 3)
+  + c.pos(20, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('ClickHouseMetrics_TCPConnection'),
-  ]);
+    c.vmQ('ClickHouseMetrics_TCPConnection or vector(0)'),
+  ])
+  + g.panel.stat.options.withColorMode('value');
+
+// ── Time series (y=5) ────────────────────────────────────────────────────────
 
 local queryTs =
-  g.panel.timeSeries.new('Query Rate')
+  g.panel.timeSeries.new('Query Rate (Read vs Write)')
   + c.tsPos(0, 0)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('rate(ClickHouseProfileEvents_Query[5m])', 'queries/s'),
     c.vmQ('rate(ClickHouseProfileEvents_SelectQuery[5m])', 'selects/s'),
     c.vmQ('rate(ClickHouseProfileEvents_InsertQuery[5m])', 'inserts/s'),
+    c.vmQ('rate(ClickHouseProfileEvents_FailedQuery[5m])', 'failed/s'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('reqps')
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
+  + g.panel.timeSeries.options.tooltip.withMode('multi');
+
+local insertTs =
+  g.panel.timeSeries.new('Insert Throughput')
+  + c.tsPos(1, 0)
+  + g.panel.timeSeries.queryOptions.withTargets([
+    c.vmQ('rate(ClickHouseProfileEvents_InsertedRows[5m])', 'rows/s'),
+    c.vmQ('rate(ClickHouseProfileEvents_InsertedBytes[5m])', 'bytes/s'),
+  ])
+  + g.panel.timeSeries.standardOptions.withUnit('short')
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
 local memTs =
-  g.panel.timeSeries.new('Memory & Disk')
-  + c.tsPos(1, 0)
+  g.panel.timeSeries.new('Memory & Storage')
+  + c.tsPos(0, 1)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('ClickHouseMetrics_MemoryTracking', 'memory'),
-    c.vmQ('ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTables', 'mergetree bytes'),
+    c.vmQ('ClickHouseMetrics_MemoryTracking', 'memory tracked'),
+    c.vmQ('ClickHouseAsyncMetrics_TotalBytesOfMergeTreeTables', 'mergetree disk'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('bytes')
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
   + g.panel.timeSeries.options.tooltip.withMode('multi');
+
+local mergesTs =
+  g.panel.timeSeries.new('Background Operations')
+  + c.tsPos(1, 1)
+  + g.panel.timeSeries.queryOptions.withTargets([
+    c.vmQ('ClickHouseMetrics_Merge', 'merges'),
+    c.vmQ('ClickHouseMetrics_BackgroundPoolTask', 'bg pool tasks'),
+    c.vmQ('ClickHouseMetrics_PartsActive', 'active parts'),
+  ])
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
+  + g.panel.timeSeries.options.tooltip.withMode('multi');
+
+// ── Logs ─────────────────────────────────────────────────────────────────────
 
 local logsPanel = c.serviceLogsPanel('ClickHouse Logs', 'clickhouse-server');
 
 g.dashboard.new('Services — ClickHouse')
 + g.dashboard.withUid('services-clickhouse')
-+ g.dashboard.withDescription('ClickHouse queries/sec, memory, merges, disk.')
++ g.dashboard.withDescription('ClickHouse queries/sec, inserts, memory, parts and errors.')
 + g.dashboard.withTags(['services', 'clickhouse'])
 + c.dashboardDefaults
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
-  upStat, queryStat, memStat, mergesStat, connStat,
-  g.panel.row.new('Activity') + c.pos(0, 4, 24, 1),
-  queryTs, memTs,
-  g.panel.row.new('Logs') + c.pos(0, 12, 24, 1),
+  upStat, queryStat, memStat, errorRateStat, partsStat, connStat,
+  g.panel.row.new('Query Activity') + c.pos(0, 4, 24, 1),
+  queryTs, insertTs,
+  g.panel.row.new('Resources') + c.pos(0, 12, 24, 1),
+  memTs, mergesTs,
+  g.panel.row.new('Logs') + c.pos(0, 20, 24, 1),
   logsPanel,
 ])
