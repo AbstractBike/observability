@@ -25,9 +25,14 @@ local serviceVar =
     { key: 'alertmanager', value: 'alertmanager' },
     { key: 'vmalert', value: 'vmalert' },
     { key: 'firecrawl-api', value: 'firecrawl-api' },
+    { key: 'firecrawl-rabbitmq', value: 'firecrawl-rabbitmq' },
     { key: 'nexus', value: 'nexus' },
     { key: 'serena', value: 'serena' },
     { key: 'arbitraje', value: 'arbitraje' },
+    { key: 'nixos-deployer', value: 'nixos-deployer' },
+    { key: 'banyandb', value: 'banyandb' },
+    { key: 'skywalking-ui', value: 'skywalking-ui' },
+    { key: 'superset', value: 'superset' },
     { key: 'claude-code', value: 'claude-code' },
   ])
   + g.dashboard.variable.custom.generalOptions.withLabel('Service')
