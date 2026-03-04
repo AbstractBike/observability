@@ -130,6 +130,22 @@ local throughputRow =
   g.panel.row.new('Throughput')
   + c.pos(0, 14, 24, 1);
 
+// ── Row 4: Service error logs ────────────────────────────────────────────────
+
+local errorLogsPanel =
+  g.panel.logs.new('Service Error Logs')
+  + c.logPos(23)
+  + g.panel.logs.queryOptions.withTargets([
+    c.vlogsQ('{job=~".+"} | level:string="error" or level:string="critical"'),
+  ])
+  + g.panel.logs.options.withWrapLogMessage(true)
+  + g.panel.logs.options.withSortOrder('Descending')
+  + g.panel.logs.options.withShowTime(true);
+
+local logsRow =
+  g.panel.row.new('Error Logs')
+  + c.pos(0, 22, 24, 1);
+
 // ── Dashboard assembly ───────────────────────────────────────────────────────
 
 g.dashboard.new('Pin Traces — APM Overview')
@@ -140,8 +156,10 @@ g.dashboard.new('Pin Traces — APM Overview')
 + g.dashboard.withEditable(false)
 + g.dashboard.graphTooltip.withSharedCrosshair()
 + g.dashboard.withVariables([c.swDsVar])
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, c.swDsVar])
 + g.dashboard.withPanels([
     statsRow, reqRate, errorRate, p99, serviceCount,
     topRow, topServicesByLatency, errorByService,
     throughputRow, throughputTs,
+    logsRow, errorLogsPanel,
   ])

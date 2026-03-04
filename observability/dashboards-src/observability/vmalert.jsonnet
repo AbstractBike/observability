@@ -63,6 +63,8 @@ local evalTs =
   + g.panel.timeSeries.standardOptions.withUnit('ms')
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
+local logsPanel = c.serviceLogsPanel('VMAlert Logs', 'vmalert.service', y=13);
+
 g.dashboard.new('Observability — vmalert')
 + g.dashboard.withUid('observability-vmalert')
 + g.dashboard.withDescription('vmalert: firing alerts, rule evaluation duration, errors.')
@@ -73,4 +75,6 @@ g.dashboard.new('Observability — vmalert')
   firingCountStat, rulesStat, evalDurStat, errorStat,
   g.panel.row.new('Detail') + c.pos(0, 4, 24, 1),
   firingTs, evalTs,
+  g.panel.row.new('Logs') + c.pos(0, 12, 24, 1),
+  logsPanel,
 ])

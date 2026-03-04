@@ -221,7 +221,7 @@ local claudeCard   = dbCard('🤖', 'Claude Metrics',  'claude-metrics-v1',     
 local tracesDbCard = dbCard('🔍', 'Pin Traces',      'pin-traces',               c.pos(8,  28, 4, 4));
 local serenaCard   = dbCard('🧠', 'Serena MCP',      'serena-mcp-observability', c.pos(12, 28, 4, 4));
 local vmCard       = dbCard('📈', 'VictoriaMetrics', 'vm-overview',              c.pos(16, 28, 4, 4));
-local swCard       = dbCard('🌐', 'SkyWalking',     'skywalking-apm',           c.pos(20, 28, 4, 4));
+local swCard       = dbCard('🌐', 'SkyWalking',     'observability-skywalking',           c.pos(20, 28, 4, 4));
 
 // ── Heater Infrastructure row (y=33) ─────────────────────────────────────────
 

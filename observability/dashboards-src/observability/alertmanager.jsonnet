@@ -56,6 +56,8 @@ local alertsTs =
   ])
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
+local logsPanel = c.serviceLogsPanel('Alertmanager Logs', 'alertmanager.service', y=13);
+
 g.dashboard.new('Observability — Alertmanager')
 + g.dashboard.withUid('observability-alertmanager')
 + g.dashboard.withDescription('Alertmanager: notifications sent/failed, silences, alert pipeline.')
@@ -66,4 +68,6 @@ g.dashboard.new('Observability — Alertmanager')
   receivedStat, firedStat, failedStat, silencesStat,
   g.panel.row.new('Detail') + c.pos(0, 4, 24, 1),
   notifTs, alertsTs,
+  g.panel.row.new('Logs') + c.pos(0, 12, 24, 1),
+  logsPanel,
 ])
