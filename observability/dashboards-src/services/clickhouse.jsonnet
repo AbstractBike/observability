@@ -136,13 +136,13 @@ g.dashboard.new('Services — ClickHouse')
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   upStat, queryStat, memStat, errorRateStat, partsStat, connStat,
-  g.panel.row.new('Query Activity') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚡ Query Activity') + c.pos(0, 4, 24, 1),
   queryTs, insertTs,
-  g.panel.row.new('Resources') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('🏗️ Resources') + c.pos(0, 12, 24, 1),
   memTs, mergesTs,
-  g.panel.row.new('Logs') + c.pos(0, 20, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 20, 24, 1),
   logsPanel,
 ])
