@@ -76,7 +76,7 @@ local cacheTokensStat =
   g.panel.stat.new('Cache Hit')
   + c.pos(4, 5, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(claude_prompt_cache_read_tokens{host="heater",project=~"$project",model=~"$model"}) / (sum(claude_prompt_input_tokens{host="heater",project=~"$project",model=~"$model"}) + 1) * 100 or vector(0)'),
+    c.vmQ('sum(claude_prompt_cache_read_tokens{host="heater",project=~"$project",model=~"$model"}) / (sum(claude_prompt_cache_read_tokens{host="heater",project=~"$project",model=~"$model"}) + sum(claude_prompt_input_tokens{host="heater",project=~"$project",model=~"$model"}) + 1) * 100 or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.withDecimals(0)

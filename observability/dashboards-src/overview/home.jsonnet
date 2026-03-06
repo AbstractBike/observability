@@ -179,7 +179,8 @@ local troubleGuide = c.serviceTroubleshootingGuide('home', [
 // ── Color palette ────────────────────────────────────────────────────────────
 local obsColor  = '#7c3aed';  // violet — observability
 local appColor  = '#2563eb';  // blue   — system apps
-local arbColor  = '#059669';  // emerald — arbitrage
+local cloudColor = '#f6821f';  // orange  — cloud / cloudflare
+local arbColor   = '#059669';  // emerald — arbitrage
 local mtxColor  = '#d946ef';  // fuchsia — matrix suite
 local dashColor  = '#475569';  // slate  — dashboards
 local infraColor = '#0891b2';  // cyan   — infrastructure
@@ -202,23 +203,29 @@ local adguardCard  = card('AdGuard',  '🛡',  'AdGuard',    'dns-filtering',   
 local redpandaCard = card('Redpanda', '🗄',  'Redpanda',   'kafka-console',   'http://redpanda.pin', appColor, 'app', c.pos(16, 9, 4, 4), true);
 local matrixChat   = card('Matrix',   '💬', 'Matrix Chat', 'element-web',     'https://matrix.abstract.bike', appColor, 'app', c.pos(20, 9, 4, 4), true);
 
-// ── Arbitrage row (y=14) — dashboards ────────────────────────────────────────
+// ── Cloud row (y=13) — Cloudflare plugin & dashboards ────────────────────
 
-local arbDevCard  = card('Arb Dev',  '📈', 'Arbitrage Dev',  '/d/arbitraje-dev',  '/d/arbitraje-dev',  arbColor, 'dev',  c.pos(0,  14, 12, 4));
-local arbProdCard = card('Arb Prod', '📈', 'Arbitrage Prod', '/d/arbitraje-main', '/d/arbitraje-main', arbColor, 'prod', c.pos(12, 14, 12, 4));
+local cfAppCard    = card('Cloudflare',  '☁️', 'Cloudflare',  'plugin · config',  '/a/abstractbike-cloudflare-app', cloudColor, 'cloud', c.pos(0,  14, 8, 4));
+local cfZonesCard  = card('CF Zones',   '🌐', 'CF Zones',    'http · analytics', '/d/cf-zones-v1',                 cloudColor, 'cloud', c.pos(8,  14, 8, 4));
+local cfTunnelCard = card('CF Tunnel',  '🔒', 'CF Tunnel',   'tunnel · metrics', '/d/cf-tunnel-v1',                cloudColor, 'cloud', c.pos(16, 14, 8, 4));
 
-// ── Matrix Suite row (y=19) — dashboards ─────────────────────────────────────
+// ── Arbitrage row (y=19) — dashboards ────────────────────────────────────────
 
-local mxExplorerDev  = card('Explorer Dev',    '🔎', 'Explorer Dev',    '/d/matrix-explorer-dev',    '/d/matrix-explorer-dev',    mtxColor, 'dev',  c.pos(0,  19, 6, 4));
-local mxExplorerProd = card('Explorer Prod',   '🔎', 'Explorer Prod',   '/d/matrix-explorer',        '/d/matrix-explorer',        mtxColor, 'prod', c.pos(6,  19, 6, 4));
-local mxVaultDev     = card('Vault Dev',       '🔐', 'Vault Dev',       '/d/matrix-vault-dev',       '/d/matrix-vault-dev',       mtxColor, 'dev',  c.pos(12, 19, 6, 4));
-local mxVaultProd    = card('Vault Prod',      '🔐', 'Vault Prod',      '/d/matrix-vault',           '/d/matrix-vault',           mtxColor, 'prod', c.pos(18, 19, 6, 4));
-local mxGeneratorDev = card('Generator Dev',   '⚙',  'Generator Dev',   '/d/matrix-generator-dev',   '/d/matrix-generator-dev',   mtxColor, 'dev',  c.pos(0,  23, 6, 4));
-local mxGeneratorProd= card('Generator Prod',  '⚙',  'Generator Prod',  '/d/matrix-generator',       '/d/matrix-generator',       mtxColor, 'prod', c.pos(6,  23, 6, 4));
-local mxTechDev      = card('Technicals Dev',  '📐', 'Technicals Dev',  '/d/matrix-technicals-dev',  '/d/matrix-technicals-dev',  mtxColor, 'dev',  c.pos(12, 23, 6, 4));
-local mxTechProd     = card('Technicals Prod', '📐', 'Technicals Prod', '/d/matrix-technicals',      '/d/matrix-technicals',      mtxColor, 'prod', c.pos(18, 23, 6, 4));
+local arbDevCard  = card('Arb Dev',  '📈', 'Arbitrage Dev',  '/d/arbitraje-dev',  '/d/arbitraje-dev',  arbColor, 'dev',  c.pos(0,  19, 12, 4));
+local arbProdCard = card('Arb Prod', '📈', 'Arbitrage Prod', '/d/arbitraje-main', '/d/arbitraje-main', arbColor, 'prod', c.pos(12, 19, 12, 4));
 
-// ── Dashboards row (y=28) — verified UIDs from Grafana API ──────────────────
+// ── Matrix Suite row (y=24) — dashboards ─────────────────────────────────────
+
+local mxExplorerDev  = card('Explorer Dev',    '🔎', 'Explorer Dev',    '/d/matrix-explorer-dev',    '/d/matrix-explorer-dev',    mtxColor, 'dev',  c.pos(0,  24, 6, 4));
+local mxExplorerProd = card('Explorer Prod',   '🔎', 'Explorer Prod',   '/d/matrix-explorer',        '/d/matrix-explorer',        mtxColor, 'prod', c.pos(6,  24, 6, 4));
+local mxVaultDev     = card('Vault Dev',       '🔐', 'Vault Dev',       '/d/matrix-vault-dev',       '/d/matrix-vault-dev',       mtxColor, 'dev',  c.pos(12, 24, 6, 4));
+local mxVaultProd    = card('Vault Prod',      '🔐', 'Vault Prod',      '/d/matrix-vault',           '/d/matrix-vault',           mtxColor, 'prod', c.pos(18, 24, 6, 4));
+local mxGeneratorDev = card('Generator Dev',   '⚙',  'Generator Dev',   '/d/matrix-generator-dev',   '/d/matrix-generator-dev',   mtxColor, 'dev',  c.pos(0,  28, 6, 4));
+local mxGeneratorProd= card('Generator Prod',  '⚙',  'Generator Prod',  '/d/matrix-generator',       '/d/matrix-generator',       mtxColor, 'prod', c.pos(6,  28, 6, 4));
+local mxTechDev      = card('Technicals Dev',  '📐', 'Technicals Dev',  '/d/matrix-technicals-dev',  '/d/matrix-technicals-dev',  mtxColor, 'dev',  c.pos(12, 28, 6, 4));
+local mxTechProd     = card('Technicals Prod', '📐', 'Technicals Prod', '/d/matrix-technicals',      '/d/matrix-technicals',      mtxColor, 'prod', c.pos(18, 28, 6, 4));
+
+// ── Dashboards row (y=33) — verified UIDs from Grafana API ──────────────────
 
 local dbCard(icon, title, uid, pos) =
   card(title, icon, title, '/d/' + uid, '/d/' + uid, dashColor, 'dash', pos);
@@ -228,59 +235,60 @@ local dbCard(icon, title, uid, pos) =
 local cdbCard(icon, title, sub, uid, color, pos, name=null) =
   card(if name != null then name else title, icon, title, sub, '/d/' + uid, color, 'dash', pos);
 
-local homelabCard  = dbCard('🖥',  'Homelab',         'homelab-overview',         c.pos(0,  28, 4, 4));
-local claudeCard   = dbCard('🤖', 'Claude Metrics',  'claude-metrics-v1',        c.pos(4,  28, 4, 4));
-local tracesDbCard = dbCard('🔍', 'Pin Traces',      'pin-traces',               c.pos(8,  28, 4, 4));
-local serenaCard   = dbCard('🧠', 'Serena MCP',      'serena-mcp-observability', c.pos(12, 28, 4, 4));
-local vmCard       = dbCard('📈', 'VictoriaMetrics', 'vm-overview',              c.pos(16, 28, 4, 4));
-local swCard       = dbCard('🌐', 'SkyWalking',     'observability-skywalking',           c.pos(20, 28, 4, 4));
+local homelabCard  = dbCard('🖥',  'Homelab',         'homelab-overview',         c.pos(0,  33, 4, 4));
+local claudeCard   = dbCard('🤖', 'Claude Metrics',  'claude-metrics-v1',        c.pos(4,  33, 4, 4));
+local tracesDbCard = dbCard('🔍', 'Pin Traces',      'pin-traces',               c.pos(8,  33, 4, 4));
+local serenaCard   = dbCard('🧠', 'Serena MCP',      'serena-mcp-observability', c.pos(12, 33, 4, 4));
+local vmCard       = dbCard('📈', 'VictoriaMetrics', 'vm-overview',              c.pos(16, 33, 4, 4));
+local swCard       = dbCard('🌐', 'SkyWalking',     'observability-skywalking',           c.pos(20, 33, 4, 4));
 
-// ── Heater Infrastructure row (y=33) ─────────────────────────────────────────
+// ── Heater Infrastructure row (y=38) ─────────────────────────────────────────
 
-local homelabSysCard      = cdbCard('🖥',  'Homelab',      'cpu · mem · network', 'services-homelab-system', infraColor, c.pos(0,  33, 4, 4), 'Homelab System');
-local heaterSystemCard    = cdbCard('🖥',  'Heater Sys',   'cpu · mem · disk',    'heater-system',           infraColor, c.pos(4,  33, 4, 4));
-local heaterJvmCard       = cdbCard('☕',  'JVM',          'heap · gc · threads', 'heater-jvm',              infraColor, c.pos(8,  33, 4, 4));
-local heaterGpuCard       = cdbCard('🎮',  'GPU',          'vram · utilization',  'heater-gpu',              infraColor, c.pos(12, 33, 4, 4));
-local heaterProcCard      = cdbCard('⚙',   'Processes',    'top · cpu · mem',     'heater-processes',        infraColor, c.pos(16, 33, 4, 4));
-local heaterClaudeCard    = cdbCard('🤖',  'Claude Code',  'tokens · cost · ctx', 'heater-claude-code',      infraColor, c.pos(20, 33, 4, 4));
+local homelabSysCard      = cdbCard('🖥',  'Homelab',      'cpu · mem · network', 'services-homelab-system', infraColor, c.pos(0,  38, 4, 4), 'Homelab System');
+local heaterHomeCard      = cdbCard('🏠',  'Heater Home',  'health · overview',   'heater-home',             infraColor, c.pos(4,  38, 4, 4));
+local heaterSystemCard    = cdbCard('🖥',  'Heater Sys',   'cpu · mem · disk',    'heater-system',           infraColor, c.pos(8,  38, 4, 4));
+local heaterGpuCard       = cdbCard('🎮',  'GPU',          'vram · utilization',  'heater-gpu',              infraColor, c.pos(12, 38, 4, 4));
+local heaterClaudeCard    = cdbCard('🤖',  'Claude Code',  'tokens · cost · mcp', 'heater-claude-code',      infraColor, c.pos(16, 38, 4, 4));
+local heaterProcCard      = cdbCard('⚙',   'Processes',    'top · cpu · mem',     'heater-processes',        infraColor, c.pos(20, 38, 4, 4));
 
-// ── Services row (y=38) ───────────────────────────────────────────────────────
+// ── Services row (y=43) ───────────────────────────────────────────────────────
 
-local temporalDbCard   = cdbCard('⏱',  'Temporal',      'workflows · queues', 'services-temporal',       svcColor, c.pos(0,  38, 4, 4), 'Temporal Dashboard');
-local postgresDbCard   = cdbCard('🐘',  'PostgreSQL',    'queries · pool',     'services-postgresql',     svcColor, c.pos(4,  38, 4, 4));
-local redisDbCard      = cdbCard('🔴',  'Redis',         'cache · memory',     'services-redis',          svcColor, c.pos(8,  38, 4, 4));
-local clickhouseDbCard = cdbCard('⚡',  'ClickHouse',    'insert · select',    'services-clickhouse',     svcColor, c.pos(12, 38, 4, 4));
-local elasticDbCard    = cdbCard('🔍',  'Elasticsearch', 'index · search',     'services-elasticsearch',  svcColor, c.pos(16, 38, 4, 4));
-local redpandaDbCard   = cdbCard('📡',  'Redpanda',      'kafka · topics',     'services-redpanda',       svcColor, c.pos(20, 38, 4, 4), 'Redpanda Dashboard');
+local temporalDbCard   = cdbCard('⏱',  'Temporal',      'workflows · queues', 'services-temporal',       svcColor, c.pos(0,  43, 4, 4), 'Temporal Dashboard');
+local postgresDbCard   = cdbCard('🐘',  'PostgreSQL',    'queries · pool',     'services-postgresql',     svcColor, c.pos(4,  43, 4, 4));
+local redisDbCard      = cdbCard('🔴',  'Redis',         'cache · memory',     'services-redis',          svcColor, c.pos(8,  43, 4, 4));
+local clickhouseDbCard = cdbCard('⚡',  'ClickHouse',    'insert · select',    'services-clickhouse',     svcColor, c.pos(12, 43, 4, 4));
+local elasticDbCard    = cdbCard('🔍',  'Elasticsearch', 'index · search',     'services-elasticsearch',  svcColor, c.pos(16, 43, 4, 4));
+local redpandaDbCard   = cdbCard('📡',  'Redpanda',      'kafka · topics',     'services-redpanda',       svcColor, c.pos(20, 43, 4, 4), 'Redpanda Dashboard');
 
-// ── Pipeline & APM row (y=43) ─────────────────────────────────────────────────
+// ── Pipeline & APM row (y=48) ─────────────────────────────────────────────────
 
-local vectorDbCard     = cdbCard('🚀', 'Vector',          'pipeline · ingest', 'pipeline-vector',            pipeColor, c.pos(0,  43, 4, 4));
-local alertmgrDbCard   = cdbCard('🔔', 'Alertmanager',    'rules · silences',  'observability-alertmanager', pipeColor, c.pos(4,  43, 4, 4));
-local vmalertDbCard    = cdbCard('📢', 'VM Alert',        'eval · firing',     'observability-vmalert',      pipeColor, c.pos(8,  43, 4, 4));
-local sloDbCard        = cdbCard('📊', 'SLO Overview',    'error budgets',     'slo-overview',               pipeColor, c.pos(12, 43, 4, 4));
-local serenaBackDbCard = cdbCard('🧠', 'Serena Backends', 'lsp · indexing',    'overview-serena-backends',   pipeColor, c.pos(16, 43, 4, 4));
-local logsDbCard       = cdbCard('📋', 'Logs',            'all-services · levels', 'observability-logs',        pipeColor, c.pos(20, 43, 4, 4), 'Logs Dashboard');
-local matrixApmDbCard     = cdbCard('💬', 'Matrix APM',       'requests · spans',   'matrix-apm-skywalking',    pipeColor, c.pos(0,  47, 4, 4));
-local nixosDeployerDbCard = cdbCard('🚀', 'NixOS Deployer',   'gitops · deploys',   'services-nixos-deployer',  pipeColor, c.pos(4,  47, 4, 4));
-local grafanaSelfDbCard   = cdbCard('📊', 'Grafana',          'http · alerts · ds', 'observability-grafana',    pipeColor, c.pos(8,  47, 4, 4));
+local vectorDbCard     = cdbCard('🚀', 'Vector',          'pipeline · ingest', 'pipeline-vector',            pipeColor, c.pos(0,  48, 4, 4));
+local alertmgrDbCard   = cdbCard('🔔', 'Alertmanager',    'rules · silences',  'observability-alertmanager', pipeColor, c.pos(4,  48, 4, 4));
+local vmalertDbCard    = cdbCard('📢', 'VM Alert',        'eval · firing',     'observability-vmalert',      pipeColor, c.pos(8,  48, 4, 4));
+local sloDbCard        = cdbCard('📊', 'SLO Overview',    'error budgets',     'slo-overview',               pipeColor, c.pos(12, 48, 4, 4));
+local serenaBackDbCard = cdbCard('🧠', 'Serena Backends', 'lsp · indexing',    'overview-serena-backends',   pipeColor, c.pos(16, 48, 4, 4));
+local logsDbCard       = cdbCard('📋', 'Logs',            'all-services · levels', 'observability-logs',        pipeColor, c.pos(20, 48, 4, 4), 'Logs Dashboard');
+local matrixApmDbCard     = cdbCard('💬', 'Matrix APM',       'requests · spans',   'matrix-apm-skywalking',    pipeColor, c.pos(0,  52, 4, 4));
+local nixosDeployerDbCard = cdbCard('🚀', 'NixOS Deployer',   'gitops · deploys',   'services-nixos-deployer',  pipeColor, c.pos(4,  52, 4, 4));
+local grafanaSelfDbCard   = cdbCard('📊', 'Grafana',          'http · alerts · ds', 'observability-grafana',    pipeColor, c.pos(8,  52, 4, 4));
 
-// ── New Dashboards row (y=51) ─────────────────────────────────────────────
-local newRow  = g.panel.row.new('✨ New Dashboards') + c.pos(0, 51, 24, 1);
+// ── New Dashboards row (y=56) ─────────────────────────────────────────────
+local newRow  = g.panel.row.new('✨ New Dashboards') + c.pos(0, 56, 24, 1);
 local newCard = card('New Dashboards', '📂', 'New Dashboards',
                      'dashboards_new/ · auto-provisioned',
-                     '/dashboards', dashColor, 'new', c.pos(0, 52, 6, 4));
+                     '/dashboards', dashColor, 'new', c.pos(0, 57, 6, 4));
 
 // ── Row separators ───────────────────────────────────────────────────────────
 
 local observabilityRow = g.panel.row.new('📊 Observability')        + c.pos(0, 3,  24, 1);
 local appsRow          = g.panel.row.new('🔧 System Apps')          + c.pos(0, 8,  24, 1);
-local arbitrageRow     = g.panel.row.new('📈 Arbitrage')            + c.pos(0, 13, 24, 1);
-local matrixRow        = g.panel.row.new('💬 Matrix Suite')         + c.pos(0, 18, 24, 1);
-local dashboardsRow    = g.panel.row.new('📋 Dashboards')           + c.pos(0, 27, 24, 1);
-local heaterRow        = g.panel.row.new('🏗️ Infrastructure')       + c.pos(0, 32, 24, 1);
-local servicesRow      = g.panel.row.new('⚡ Services')             + c.pos(0, 37, 24, 1);
-local pipelineRow      = g.panel.row.new('🔄 Pipeline & APM')       + c.pos(0, 42, 24, 1);
+local cloudRow         = g.panel.row.new('☁️ Cloud')                + c.pos(0, 13, 24, 1);
+local arbitrageRow     = g.panel.row.new('📈 Arbitrage')            + c.pos(0, 18, 24, 1);
+local matrixRow        = g.panel.row.new('💬 Matrix Suite')         + c.pos(0, 23, 24, 1);
+local dashboardsRow    = g.panel.row.new('📋 Dashboards')           + c.pos(0, 32, 24, 1);
+local heaterRow        = g.panel.row.new('🏗️ Infrastructure')       + c.pos(0, 37, 24, 1);
+local servicesRow      = g.panel.row.new('⚡ Services')             + c.pos(0, 42, 24, 1);
+local pipelineRow      = g.panel.row.new('🔄 Pipeline & APM')       + c.pos(0, 47, 24, 1);
 
 // ── Dashboard assembly ───────────────────────────────────────────────────────
 
@@ -301,6 +309,8 @@ g.dashboard.new('Pin SI — Home')
     metricsCard, logsCard, tracesCard, alertsCard,
     appsRow,
     temporalCard, supersetCard, nexusCard, adguardCard, redpandaCard, matrixChat,
+    cloudRow,
+    cfAppCard, cfZonesCard, cfTunnelCard,
     arbitrageRow,
     arbDevCard, arbProdCard,
     matrixRow,
@@ -309,7 +319,7 @@ g.dashboard.new('Pin SI — Home')
     dashboardsRow,
     homelabCard, claudeCard, tracesDbCard, serenaCard, vmCard, swCard,
     heaterRow,
-    homelabSysCard, heaterSystemCard, heaterJvmCard, heaterGpuCard, heaterProcCard, heaterClaudeCard,
+    homelabSysCard, heaterHomeCard, heaterSystemCard, heaterGpuCard, heaterClaudeCard, heaterProcCard,
     servicesRow,
     temporalDbCard, postgresDbCard, redisDbCard, clickhouseDbCard, elasticDbCard, redpandaDbCard,
     pipelineRow,
