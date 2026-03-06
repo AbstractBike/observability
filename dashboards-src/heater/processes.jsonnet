@@ -11,9 +11,10 @@ local c = import 'lib/common.libsonnet';
 
 local alertPanel = c.alertCountPanel('heater-processes', col=0);
 
+// 5-stat layout: alert(6) + procs(4) + threads(4) + topCpu(5) + topMem(5) = 24
 local totalProcs =
   g.panel.stat.new('Total Processes')
-  + c.statPos(1)
+  + c.pos(6, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(namedprocess_namegroup_num_procs{host="heater"}) or vector(0)'),
   ])
@@ -21,7 +22,7 @@ local totalProcs =
 
 local totalThreads =
   g.panel.stat.new('Total Threads')
-  + c.statPos(2)
+  + c.pos(10, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(namedprocess_namegroup_num_threads{host="heater"}) or vector(0)'),
   ])
@@ -29,7 +30,7 @@ local totalThreads =
 
 local topCpuStat =
   g.panel.stat.new('Top CPU Process')
-  + c.statPos(3)
+  + c.pos(14, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ(
       '(topk(1, sum by (groupname) (rate(namedprocess_namegroup_cpu_seconds_total{host="heater"}[5m]))) * 100) or vector(0)',
@@ -41,7 +42,7 @@ local topCpuStat =
 
 local topMemStat =
   g.panel.stat.new('Top Memory Process')
-  + c.statPos(4)
+  + c.pos(19, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ(
       'topk(1, sum by (groupname) (namedprocess_namegroup_memory_bytes{host="heater",memtype="resident"})) or vector(0)',
@@ -103,7 +104,7 @@ local memTable =
 
 local logsPanel =
   g.panel.logs.new('Process Events (OOM / Segfaults / Kills)')
-  + c.logPos(26)
+  + c.logPos(22)
   + g.panel.logs.queryOptions.withTargets([
     // Kernel logs for OOM kills, segfaults and process termination events.
     c.vlogsQ('{host="heater",service="kernel"} | _msg:~"(killed|oom|OOM|segfault|segmentation|out of memory|Killed process|oom_kill)"'),
@@ -119,14 +120,13 @@ local troubleGuide = c.serviceTroubleshootingGuide('processes', [
   { symptom: 'Process Count High', runbook: 'processes/fork-bomb', check: 'Monitor Total Processes stat and review historical data' },
   { symptom: 'OOM Killer Active', runbook: 'processes/oom-response', check: 'Check Process Events logs for killed processes' },
   { symptom: 'Zombie Processes', runbook: 'processes/zombie-cleanup', check: 'Review process logs for segfaults or unreaped children' },
-], y=19);
+], y=33);
 
 g.dashboard.new('Heater — Processes')
 + g.dashboard.withUid('heater-processes')
 + g.dashboard.withDescription('Per-process CPU, memory, threads and process logs for the heater machine.')
 + g.dashboard.withTags(['heater', 'processes', 'critical'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
@@ -134,8 +134,8 @@ g.dashboard.new('Heater — Processes')
   g.panel.row.new('⚡ Top Processes') + c.pos(0, 4, 24, 1),
   cpuByProcessTs, memByProcessTs,
   cpuTable, memTable,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 18, 24, 1),
-  troubleGuide,
-  g.panel.row.new('📝 Logs') + c.pos(0, 25, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
   logsPanel,
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 32, 24, 1),
+  troubleGuide,
 ])

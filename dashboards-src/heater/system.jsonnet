@@ -19,9 +19,10 @@ local load1 =
 
 local alertPanel = c.alertCountPanel('heater', col=0);
 
+// 5-stat layout: alert(6) + cpu(4) + mem(4) + disk(5) + load(5) = 24
 local cpuStat =
   g.panel.stat.new('CPU Usage')
-  + c.statPos(3)
+  + c.pos(6, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([c.vmQ(cpuUsagePct)])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.withMax(100)
@@ -32,7 +33,7 @@ local cpuStat =
 
 local memStat =
   g.panel.stat.new('Memory Used')
-  + c.statPos(3)
+  + c.pos(10, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([c.vmQ(memUsedPct)])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.withMax(100)
@@ -43,7 +44,7 @@ local memStat =
 
 local diskStat =
   g.panel.stat.new('Root Disk Used')
-  + c.statPos(3)
+  + c.pos(14, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([c.vmQ(diskRootPct)])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.withMax(100)
@@ -54,7 +55,7 @@ local diskStat =
 
 local loadStat =
   g.panel.stat.new('Load Avg (1m)')
-  + c.statPos(4)
+  + c.pos(19, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([c.vmQ(load1)])
   + g.panel.stat.standardOptions.withDecimals(2)
   + g.panel.stat.options.withColorMode('value')
@@ -113,7 +114,7 @@ local netIoTs =
 
 local logsPanel =
   g.panel.logs.new('System Logs')
-  + c.logPos(21)
+  + c.logPos(22)
   + g.panel.logs.queryOptions.withTargets([
     c.vlogsQ('{host="heater",service=~"(kernel|systemd|NetworkManager|sudo|sshd)"}'),
   ])
@@ -130,7 +131,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('heater', [
   { symptom: 'Memory Pressure', runbook: 'heater/memory-pressure', check: 'Monitor Memory Used stat and swap usage' },
   { symptom: 'Disk Space Low', runbook: 'heater/disk-cleanup', check: 'Review Root Disk Used and disk I/O trends' },
   { symptom: 'System Overload', runbook: 'heater/load-average', check: 'Check Load Avg stat and correlate with Process grid' },
-], y=18);
+], y=33);
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
@@ -139,15 +140,14 @@ g.dashboard.new('Heater — System')
 + g.dashboard.withDescription('CPU, memory, disk I/O, network and system logs for the heater machine.')
 + g.dashboard.withTags(['heater', 'system', 'critical'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   alertPanel, cpuStat, memStat, diskStat, loadStat,
   g.panel.row.new('⚡ Performance') + c.pos(0, 4, 24, 1),
   cpuTs, memTs, diskIoTs, netIoTs,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 17, 24, 1),
-  troubleGuide,
-  g.panel.row.new('📝 Logs') + c.pos(0, 25, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
   logsPanel,
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 32, 24, 1),
+  troubleGuide,
 ])
