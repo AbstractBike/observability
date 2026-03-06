@@ -19,9 +19,10 @@ local c = import 'lib/common.libsonnet';
 
 local alertPanel = c.alertCountPanel('skywalking', col=0);
 
+// 5-stat layout: alert(6) + totalServices(4) + meshHealth(4) + avgLatency(5) + relationships(5) = 24
 local totalServicesStat =
   g.panel.stat.new('Total Services')
-  + c.statPos(1)
+  + c.pos(6, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('count(count by (service) ({__name__=~"skywalking.*"}))'),
   ])
@@ -31,7 +32,7 @@ local totalServicesStat =
 
 local meshHealthStat =
   g.panel.stat.new('Mesh Health')
-  + c.statPos(2)
+  + c.pos(10, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(1 - (count(skywalking_trace_status_total{status="error"}) / count(skywalking_trace_status_total))) * 100 or vector(100)'),
   ])
@@ -46,7 +47,7 @@ local meshHealthStat =
 
 local avgEndToEndLatencyStat =
   g.panel.stat.new('Avg End-to-End Latency')
-  + c.statPos(3)
+  + c.pos(14, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('histogram_quantile(0.50, sum by(le) (rate(skywalking_trace_latency_bucket[5m]))) or vector(0)'),
   ])
@@ -55,7 +56,7 @@ local avgEndToEndLatencyStat =
 
 local serviceRelationshipsStat =
   g.panel.stat.new('Service Relationships')
-  + c.statPos(4)
+  + c.pos(19, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('count(count by (source_service,dest_service) (skywalking_service_relation_total)) or vector(0)'),
   ])
@@ -261,11 +262,11 @@ local troubleGuide = c.serviceTroubleshootingGuide('skywalking', [
   { symptom: 'High Latency Between Services', runbook: 'skywalking/service-latency', check: 'Check "Service-to-Service Latency" table and identify slowest pair' },
   { symptom: 'Service Errors in Mesh', runbook: 'skywalking/mesh-errors', check: 'Examine "Error Rate Between Services" for problematic connections' },
   { symptom: 'Circular Dependencies Detected', runbook: 'skywalking/circular-deps', check: 'Review topology for cyclic patterns in "Request Hops" analysis' },
-], y=21);
+], y=38);
 
 // ── Logs panel ────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('Multi-Service Request Logs', 'all-services', y=29);
+local logsPanel = c.serviceLogsPanel('Multi-Service Request Logs', 'all-services', y=27);
 
 // ── Dashboard ──────────────────────────────────────────────────────────────
 
@@ -274,7 +275,6 @@ g.dashboard.new('Service Dependencies & Mesh Topology')
 + g.dashboard.withDescription('Service mesh topology: dependencies, service-to-service latency, call patterns, multi-hop tracing, and critical path analysis.')
 + g.dashboard.withTags(['observability', 'tracing', 'service-mesh', 'topology', 'dependencies', 'advanced', 'critical'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('🌐 Topology Overview') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
@@ -289,18 +289,18 @@ g.dashboard.new('Service Dependencies & Mesh Topology')
   g.panel.row.new('📡 Call Patterns') + c.pos(0, 13, 24, 1),
   callVolumeByPairTs, errorRateByPairTs,
 
-  g.panel.row.new('🔍 Multi-Hop Tracing') + c.pos(0, 13, 24, 1),
+  g.panel.row.new('🔍 Multi-Hop Tracing') + c.pos(0, 14, 24, 1),
   multiHopTracesInfo,
 
-  g.panel.row.new('➡️ Service Hops') + c.pos(0, 16, 24, 1),
+  g.panel.row.new('➡️ Service Hops') + c.pos(0, 17, 24, 1),
   serviceHopCountTable,
 
-  g.panel.row.new('🎯 Optimization Guide') + c.pos(0, 22, 24, 1),
+  g.panel.row.new('🎯 Optimization Guide') + c.pos(0, 23, 24, 1),
   criticalPathsInfo,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 25, 24, 1),
-  troubleGuide,
-
-  g.panel.row.new('📝 Request Logs') + c.pos(0, 33, 24, 1),
+  g.panel.row.new('📝 Request Logs') + c.pos(0, 26, 24, 1),
   logsPanel,
+
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 37, 24, 1),
+  troubleGuide,
 ])

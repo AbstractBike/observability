@@ -11,9 +11,10 @@ local c = import 'lib/common.libsonnet';
 
 local alertPanel = c.alertCountPanel('observability-health', col=0);
 
+// 5-stat layout: alert(6) + overall(4) + upstream(4) + downstream(5) + healthTrend(5) = 24
 local overallHealthStat =
   g.panel.stat.new('🏥 Overall System Health')
-  + c.statPos(1)
+  + c.pos(6, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(1 - (rate(up{job=~".+"}[5m] == 0) / count(up{job=~".+"}[5m])) * 100) or vector(100)'),
   ])
@@ -31,7 +32,7 @@ local overallHealthStat =
 
 local upstreamHealthStat =
   g.panel.stat.new('📡 Services Up')
-  + c.statPos(2)
+  + c.pos(10, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('count(up{job=~".+"} == 1) or vector(0)'),
   ])
@@ -40,7 +41,7 @@ local upstreamHealthStat =
 
 local downstreamHealthStat =
   g.panel.stat.new('⚠️ Services Down')
-  + c.statPos(3)
+  + c.pos(14, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('count(up{job=~".+"} == 0) or vector(0)'),
   ])
@@ -55,7 +56,7 @@ local downstreamHealthStat =
 
 local healthTrendStat =
   g.panel.stat.new('📈 Health Trend (24h)')
-  + c.statPos(4)
+  + c.pos(19, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('((1 - (rate(up{job=~".+"}[5m] == 0) / count(up{job=~".+"}[5m])) * 100) - (1 - (rate(up{job=~".+"}[1d] == 0) / count(up{job=~".+"}[1d])) * 100)) * 100 or vector(0)'),
   ])
@@ -67,7 +68,7 @@ local healthTrendStat =
 
 local databaseHealthStat =
   g.panel.stat.new('🗄️ Database Health')
-  + c.pos(0, 4, 6, 3)
+  + c.pos(0, 5, 6, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(1 - (rate(up{job=~"postgres|elasticsearch|clickhouse"}[5m] == 0) / count(up{job=~"postgres|elasticsearch|clickhouse"}[5m])) * 100) or vector(100)'),
   ])
@@ -82,7 +83,7 @@ local databaseHealthStat =
 
 local cacheHealthStat =
   g.panel.stat.new('⚡ Cache Health')
-  + c.pos(6, 4, 6, 3)
+  + c.pos(6, 5, 6, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(1 - (rate(up{job=~"redis|memcached"}[5m] == 0) / count(up{job=~"redis|memcached"}[5m])) * 100) or vector(100)'),
   ])
@@ -97,7 +98,7 @@ local cacheHealthStat =
 
 local queueHealthStat =
   g.panel.stat.new('📤 Queue Health')
-  + c.pos(12, 4, 6, 3)
+  + c.pos(12, 5, 6, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(1 - (rate(up{job=~"kafka|rabbitmq|redpanda"}[5m] == 0) / count(up{job=~"kafka|rabbitmq|redpanda"}[5m])) * 100) or vector(100)'),
   ])
@@ -112,7 +113,7 @@ local queueHealthStat =
 
 local infraHealthStat =
   g.panel.stat.new('🖥️ Infrastructure Health')
-  + c.pos(18, 4, 6, 3)
+  + c.pos(18, 5, 6, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(1 - (rate(up{job=~"node-exporter|host"}[5m] == 0) / count(up{job=~"node-exporter|host"}[5m])) * 100) or vector(100)'),
   ])
@@ -129,7 +130,7 @@ local infraHealthStat =
 
 local healthTrendTs =
   g.panel.timeSeries.new('System Health Score (24h)')
-  + c.tsPos(0, 0)
+  + c.pos(0, 9, 12, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ('(1 - (rate(up{job=~".+"}[5m] == 0) / count(up{job=~".+"}[5m])) * 100) or vector(100)', 'Overall'),
   ])
@@ -140,7 +141,7 @@ local healthTrendTs =
 
 local componentHealthTs =
   g.panel.timeSeries.new('Component Health Trends')
-  + c.tsPos(1, 0)
+  + c.pos(12, 9, 12, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ('(1 - (rate(up{job=~"postgres|elasticsearch|clickhouse"}[5m] == 0) / count(up{job=~"postgres|elasticsearch|clickhouse"}[5m])) * 100) or vector(100)', 'Database'),
     c.vmQ('(1 - (rate(up{job=~"redis|memcached"}[5m] == 0) / count(up{job=~"redis|memcached"}[5m])) * 100) or vector(100)', 'Cache'),
@@ -154,7 +155,7 @@ local componentHealthTs =
 
 local errorRateTs =
   g.panel.timeSeries.new('Error Rate (5m avg)')
-  + c.tsPos(0, 1)
+  + c.pos(0, 18, 12, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ('(sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) * 100) or vector(0)'),
   ])
@@ -164,7 +165,7 @@ local errorRateTs =
 
 local latencyTs =
   g.panel.timeSeries.new('System Latency (p99)')
-  + c.tsPos(1, 1)
+  + c.pos(12, 18, 12, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ('histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket[5m]))) * 1000'),
   ])
@@ -175,7 +176,7 @@ local latencyTs =
 
 local serviceStatusTable =
   g.panel.table.new('Service Health Status')
-  + c.pos(0, 14, 24, 6)
+  + c.pos(0, 27, 24, 6)
   + g.panel.table.queryOptions.withTargets([
     c.vmQ('(up{job=~".+"}) or vector(0)', 'Status'),
   ]);
@@ -184,7 +185,7 @@ local serviceStatusTable =
 
 local insightsPanel =
   g.panel.text.new('📊 System Health Interpretation & Related Dashboards')
-  + c.pos(0, 20, 24, 4)
+  + c.pos(0, 34, 24, 4)
   + g.panel.text.options.withMode('markdown')
   + g.panel.text.options.withContent(|||
     ### Health Score Ranges
@@ -219,14 +220,14 @@ local insightsPanel =
 
 // ── Logs Panel ──────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('System Health Logs', 'error|critical|warning', y=31);
+local logsPanel = c.serviceLogsPanel('System Health Logs', 'error|critical|warning', y=39);
 
 local troubleGuide = c.serviceTroubleshootingGuide('observability-health', [
   { symptom: 'Overall Health Score Drop', runbook: 'health/score-drop', check: 'Check which components degraded in component health scores' },
   { symptom: 'Services Down', runbook: 'health/services-down', check: 'Identify down services in "Services Down" stat and Service Status table' },
   { symptom: 'High Error Rate', runbook: 'health/error-rate', check: 'Monitor "Error Rate (5m avg)" and check logs for patterns' },
   { symptom: 'Performance Degradation', runbook: 'health/latency', check: 'Check "System Latency (p99)" and "Health Trends" charts' },
-], y=23);
+], y=50);
 
 // ── Dashboard ───────────────────────────────────────────────────────────────
 
@@ -235,30 +236,29 @@ g.dashboard.new('Observability — System Health Scoring')
 + g.dashboard.withDescription('Real-time system health assessment: overall health score, component health tracking, error rates, latency, and service status.')
 + g.dashboard.withTags(['observability', 'health', 'system-status', 'executive', 'critical'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Overall Health') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   alertPanel, overallHealthStat, upstreamHealthStat, downstreamHealthStat, healthTrendStat,
 
-  g.panel.row.new('🏗️ Component Health Scores') + c.pos(0, 3, 24, 1),
+  g.panel.row.new('🏗️ Component Health Scores') + c.pos(0, 4, 24, 1),
   databaseHealthStat, cacheHealthStat, queueHealthStat, infraHealthStat,
 
-  g.panel.row.new('📈 Health Trends & Performance') + c.pos(0, 7, 24, 1),
+  g.panel.row.new('📈 Health Trends & Performance') + c.pos(0, 8, 24, 1),
   healthTrendTs, componentHealthTs,
 
-  g.panel.row.new('⚠️ Error Rate & Latency') + c.pos(0, 11, 24, 1),
+  g.panel.row.new('⚠️ Error Rate & Latency') + c.pos(0, 17, 24, 1),
   errorRateTs, latencyTs,
 
-  g.panel.row.new('📊 Service Status') + c.pos(0, 13, 24, 1),
+  g.panel.row.new('📊 Service Status') + c.pos(0, 26, 24, 1),
   serviceStatusTable,
 
-  g.panel.row.new('💡 Health Guidance') + c.pos(0, 19, 24, 1),
+  g.panel.row.new('💡 Health Guidance') + c.pos(0, 33, 24, 1),
   insightsPanel,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 23, 24, 1),
-  troubleGuide,
-
-  g.panel.row.new('📝 Logs') + c.pos(0, 30, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 38, 24, 1),
   logsPanel,
+
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 49, 24, 1),
+  troubleGuide,
 ])

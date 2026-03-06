@@ -6,9 +6,10 @@ local c = import 'lib/common.libsonnet';
 
 local alertPanel = c.alertCountPanel('skywalking-oap', col=0);
 
+// 5-stat layout: alert(6) + uptime(4) + threads(4) + heap(5) + cpu(5) = 24
 local uptimeStat =
   g.panel.stat.new('OAP Uptime')
-  + c.statPos(1)
+  + c.pos(6, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('time() - process_start_time_seconds{job="skywalking-oap"} or vector(0)'),
   ])
@@ -17,7 +18,7 @@ local uptimeStat =
 
 local threadsStat =
   g.panel.stat.new('OAP Threads')
-  + c.statPos(2)
+  + c.pos(10, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('jvm_threads_current{job="skywalking-oap"} or vector(0)'),
   ])
@@ -25,7 +26,7 @@ local threadsStat =
 
 local heapStat =
   g.panel.stat.new('Heap Used')
-  + c.statPos(3)
+  + c.pos(14, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('jvm_memory_bytes_used{job="skywalking-oap",area="heap"} or vector(0)'),
   ])
@@ -34,7 +35,7 @@ local heapStat =
 
 local cpuStat =
   g.panel.stat.new('CPU Usage (%)')
-  + c.statPos(4)
+  + c.pos(19, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(rate(process_cpu_seconds_total{job="skywalking-oap"}[5m]) * 100) or vector(0)'),
   ])
@@ -63,7 +64,7 @@ local gcTs =
 local swUiLink =
   local skyWalkingUrl = c.config.skywalking_ui_url;
   g.panel.text.new('SkyWalking UI Links')
-  + c.pos(0, 18, 24, 3)
+  + c.pos(0, 21, 24, 3)
   + g.panel.text.panelOptions.withTransparent(true)
   + g.panel.text.options.withMode('html')
   + g.panel.text.options.withContent(|||
@@ -88,19 +89,19 @@ local swUiLink =
     </div>
   |||);
 
-local oapLogsPanel = c.serviceLogsPanel('OAP Logs', 'skywalking-oap', y=28);
+local oapLogsPanel = c.serviceLogsPanel('OAP Logs', 'skywalking-oap', y=25);
 
 local troubleGuide = c.serviceTroubleshootingGuide('skywalking-oap', [
   { symptom: 'OAP Service Down', runbook: 'skywalking/service-down', check: 'Check "OAP Uptime" stat and logs' },
   { symptom: 'High Heap Usage', runbook: 'skywalking/memory', check: 'Monitor "Heap Used" and GC time trends' },
   { symptom: 'Trace Ingestion Latency', runbook: 'skywalking/trace-latency', check: 'Check "Trace Latency" percentiles and trace volume' },
   { symptom: 'GC Pauses', runbook: 'skywalking/gc', check: 'Monitor "GC Time" spikes in JVM Performance' },
-], y=20);
+], y=36);
 
 // ── Recent Traces Panel ────────────────────────────────────────────────────
 local recentTracesPanel =
   g.panel.table.new('Recent Traces (Last 1h)')
-  + c.pos(0, 6, 12, 6)
+  + c.pos(0, 14, 12, 6)
   + g.panel.table.queryOptions.withTargets([
     c.vmQ(
       'topk(20, trace_in_latency_count{job="skywalking-oap"} or vector(0))',
@@ -115,7 +116,7 @@ local recentTracesPanel =
 // ── Trace Latency Distribution ────────────────────────────────────────────
 local traceLatencyPanel =
   g.panel.timeSeries.new('Trace Latency (p50/p95/p99)')
-  + c.pos(12, 6, 12, 6)
+  + c.pos(12, 14, 12, 6)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
       'histogram_quantile(0.5, sum by(le) (rate(trace_in_latency_bucket{job="skywalking-oap"}[5m]))) or vector(0)',
@@ -139,19 +140,18 @@ g.dashboard.new('Observability — SkyWalking')
 + g.dashboard.withDescription('SkyWalking OAP JVM health: uptime, heap, GC, CPU. Links to SkyWalking UI.')
 + g.dashboard.withTags(['observability', 'skywalking', 'tracing', 'critical', 'infrastructure', 'apm'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   alertPanel, uptimeStat, threadsStat, heapStat, cpuStat,
   g.panel.row.new('⚡ JVM Performance') + c.pos(0, 4, 24, 1),
   heapTs, gcTs,
-  g.panel.row.new('📡 Traces') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('📡 Traces') + c.pos(0, 13, 24, 1),
   recentTracesPanel, traceLatencyPanel,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 20, 24, 1),
-  troubleGuide,
-  g.panel.row.new('🔗 SkyWalking UI') + c.pos(0, 26, 24, 1),
+  g.panel.row.new('🔗 SkyWalking UI') + c.pos(0, 20, 24, 1),
   swUiLink,
-  g.panel.row.new('📝 Logs') + c.pos(0, 30, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 24, 24, 1),
   oapLogsPanel,
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 35, 24, 1),
+  troubleGuide,
 ])

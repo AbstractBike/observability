@@ -71,7 +71,7 @@ local alertPanel = c.alertCountPanel('victorialogs', col=0);
 
 local logVolumePanel =
   g.panel.timeSeries.new('Log Volume by Level')
-  + c.pos(0, 0, 12, 6)
+  + c.pos(0, 4, 12, 6)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vlogsStatsQ('{host=~"$host",service=~"$service",level=~"$level"} | stats by (level) count() as logs'),
   ])
@@ -82,7 +82,7 @@ local logVolumePanel =
 
 local errorRatePanel =
   g.panel.timeSeries.new('Error Rate (errors/min)')
-  + c.pos(12, 0, 12, 6)
+  + c.pos(12, 4, 12, 6)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vlogsStatsQ('{host=~"$host",service=~"$service",level=~"error|critical"} | stats by () count() as errors'),
   ])
@@ -92,7 +92,7 @@ local errorRatePanel =
 
 local liveLogsPanel =
   g.panel.logs.new('Live Logs')
-  + c.pos(0, 7, 24, 16)
+  + c.pos(0, 11, 24, 16)
   + g.panel.logs.queryOptions.withTargets([
     c.vlogsQ('{host=~"$host",service=~"$service",level=~"$level"}'),
   ])
@@ -130,7 +130,7 @@ local liveLogsPanel =
 
 local errorAnalysisPanel =
   g.panel.text.new('📊 Error Analysis & Related Dashboards')
-  + c.pos(0, 23, 24, 2)
+  + c.pos(0, 28, 24, 2)
   + g.panel.text.options.withMode('markdown')
   + g.panel.text.options.withContent(|||
     **Related**: [Services Health](/d/services-health) — View service context | [Alerts](/d/alerts-dashboard) — Check triggered alerts
@@ -146,7 +146,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('victorialogs', [
   { symptom: 'High Error Rate', runbook: 'logs/error-spike', check: 'Filter by "error" level and correlate with alert timestamps' },
   { symptom: 'Logs Delayed', runbook: 'logs/latency', check: 'Check Vector pipeline health and VictoriaLogs ingestion rate' },
   { symptom: 'Storage Growing Fast', runbook: 'logs/storage', check: 'Review log retention policy and reduce verbose services' },
-], y=25);
+], y=31);
 
 // ── Dashboard ───────────────────────────────────────────────────────────────
 
@@ -164,12 +164,12 @@ g.dashboard.new('Observability — Logs')
   c.externalLinksPanel(y=1),
   alertPanel, logVolumePanel, errorRatePanel,
 
-  g.panel.row.new('📝 Logs') + c.pos(0, 6, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 10, 24, 1),
   liveLogsPanel,
 
-  g.panel.row.new('⚠️ Error Analysis') + c.pos(0, 22, 24, 1),
+  g.panel.row.new('⚠️ Error Analysis') + c.pos(0, 27, 24, 1),
   errorAnalysisPanel,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 24, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 30, 24, 1),
   troubleGuide,
 ])

@@ -15,9 +15,10 @@ local c = import 'lib/common.libsonnet';
 
 local alertPanel = c.alertCountPanel('observability', col=0);
 
+// 5-stat layout: alert(6) + avgLat(4) + p99Lat(4) + totalMetrics(5) + storage(5) = 24
 local avgQueryLatencyStat =
   g.panel.stat.new('Latency — Query Engines — p50')
-  + c.statPos(1)
+  + c.pos(6, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(histogram_quantile(0.5, sum by(le) (rate(http_request_duration_seconds_bucket{instance=~".*:3000|.*:8428|.*:9428"}[5m]))) or vector(0)) * 1000'),
   ])
@@ -33,7 +34,7 @@ local avgQueryLatencyStat =
 
 local p99QueryLatencyStat =
   g.panel.stat.new('Latency — Query Engines — p99')
-  + c.statPos(2)
+  + c.pos(10, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(histogram_quantile(0.99, sum by(le) (rate(http_request_duration_seconds_bucket{instance=~".*:3000|.*:8428|.*:9428"}[5m]))) or vector(0)) * 1000'),
   ])
@@ -49,7 +50,7 @@ local p99QueryLatencyStat =
 
 local totalMetricsStat =
   g.panel.stat.new('Total Metrics')
-  + c.statPos(3)
+  + c.pos(14, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('count({__name__=~".+"})'),
   ])
@@ -59,7 +60,7 @@ local totalMetricsStat =
 
 local storageUsedStat =
   g.panel.stat.new('Storage Used')
-  + c.statPos(4)
+  + c.pos(19, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('vm_data_size_bytes or vector(0)'),
   ])
@@ -137,7 +138,7 @@ local cpuByServiceTs =
 
 local insightsPanel =
   g.panel.text.new('⚡ Performance Optimization Guide & Related Dashboards')
-  + c.pos(0, 19, 24, 3)
+  + c.pos(0, 22, 24, 3)
   + g.panel.text.options.withContent(|||
     ### 📊 Related Dashboards
     - **[Metrics Discovery](/d/metrics-discovery)** — Catalog metrics, identify high-cardinality sources
@@ -172,14 +173,14 @@ local insightsPanel =
 
 // ── Logs panel ────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('Performance & Error Logs', 'victoriametrics', y=29);
+local logsPanel = c.serviceLogsPanel('Performance & Error Logs', 'victoriametrics', y=26);
 
 local troubleGuide = c.serviceTroubleshootingGuide('observability', [
   { symptom: 'High Query Latency', runbook: 'performance/query-latency', check: 'Check p50/p99 latency stats and trends' },
   { symptom: 'Cardinality Explosion', runbook: 'performance/cardinality', check: 'Monitor "Total Metrics" and series growth' },
   { symptom: 'Storage Growth Out of Control', runbook: 'performance/storage', check: 'Check storage growth rate and retention policy' },
   { symptom: 'High CPU Utilization', runbook: 'performance/cpu', check: 'Correlate with query latency and cardinality' },
-], y=22);
+], y=37);
 
 // ── Dashboard ──────────────────────────────────────────────────────────────
 
@@ -188,7 +189,6 @@ g.dashboard.new('Observability — Performance & Optimization')
 + g.dashboard.withDescription('System performance tracking: query latency, storage usage, cardinality growth, CPU utilization. Identify optimization opportunities.')
 + g.dashboard.withTags(['observability', 'performance', 'optimization', 'troubleshooting', 'critical'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('⚡ Performance Stats') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
@@ -198,12 +198,12 @@ g.dashboard.new('Observability — Performance & Optimization')
   queryLatencyTs, storageGrowthTs,
   cardinalityTs, cpuByServiceTs,
 
-  g.panel.row.new('🎯 Optimization Guide') + c.pos(0, 18, 24, 1),
+  g.panel.row.new('🎯 Optimization Guide') + c.pos(0, 21, 24, 1),
   insightsPanel,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 21, 24, 1),
-  troubleGuide,
-
-  g.panel.row.new('📝 Logs') + c.pos(0, 28, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 25, 24, 1),
   logsPanel,
+
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 36, 24, 1),
+  troubleGuide,
 ])
