@@ -95,7 +95,7 @@ local diskTs =
   + g.panel.timeSeries.standardOptions.withUnit('bytes')
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(8);
 
-local logsPanel = c.serviceLogsPanel('Elasticsearch Logs', 'elasticsearch', y=21);
+local logsPanel = c.serviceLogsPanel('Elasticsearch Logs', 'elasticsearch', y=22);
 
 local troubleGuide = c.serviceTroubleshootingGuide('elasticsearch', [
   { symptom: 'Cluster Not Green', runbook: 'elasticsearch/cluster-health', check: '"Cluster Health" = 0 (not green) — check shard allocation and logs' },
@@ -103,7 +103,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('elasticsearch', [
   { symptom: 'Slow Searches', runbook: 'elasticsearch/search-perf', check: '"Search Latency" high — check slow search log, query patterns, shard count' },
   { symptom: 'Disk Space Low', runbook: 'elasticsearch/disk-management', check: '"Disk Store Size" growing fast — check index retention policies' },
   { symptom: 'Index Failures', runbook: 'elasticsearch/indexing', check: '"Indexing Rate" dropped — check bulk API errors in logs' },
-], y=32);
+], y=33);
 
 g.dashboard.new('Services — Elasticsearch')
 + g.dashboard.withUid('services-elasticsearch')
@@ -118,8 +118,8 @@ g.dashboard.new('Services — Elasticsearch')
   indexTs, searchTs,
   g.panel.row.new('🏗️ JVM & Disk') + c.pos(0, 12, 24, 1),
   jvmTs, diskTs,
-  g.panel.row.new('📝 Logs') + c.pos(0, 20, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
   logsPanel,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 31, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 32, 24, 1),
   troubleGuide,
 ])

@@ -105,7 +105,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('mcp-vanguard', [
   { symptom: 'High latency / timeouts', runbook: 'mcp-vanguard/latency', check: '"Request Latency p95/p99" — default timeout is 30s' },
   { symptom: 'High error rate', runbook: 'mcp-vanguard/errors', check: '"Error Rate %" above 1% — check logs for error type' },
   { symptom: 'Rate limit errors (429)', runbook: 'mcp-vanguard/rate-limits', check: 'Reduce request frequency or upgrade Anthropic plan' },
-], y=32);
+], y=33);
 
 g.dashboard.new('Services — mcp_vanguard')
 + g.dashboard.withUid('services-mcp-vanguard')
@@ -120,8 +120,8 @@ g.dashboard.new('Services — mcp_vanguard')
   requestRateTs, latencyTs,
   g.panel.row.new('🤖 Anthropic API') + c.pos(0, 12, 24, 1),
   tokensTs, errorRateTs,
-  g.panel.row.new('📝 Logs') + c.pos(0, 20, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
   logsPanel,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 31, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 32, 24, 1),
   troubleGuide,
 ])

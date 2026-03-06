@@ -116,10 +116,10 @@ g.dashboard.new('Services — Redis')
   g.panel.row.new('⚡ Operations') + c.pos(0, 4, 24, 1),
   opsTs, memTs,
 
-  g.panel.row.new('💾 Evictions & Keyspace') + c.pos(0, 13, 24, 1),
+  g.panel.row.new('💾 Evictions & Keyspace') + c.pos(0, 12, 24, 1),
   evictTs, hitsTs,
 
-  g.panel.row.new('📝 Logs') + c.pos(0, 22, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
   logsPanel,
 
   g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 33, 24, 1),

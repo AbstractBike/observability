@@ -82,7 +82,7 @@ local lagTs =
 
 // ── Row 2: Logs ───────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('Redpanda Logs', 'redpanda', y=14);
+local logsPanel = c.serviceLogsPanel('Redpanda Logs', 'redpanda', y=13);
 
 // ── Row 3: Troubleshooting ────────────────────────────────────────────────────
 
@@ -92,7 +92,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('redpanda', [
   { symptom: 'Low Throughput', runbook: 'redpanda/throughput', check: '"Throughput" chart dropping — check producers, network, or disk' },
   { symptom: 'Produce Errors', runbook: 'redpanda/produce-errors', check: 'Check logs for kafka protocol errors' },
   { symptom: 'Partition Offline', runbook: 'redpanda/partitions', check: 'Check "Redpanda Up" and broker logs for partition election errors' },
-], y=25);
+], y=24);
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
@@ -109,9 +109,9 @@ g.dashboard.new('Services — Redpanda')
   g.panel.row.new('📤 Throughput & Lag') + c.pos(0, 4, 24, 1),
   throughputTs, lagTs,
 
-  g.panel.row.new('📝 Logs') + c.pos(0, 13, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 12, 24, 1),
   logsPanel,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 24, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 23, 24, 1),
   troubleGuide,
 ])

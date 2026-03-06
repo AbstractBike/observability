@@ -138,7 +138,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('clickhouse', [
   { symptom: 'Query Failures', runbook: 'clickhouse/query-errors', check: '"Failed Queries/sec" spike — check logs for error details' },
   { symptom: 'Too Many Parts', runbook: 'clickhouse/parts-management', check: '"Active Parts" over 1000 = merge not keeping up, check INSERT rate' },
   { symptom: 'Slow Inserts', runbook: 'clickhouse/slow-inserts', check: '"Insert Throughput" drop — check "Background Operations" for merge backlog' },
-], y=31);
+], y=33);
 
 g.dashboard.new('Services — ClickHouse')
 + g.dashboard.withUid('services-clickhouse')
@@ -153,8 +153,8 @@ g.dashboard.new('Services — ClickHouse')
   queryTs, insertTs,
   g.panel.row.new('🏗️ Resources') + c.pos(0, 12, 24, 1),
   memTs, mergesTs,
-  g.panel.row.new('📝 Logs') + c.pos(0, 20, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
   logsPanel,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 30, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 32, 24, 1),
   troubleGuide,
 ])

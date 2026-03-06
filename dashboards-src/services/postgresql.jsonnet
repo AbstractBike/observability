@@ -111,10 +111,10 @@ g.dashboard.new('Services — PostgreSQL')
   g.panel.row.new('⚡ Activity') + c.pos(0, 4, 24, 1),
   connTs, txnTs,
 
-  g.panel.row.new('🔒 Locks & Size') + c.pos(0, 13, 24, 1),
+  g.panel.row.new('🔒 Locks & Size') + c.pos(0, 12, 24, 1),
   locksTs, sizeTs,
 
-  g.panel.row.new('📝 Logs') + c.pos(0, 22, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
   logsPanel,
 
   g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 33, 24, 1),
