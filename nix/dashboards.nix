@@ -19,7 +19,7 @@ let
     owner = "jsonnet-libs";
     repo  = "docsonnet";
     rev   = "6ac6c69685b8c29c54515448eaca583da2d88150";
-    hash  = "sha256-Uy86lIQbFjebNiAAp0dJ8rAtv16j4v4pXMPcl+llwBA=";
+    hash  = "sha256-Uy86lIQbFjebNiAAp0dJ8rAtv16j4V4pXMPcl+llwBA=";
   };
 in
 pkgs.runCommand "grafana-dashboards" {
