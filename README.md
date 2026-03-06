@@ -1,101 +1,171 @@
-# Observability Registry
+# Observability Configuration
 
-> **Last updated:** 2026-03-04
-> **Stack version:** VictoriaMetrics + VictoriaLogs + SkyWalking OAP 10.3 + Grafana
+Complete observability stack configuration for Grafana dashboards, alerts, and metrics.
 
-This directory is the canonical reference for the homelab observability stack.
-When you don't know **where to send metrics/logs/traces** from a new service, read this file first.
+## 📦 What's Included
 
----
+- **Dashboards:** 40+ Grafana dashboards for system, application, and APM monitoring
+- **Alerts:** vmalert and Alertmanager configuration examples
+- **Services:** Service registry and tracing configuration
+- **Documentation:** Architecture standards, playbooks, and integration guides
 
-## Quick Reference — Ingestion Endpoints
+## 🏗️ Architecture
 
-| Signal  | Protocol         | Endpoint                                  | Notes                              |
-|---------|-----------------|-------------------------------------------|------------------------------------|
-| Metrics | Prometheus remote_write | `http://192.168.0.4:8428/api/v1/write` | Add labels: service, host, env     |
-| Metrics | PromText scrape  | Expose `/metrics` on any port → add target in `victoriametrics.nix` | VictoriaMetrics pulls every 30s |
-| Logs    | NDJSON HTTP POST | `http://192.168.0.4:9428/insert/jsonline` | Fields: `_msg`, `_time`, `service`, `level`, `host`, `trace_id` |
-| Traces  | gRPC (SW8)       | `192.168.0.4:11800`                        | SkyWalking OAP                     |
-| Traces  | HTTP REST (SW8)  | `http://192.168.0.4:12800`                 | SkyWalking OAP REST/GraphQL        |
+This repository provides NixOS integration for observability configuration. It's designed to be used as a NixOS flake input.
 
-> Vector on `homelab` (192.168.0.4) is the aggregation hub. For a service on `heater` (192.168.0.3),
-> target the homelab IP directly — it is reachable over the LAN.
+### Integration Pattern
 
----
+The repo exposes:
+- NixOS module for observability configuration
+- Compiled dashboards package
+- Development tools (validation, dependency analysis)
 
-## Decision Tree — New Service Instrumentation
+### Usage as NixOS Flake Input
 
-```
-New service needs observability?
-│
-├─► Already have a Vector pipeline for its host?
-│       YES → Use existing Vector sources/sinks (see sinks.md)
-│       NO  → Check if a new Vector source is needed, add it to modules/vector.nix
-│
-├─► Language with a native agent?
-│       Java   → Use SkyWalking Java Agent (see agents.md)
-│       Python → Use apache-skywalking Python agent
-│       Go     → Use go2sky library
-│       Any    → SkyWalking Rover eBPF (zero code changes, see agents.md)
-│       Other  → OTLP → SkyWalking OAP at 192.168.0.4:11800
-│
-└─► Expose /metrics or push?
-        Scrape  → Expose Prometheus format, add scrape target in modules/victoriametrics.nix
-        Push    → Remote write to http://192.168.0.4:8428/api/v1/write
-```
+```nix
+{
+  description = "My NixOS config";
 
----
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    observability.url = "path:/home/digger/git/observability";
+  };
 
-## Files in This Directory
-
-| File            | Contents                                                  |
-|-----------------|----------------------------------------------------------|
-| `README.md`     | This file — quick reference & decision tree              |
-| `sinks.md`      | All ingestion sinks: endpoints, formats, configuration   |
-| `agents.md`     | Instrumentation agents per language with config examples |
-| `pipeline.md`   | Vector pipeline map: sources → transforms → sinks        |
-| `services.md`   | Per-service observability status registry                |
-
----
-
-## Stack Overview
-
-```
-         heater (192.168.0.3)              homelab (192.168.0.4)
-         ┌─────────────────────┐          ┌──────────────────────────────────┐
-         │  Claude Code CLI    │          │  Vector (journald + host metrics) │
-         │  Nginx MITM Proxy   │──────►   │  ───────────────────────────────  │
-         │  (api.anthropic.com)│          │  VictoriaMetrics  :8428           │
-         │  Vector (host)      │──────►   │  VictoriaLogs     :9428           │
-         └─────────────────────┘          │  SkyWalking OAP   :11800/:12800   │
-                                          │  Grafana          :3001           │
-         Services (any host)              │  VMAlert          :8880           │
-         ┌─────────────────────┐          │  Alertmanager     :9093           │
-         │  /metrics endpoint  │──scrape► │  Exporters: pg:9187 redis:9121   │
-         │  OTLP / SW8 traces  │──────►   │  elasticsearch:9114               │
-         │  Structured JSON log│──────►   └──────────────────────────────────┘
-         └─────────────────────┘
+  outputs = { self, nixpkgs, observability, ... }: {
+    nixosConfigurations.myhost = nixpkgs.lib.nixosSystem {
+      modules = [
+        ./configuration.nix
+        observability.nixosModules.default
+      ];
+      specialArgs = { inherit observability; };
+    };
+  };
+}
 ```
 
-## Grafana — http://192.168.0.4:3000
+## 📁 Directory Structure
 
-Datasources available:
-- **VictoriaMetrics** (default) — MetricsQL
-- **VictoriaLogs** — LogsQL, UI at http://192.168.0.4:9428/vmui
-- **SkyWalking** (native plugin) — traces, service topology
-- **SkyWalking-PromQL** — OAP metrics via PromQL at :9090
-- **ClickHouse**, **PostgreSQL**, **Elasticsearch**, **Kafka** (Redpanda)
+```
+observability/
+├── dashboards-src/          # Grafana dashboard definitions (jsonnet)
+│   ├── heater/              # Heater machine dashboards
+│   ├── pipeline/             # Pipeline dashboards
+│   ├── services/            # Service-specific dashboards
+│   ├── observability/       # Observability infrastructure dashboards
+│   ├── slo/                 # SLO monitoring dashboards
+│   ├── overview/            # Overview dashboards
+│   ├── apm/                 # APM and tracing dashboards
+│   ├── claude/              # Claude-related dashboards
+│   ├── claude-chat/         # Claude chat monitoring
+│   └── dashboards_new/      # Drop zone for new dashboards
+├── nix/                     # NixOS integration
+│   └── dashboards.nix      # Dashboard compilation logic
+├── flake.nix                # NixOS flake configuration
+├── *.md                     # Documentation and guides
+└── *.yaml                   # Configuration examples
+```
 
-Dashboard sources (Jsonnet): `~/git/homelab/dashboards-src/`
-One dashboard per service minimum.
+## 🔧 Development
 
-## Mandatory Correlation Fields
+### Prerequisites
 
-Every signal (metrics labels, log fields, trace tags) MUST include:
+- NixOS with flakes enabled
+- go-jsonnet (for dashboard compilation)
+- jq (for JSON validation)
 
-| Field     | Value                                 |
-|-----------|---------------------------------------|
-| `service` | Same name across all three signals    |
-| `host`    | Hostname (`homelab` / `heater`)       |
-| `trace_id`| SW8 trace ID — enables log↔trace link |
-| `env`     | `prod` / `dev`                        |
+### Building Dashboards
+
+```bash
+# Compile all dashboards
+nix build .#dashboards
+
+# Validate dashboards compile
+nix develop
+validate-dashboards
+
+# Analyze dashboard dependencies
+nix develop
+analyze-dependencies
+```
+
+### Development Shell
+
+```bash
+nix develop
+```
+
+This provides:
+- `validate-dashboards` - Compile all dashboards and validate syntax
+- `analyze-dependencies` - Extract dashboard dependencies
+- Access to go-jsonnet, jq, yq-go tools
+
+## 📚 Documentation
+
+- **ARCHITECTURE-STANDARDS.md** - Dashboard design standards
+- **SERVICE-REGISTRY.md** - Registered services and their instrumentation
+- **DEVELOPMENT-PLAYBOOK.md** - Development workflows and guidelines
+- **DASHBOARD-MAINTENANCE.md** - Dashboard lifecycle management
+- **ALERT-INTEGRATION-GUIDE.md** - Alert configuration best practices
+
+## 🔒 Security
+
+- No secrets stored in this repository
+- Use SOPS + age for sensitive configuration
+- Follow security best practices in dashboards and alerts
+
+## 📊 Dashboard Categories
+
+### Overview
+- Home dashboard - System-wide health overview
+- Services health - Service dependency map
+- Claude Code - AI agent observability
+
+### Infrastructure
+- VictoriaMetrics - Metrics storage monitoring
+- VictoriaLogs - Log aggregation monitoring
+- SkyWalking - APM and tracing
+- Alertmanager - Alert management
+- vmalert - Alert evaluation
+
+### Services
+- PostgreSQL - Database metrics
+- Redis - Cache metrics
+- Redpanda - Kafka broker metrics
+- Temporal - Workflow metrics
+- ClickHouse - Analytics DB metrics
+- Elasticsearch - Search metrics
+- Vector - Log shipping metrics
+- Nexus - Artifact repository metrics
+
+### Applications
+- Heater - Home automation dashboards
+- Arbitraje - Trading bot dashboards
+- Scalable Market - Platform dashboards
+- Claude Chat - AI assistant monitoring
+
+## 🚀 CI/CD
+
+This repository supports independent CI/CD:
+
+- **Dashboard validation** - Compile all dashboards on every push
+- **Syntax checking** - Validate JSON output
+- **Quality gates** - Enforce dashboard standards
+
+## 🤝 Contributing
+
+1. Fork this repository
+2. Create a feature branch
+3. Add or modify dashboards
+4. Validate with `validate-dashboards`
+5. Submit a pull request
+
+## 📄 License
+
+MIT License - See LICENSE file for details
+
+## 🔗 Links
+
+- Grafana: http://grafana.pin
+- VictoriaMetrics: http://192.168.0.4:8428
+- VictoriaLogs: http://192.168.0.4:9428
+- SkyWalking: http://traces.pin
