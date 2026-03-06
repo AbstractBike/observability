@@ -1,8 +1,8 @@
 local g = import 'github.com/grafana/grafonnet/gen/grafonnet-v11.4.0/main.libsonnet';
 local c = import 'lib/common.libsonnet';
 
-// OAP Prometheus endpoint (:1234) exports JVM/process metrics only.
-// oap_trace_in_latency_* are stored in BanyanDB, not in the Prometheus endpoint.
+// OAP Prometheus endpoint (:1234) exports JVM/process metrics AND trace ingestion histograms.
+// Metric names at :1234 have NO oap_ prefix — correct names: trace_in_latency_{bucket,count,sum}.
 
 local alertPanel = c.alertCountPanel('skywalking-oap', col=0);
 
@@ -103,7 +103,7 @@ local recentTracesPanel =
   + c.pos(0, 6, 12, 6)
   + g.panel.table.queryOptions.withTargets([
     c.vmQ(
-      'topk(20, oap_trace_count{job="skywalking-oap"} or vector(0))',
+      'topk(20, trace_in_latency_count{job="skywalking-oap"} or vector(0))',
       'Traces'
     ),
   ])
@@ -118,15 +118,15 @@ local traceLatencyPanel =
   + c.pos(12, 6, 12, 6)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
-      'histogram_quantile(0.5, sum by(le) (rate(oap_trace_in_latency_bucket{job="skywalking-oap"}[5m]))) or vector(0)',
+      'histogram_quantile(0.5, sum by(le) (rate(trace_in_latency_bucket{job="skywalking-oap"}[5m]))) or vector(0)',
       'p50'
     ),
     c.vmQ(
-      'histogram_quantile(0.95, sum by(le) (rate(oap_trace_in_latency_bucket{job="skywalking-oap"}[5m]))) or vector(0)',
+      'histogram_quantile(0.95, sum by(le) (rate(trace_in_latency_bucket{job="skywalking-oap"}[5m]))) or vector(0)',
       'p95'
     ),
     c.vmQ(
-      'histogram_quantile(0.99, sum by(le) (rate(oap_trace_in_latency_bucket{job="skywalking-oap"}[5m]))) or vector(0)',
+      'histogram_quantile(0.99, sum by(le) (rate(trace_in_latency_bucket{job="skywalking-oap"}[5m]))) or vector(0)',
       'p99'
     ),
   ])
