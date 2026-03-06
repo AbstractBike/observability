@@ -123,7 +123,7 @@ local vmTxTs =
 
 local topIfacesTable =
   g.panel.table.new('Top Interfaces by Bandwidth (5m avg)')
-  + c.pos(0, 21, 24, 7)
+  + c.pos(0, 22, 24, 7)
   + g.panel.table.queryOptions.withTargets([
     c.vmQ(
       'topk(10, sum by(device) (rate(node_network_receive_bytes_total{' + host + ',device!="lo"}[5m]) or vector(0)))',
@@ -166,7 +166,7 @@ local topIfacesTable =
 
 local errorsTs =
   g.panel.timeSeries.new('Receive Errors & Drops')
-  + c.pos(0, 28, 12, 8)
+  + c.pos(0, 30, 12, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
       'sum by(device) (rate(node_network_receive_errs_total{' + host + ',device!="lo"}[5m]) or vector(0))',
@@ -183,7 +183,7 @@ local errorsTs =
 
 local txErrTs =
   g.panel.timeSeries.new('Transmit Errors & Drops')
-  + c.pos(12, 28, 12, 8)
+  + c.pos(12, 30, 12, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
       'sum by(device) (rate(node_network_transmit_errs_total{' + host + ',device!="lo"}[5m]) or vector(0))',
@@ -213,10 +213,10 @@ g.dashboard.new('Networking — Heater')
   g.panel.row.new('🔌 Physical Interfaces') + c.pos(0, 4, 24, 1),
   physRxTs, physTxTs,
 
-  g.panel.row.new('🖥️ VM Bridges') + c.pos(0, 13, 24, 1),
+  g.panel.row.new('🖥️ VM Bridges') + c.pos(0, 12, 24, 1),
   vmRxTs, vmTxTs,
 
-  g.panel.row.new('📋 Interface Summary') + c.pos(0, 22, 24, 1),
+  g.panel.row.new('📋 Interface Summary') + c.pos(0, 21, 24, 1),
   topIfacesTable,
 
   g.panel.row.new('⚠️ Errors & Drops') + c.pos(0, 29, 24, 1),
