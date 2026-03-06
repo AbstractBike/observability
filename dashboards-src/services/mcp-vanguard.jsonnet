@@ -100,29 +100,28 @@ local logsPanel =
   c.serviceLogsPanel('mcp-vanguard Logs', 'mcp_vanguard');
 
 local troubleGuide = c.serviceTroubleshootingGuide('mcp-vanguard', [
-  { symptom: 'No metrics on :9196', runbook: 'mcp-vanguard/down', check: 'Check metrics port 9196 and service status' },
+  { symptom: 'No metrics', runbook: 'mcp-vanguard/down', check: 'Dashboard empty = service not running; check port 9196 and service status' },
   { symptom: 'Authentication failures', runbook: 'mcp-vanguard/auth', check: 'Check API key file at configured path or ANTHROPIC_API_KEY env' },
-  { symptom: 'High latency / timeouts', runbook: 'mcp-vanguard/latency', check: 'Check p95/p99 latency chart — default timeout is 30s' },
-  { symptom: 'High error rate', runbook: 'mcp-vanguard/errors', check: 'Check logs for error level messages and Anthropic API status' },
+  { symptom: 'High latency / timeouts', runbook: 'mcp-vanguard/latency', check: '"Request Latency p95/p99" — default timeout is 30s' },
+  { symptom: 'High error rate', runbook: 'mcp-vanguard/errors', check: '"Error Rate %" above 1% — check logs for error type' },
   { symptom: 'Rate limit errors (429)', runbook: 'mcp-vanguard/rate-limits', check: 'Reduce request frequency or upgrade Anthropic plan' },
-], y=20);
+], y=32);
 
 g.dashboard.new('Services — mcp_vanguard')
 + g.dashboard.withUid('services-mcp-vanguard')
 + g.dashboard.withDescription('mcp_vanguard: MCP fast model tool — request rates, latency, Anthropic token consumption.')
 + g.dashboard.withTags(['services', 'mcp-vanguard', 'mcp', 'anthropic'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   alertPanel, totalCallsStat, successRateStat, totalTokensStat,
-  g.panel.row.new('Request Activity') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚡ Request Activity') + c.pos(0, 4, 24, 1),
   requestRateTs, latencyTs,
-  g.panel.row.new('Anthropic API') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('🤖 Anthropic API') + c.pos(0, 12, 24, 1),
   tokensTs, errorRateTs,
-  g.panel.row.new('Logs') + c.pos(0, 19, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 20, 24, 1),
   logsPanel,
-  g.panel.row.new('Troubleshooting') + c.pos(0, 26, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 31, 24, 1),
   troubleGuide,
 ])

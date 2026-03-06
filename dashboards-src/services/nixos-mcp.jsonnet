@@ -68,29 +68,28 @@ local durationTs =
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
 local logsPanel =
-  c.serviceLogsPanel('nixos-mcp Logs', 'nixos-mcp');
+  c.serviceLogsPanel('nixos-mcp Logs', 'nixos-mcp', y=13);
 
 local troubleGuide = c.serviceTroubleshootingGuide('nixos-mcp', [
-  { symptom: 'No metrics emitted', runbook: 'nixos-mcp/down', check: 'Check "Active Connections" stat and service status' },
-  { symptom: 'Deploy failures', runbook: 'nixos-mcp/deploy-failures', check: 'Check tool calls by status — filter tool=nixos_deploy' },
-  { symptom: 'High error rate', runbook: 'nixos-mcp/high-errors', check: 'Check "Success Rate" stat and logs' },
-  { symptom: 'Slow tool calls', runbook: 'nixos-mcp/performance', check: 'Check "Tool Duration p95" chart' },
-], y=20);
+  { symptom: 'No metrics', runbook: 'nixos-mcp/down', check: 'Dashboard empty = service not running; metrics bind to 127.0.0.1:9122, check VM scrape config' },
+  { symptom: 'Deploy failures', runbook: 'nixos-mcp/deploy-failures', check: '"Tool Calls by Status" — filter tool=nixos_deploy for deploy-specific errors' },
+  { symptom: 'High error rate', runbook: 'nixos-mcp/high-errors', check: '"Success Rate" below 99% — check logs for error messages' },
+  { symptom: 'Slow tool calls', runbook: 'nixos-mcp/performance', check: '"Tool Duration p95" — deploy is expected slow (minutes), other tools should be sub-second' },
+], y=24);
 
 g.dashboard.new('Services — NixOS MCP')
 + g.dashboard.withUid('services-nixos-mcp')
 + g.dashboard.withDescription('NixOS MCP server: tool call rates, success rates, durations and active connections.')
 + g.dashboard.withTags(['services', 'nixos-mcp', 'mcp', 'nixos'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
-  g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
+  g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   alertPanel, totalCallsStat, successRateStat, activeConnectionsStat,
-  g.panel.row.new('Tool Activity') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('🔧 Tool Activity') + c.pos(0, 4, 24, 1),
   toolCallsTs, durationTs,
-  g.panel.row.new('Logs') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 12, 24, 1),
   logsPanel,
-  g.panel.row.new('Troubleshooting') + c.pos(0, 19, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 23, 24, 1),
   troubleGuide,
 ])

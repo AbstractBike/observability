@@ -66,20 +66,20 @@ local deployDurationTs =
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
 local logsPanel =
-  c.serviceLogsPanel('nixos-deployer Logs', 'nixos-deployer');
+  c.serviceLogsPanel('nixos-deployer Logs', 'nixos-deployer', y=13);
 
 local troubleGuide = c.serviceTroubleshootingGuide('nixos-deployer', [
-  { symptom: 'Deploy Failures', runbook: 'nixos-deployer/deploy-failures', check: 'Check "Deploy Success Rate" stat' },
-  { symptom: 'High Staging Lag', runbook: 'nixos-deployer/staging-lag', check: 'Monitor "Staging Lag (commits)" stat' },
-  { symptom: 'Slow Deployments', runbook: 'nixos-deployer/performance', check: 'Check "Deploy Duration p95" chart' },
-], y=20);
+  { symptom: 'Deploy Failures', runbook: 'nixos-deployer/deploy-failures', check: '"Deploys by Status" — failure rate climbing means config or build error' },
+  { symptom: 'High Staging Lag', runbook: 'nixos-deployer/staging-lag', check: '"Staging Lag (commits)" — 3+ commits undeployed = poller or deploy blocked' },
+  { symptom: 'Slow Deployments', runbook: 'nixos-deployer/performance', check: '"Deploy Duration p95" — which stage is slow (build/activate/switch)?' },
+  { symptom: 'Deployer Down', runbook: 'nixos-deployer/down', check: 'No data in dashboard — check service status and port 9110' },
+], y=24);
 
 g.dashboard.new('Services — NixOS Deployer')
 + g.dashboard.withUid('services-nixos-deployer')
 + g.dashboard.withDescription('NixOS GitOps deployer: deploy outcomes, duration, staging lag and system generations.')
 + g.dashboard.withTags(['services', 'nixos-deployer', 'gitops', 'ci-cd', 'critical'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
@@ -88,6 +88,6 @@ g.dashboard.new('Services — NixOS Deployer')
   deploysByStatusTs, deployDurationTs,
   g.panel.row.new('📝 Logs') + c.pos(0, 12, 24, 1),
   logsPanel,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 19, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 23, 24, 1),
   troubleGuide,
 ])
