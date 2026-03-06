@@ -186,7 +186,6 @@ g.dashboard.new('Heater — Home')
 + g.dashboard.withDescription('Heater developer workstation — health summary and navigation to System, GPU, JVM, Claude Code, and Processes dashboards.')
 + g.dashboard.withTags(['heater', 'home', 'critical'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar])
 + g.dashboard.withPanels([
   headerPanel,
   c.externalLinksPanel(y=0, x=22),

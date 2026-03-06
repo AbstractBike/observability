@@ -67,7 +67,7 @@ local serviceRelationshipsStat =
 
 local dependencyGraphInfo =
   g.panel.text.new('📊 Service Dependency Topology')
-  + c.pos(0, 4, 24, 2)
+  + c.pos(0, 5, 24, 2)
   + g.panel.text.options.withMode('markdown')
   + g.panel.text.options.withContent(|||
     ### Distributed Service Graph
@@ -97,7 +97,7 @@ local dependencyGraphInfo =
 
 local serviceLatencyTable =
   g.panel.table.new('Service-to-Service Latency (Top 20)')
-  + c.pos(0, 6, 24, 8)
+  + c.pos(0, 8, 24, 8)
   + g.panel.table.queryOptions.withTargets([
     c.vmQ(
       'topk(20, sort_desc(avg by (source_service,dest_service) (skywalking_service_relation_latency)))',
@@ -113,7 +113,7 @@ local serviceLatencyTable =
 
 local callVolumeByPairTs =
   g.panel.timeSeries.new('Call Volume Between Services (Top 5 pairs)')
-  + c.tsPos(0, 0)
+  + c.pos(0, 17, 12, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
       'topk(5, sum by(source_service,dest_service) (rate(skywalking_service_relation_total[5m])))',
@@ -126,7 +126,7 @@ local callVolumeByPairTs =
 
 local errorRateByPairTs =
   g.panel.timeSeries.new('Error Rate Between Services (Top 5 with errors)')
-  + c.tsPos(1, 0)
+  + c.pos(12, 17, 12, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ(
       'topk(5, (count by (source_service,dest_service) (skywalking_service_relation_status_total{status="error"}) / count by (source_service,dest_service) (skywalking_service_relation_status_total)) * 100)',
@@ -142,7 +142,7 @@ local errorRateByPairTs =
 
 local multiHopTracesInfo =
   g.panel.text.new('🔗 Multi-Hop Request Tracing')
-  + c.pos(0, 14, 24, 3)
+  + c.pos(0, 26, 24, 3)
   + g.panel.text.options.withMode('markdown')
   + g.panel.text.options.withContent(|||
     ### Tracing Across Service Mesh
@@ -207,7 +207,7 @@ local multiHopTracesInfo =
 
 local serviceHopCountTable =
   g.panel.table.new('Request Hops per Service (Avg calls involved)')
-  + c.pos(0, 17, 24, 6)
+  + c.pos(0, 30, 24, 6)
   + g.panel.table.queryOptions.withTargets([
     c.vmQ(
       'topk(15, sort_desc(avg by (source_service) (skywalking_service_relation_count)))',
@@ -223,7 +223,7 @@ local serviceHopCountTable =
 
 local criticalPathsInfo =
   g.panel.text.new('⚠️ Critical Paths & Optimization')
-  + c.pos(0, 23, 24, 3)
+  + c.pos(0, 37, 24, 3)
   + g.panel.text.options.withMode('markdown')
   + g.panel.text.options.withContent(|||
     ### Identifying Critical Paths
@@ -262,11 +262,11 @@ local troubleGuide = c.serviceTroubleshootingGuide('skywalking', [
   { symptom: 'High Latency Between Services', runbook: 'skywalking/service-latency', check: 'Check "Service-to-Service Latency" table and identify slowest pair' },
   { symptom: 'Service Errors in Mesh', runbook: 'skywalking/mesh-errors', check: 'Examine "Error Rate Between Services" for problematic connections' },
   { symptom: 'Circular Dependencies Detected', runbook: 'skywalking/circular-deps', check: 'Review topology for cyclic patterns in "Request Hops" analysis' },
-], y=38);
+], y=52);
 
 // ── Logs panel ────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('Multi-Service Request Logs', 'all-services', y=27);
+local logsPanel = c.serviceLogsPanel('Multi-Service Request Logs', 'all-services', y=41);
 
 // ── Dashboard ──────────────────────────────────────────────────────────────
 
@@ -280,27 +280,27 @@ g.dashboard.new('Service Dependencies & Mesh Topology')
   c.externalLinksPanel(y=1),
   alertPanel, totalServicesStat, meshHealthStat, avgEndToEndLatencyStat, serviceRelationshipsStat,
 
-  g.panel.row.new('📊 Service Graph') + c.pos(0, 3, 24, 1),
+  g.panel.row.new('📊 Service Graph') + c.pos(0, 4, 24, 1),
   dependencyGraphInfo,
 
-  g.panel.row.new('🔗 Service Relations') + c.pos(0, 5, 24, 1),
+  g.panel.row.new('🔗 Service Relations') + c.pos(0, 7, 24, 1),
   serviceLatencyTable,
 
-  g.panel.row.new('📡 Call Patterns') + c.pos(0, 13, 24, 1),
+  g.panel.row.new('📡 Call Patterns') + c.pos(0, 16, 24, 1),
   callVolumeByPairTs, errorRateByPairTs,
 
-  g.panel.row.new('🔍 Multi-Hop Tracing') + c.pos(0, 14, 24, 1),
+  g.panel.row.new('🔍 Multi-Hop Tracing') + c.pos(0, 25, 24, 1),
   multiHopTracesInfo,
 
-  g.panel.row.new('➡️ Service Hops') + c.pos(0, 17, 24, 1),
+  g.panel.row.new('➡️ Service Hops') + c.pos(0, 29, 24, 1),
   serviceHopCountTable,
 
-  g.panel.row.new('🎯 Optimization Guide') + c.pos(0, 23, 24, 1),
+  g.panel.row.new('🎯 Optimization Guide') + c.pos(0, 36, 24, 1),
   criticalPathsInfo,
 
-  g.panel.row.new('📝 Request Logs') + c.pos(0, 26, 24, 1),
+  g.panel.row.new('📝 Request Logs') + c.pos(0, 40, 24, 1),
   logsPanel,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 37, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 51, 24, 1),
   troubleGuide,
 ])
