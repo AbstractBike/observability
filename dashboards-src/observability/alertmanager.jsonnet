@@ -5,7 +5,7 @@ local alertPanel = c.alertCountPanel('alertmanager', col=0);
 
 local receivedStat =
   g.panel.stat.new('Alerts Received/sec')
-  + c.statPos(1)
+  + c.pos(6, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('rate(alertmanager_alerts_received_total[5m]) or vector(0)'),
   ])
@@ -15,7 +15,7 @@ local receivedStat =
 
 local firedStat =
   g.panel.stat.new('Notifications Sent/sec')
-  + c.statPos(2)
+  + c.pos(10, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(rate(alertmanager_notifications_total[5m])) or vector(0)'),
   ])
@@ -25,7 +25,7 @@ local firedStat =
 
 local failedStat =
   g.panel.stat.new('Failed Notifications/sec')
-  + c.statPos(3)
+  + c.pos(14, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(rate(alertmanager_notifications_failed_total[5m])) or vector(0)'),
   ])
@@ -37,12 +37,14 @@ local failedStat =
   ])
   + g.panel.stat.options.withColorMode('background');
 
+// 5-stat layout: alert(6) + received(4) + fired(4) + failed(5) + silences(5) = 24
 local silencesStat =
   g.panel.stat.new('Active Silences')
-  + c.statPos(4)
+  + c.pos(19, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(alertmanager_silences{state="active"}) or vector(0)'),
-  ]);
+  ])
+  + g.panel.stat.options.withColorMode('value');
 
 local notifTs =
   g.panel.timeSeries.new('Notifications by Receiver')
@@ -65,26 +67,25 @@ local alertsTs =
 local logsPanel = c.serviceLogsPanel('Alertmanager Logs', 'alertmanager', y=13);
 
 local troubleGuide = c.serviceTroubleshootingGuide('alertmanager', [
-  { symptom: 'Notification Failures', runbook: 'alertmanager/notification-failures', check: 'Check "Failed Notifications/sec" stat' },
-  { symptom: 'Alert Pipeline Backlog', runbook: 'alertmanager/alert-backlog', check: 'Monitor "Alerts in Pipeline" active vs suppressed' },
-  { symptom: 'High Alert Volume', runbook: 'alertmanager/volume', check: 'Check "Alerts Received/sec" and routing config' },
-  { symptom: 'Silences Not Working', runbook: 'alertmanager/silences', check: 'Verify active silences in "Active Silences" stat' },
-], y=14);
+  { symptom: 'Notification Failures', runbook: 'alertmanager/notification-failures', check: '"Failed Notifications/sec" > 0 — check receiver config (email, webhook)' },
+  { symptom: 'Alert Pipeline Backlog', runbook: 'alertmanager/alert-backlog', check: '"Alerts in Pipeline" — high suppressed count = silences or inhibit rules' },
+  { symptom: 'High Alert Volume', runbook: 'alertmanager/volume', check: '"Alerts Received/sec" high — check VMAlert rules for over-sensitive thresholds' },
+  { symptom: 'Silences Not Working', runbook: 'alertmanager/silences', check: '"Active Silences" = 0 but alerts still suppressed? Check expiry dates' },
+], y=24);
 
 g.dashboard.new('Observability — Alertmanager')
 + g.dashboard.withUid('observability-alertmanager')
 + g.dashboard.withDescription('Alertmanager: notifications sent/failed, silences, alert pipeline.')
 + g.dashboard.withTags(['observability', 'alertmanager', 'alerting', 'critical', 'infrastructure'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   alertPanel, receivedStat, firedStat, failedStat, silencesStat,
   g.panel.row.new('⚠️ Alert Routing') + c.pos(0, 4, 24, 1),
   notifTs, alertsTs,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 12, 24, 1),
-  troubleGuide,
-  g.panel.row.new('📝 Logs') + c.pos(0, 19, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 12, 24, 1),
   logsPanel,
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 23, 24, 1),
+  troubleGuide,
 ])

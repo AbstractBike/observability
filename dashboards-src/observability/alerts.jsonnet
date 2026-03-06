@@ -12,7 +12,7 @@ local alertPanel = c.alertCountPanel('alertmanager', col=0);
 
 local activeAlertsStat =
   g.panel.stat.new('🚨 Grafana Alerts')
-  + c.statPos(1)
+  + c.pos(6, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('grafana_alerting_active_alerts or vector(0)'),
   ])
@@ -27,7 +27,7 @@ local activeAlertsStat =
 
 local firedAlertsStat =
   g.panel.stat.new('🔔 Fired This Hour')
-  + c.statPos(2)
+  + c.pos(10, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('increase(alertmanager_notifications_total{job="alertmanager"}[1h]) or vector(0)'),
   ])
@@ -35,9 +35,10 @@ local firedAlertsStat =
   + g.panel.stat.options.withColorMode('value')
   + g.panel.stat.options.withGraphMode('line');
 
+// 5-stat layout: alert(6) + activeAlerts(4) + fired(4) + amUp(5) + vmAlertUp(5) = 24
 local alertmanagerUpStat =
   g.panel.stat.new('Alertmanager')
-  + c.statPos(3)
+  + c.pos(14, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('up{job="alertmanager"} or vector(0)'),
   ])
@@ -51,7 +52,7 @@ local alertmanagerUpStat =
 
 local vmAlertUpStat =
   g.panel.stat.new('VMAlert')
-  + c.statPos(4)
+  + c.pos(19, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('up{job="vmalert"} or vector(0)'),
   ])
@@ -95,7 +96,7 @@ local alertmanagerStatusTs =
 
 local infoPanel =
   g.panel.text.new('🔔 Alerting System & Related Dashboards')
-  + c.pos(0, 9, 24, 4)
+  + c.pos(0, 14, 24, 4)
   + g.panel.text.options.withMode('markdown')
   + g.panel.text.options.withContent(|||
     ### 📊 Related Dashboards
@@ -138,7 +139,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('alertmanager', [
   { symptom: 'Alert Spam', runbook: 'alertmanager/alert-spam', check: 'Check grouping rules and adjust thresholds in VMAlert rules' },
   { symptom: 'Notifications Not Sent', runbook: 'alertmanager/notification-failure', check: 'Monitor notification channel status and retry logs' },
   { symptom: 'Alert Rules Not Evaluating', runbook: 'alertmanager/rule-eval', check: 'Check VMAlert health and rule syntax in "Trends" panel' },
-], y=11);
+], y=30);
 
 // ── Logs panel ────────────────────────────────────────────────────────────
 
@@ -151,7 +152,6 @@ g.dashboard.new('Observability — Alerts')
 + g.dashboard.withDescription('Alert system monitoring: active alerts, firing rate, alertmanager status, alert history.')
 + g.dashboard.withTags(['observability', 'alerts', 'monitoring', 'health', 'critical'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('🚨 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
@@ -160,12 +160,12 @@ g.dashboard.new('Observability — Alerts')
   g.panel.row.new('📈 Trends') + c.pos(0, 4, 24, 1),
   alertRateTs, alertmanagerStatusTs,
 
-  g.panel.row.new('ℹ️ Info') + c.pos(0, 8, 24, 1),
+  g.panel.row.new('ℹ️ Info') + c.pos(0, 13, 24, 1),
   infoPanel,
-
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 10, 24, 1),
-  troubleGuide,
 
   g.panel.row.new('📝 Logs') + c.pos(0, 18, 24, 1),
   logsPanel,
+
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 29, 24, 1),
+  troubleGuide,
 ])
