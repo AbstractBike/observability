@@ -19,9 +19,10 @@ local c = import 'lib/common.libsonnet';
 
 local alertPanel = c.alertCountPanel('api-gateway', col=0);
 
+// 4-stat layout (no alertPanel): traces(6) + errorRate(6) + avgLat(6) + p99Lat(6) = 24
 local tracesPerMinStat =
   g.panel.stat.new('Traces/min')
-  + c.statPos(1)
+  + c.pos(0, 1, 6, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('rate(skywalking_trace_total{service="api-gateway"}[1m]) or vector(0)'),
   ])
@@ -31,7 +32,7 @@ local tracesPerMinStat =
 
 local errorRateStat =
   g.panel.stat.new('Error Rate')
-  + c.statPos(2)
+  + c.pos(6, 1, 6, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(count(skywalking_trace_status_total{service="api-gateway",status="error"}) / count(skywalking_trace_status_total{service="api-gateway"})) * 100 or vector(0)'),
   ])
@@ -46,7 +47,7 @@ local errorRateStat =
 
 local avgLatencyStat =
   g.panel.stat.new('Avg Latency')
-  + c.statPos(3)
+  + c.pos(12, 1, 6, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(histogram_quantile(0.50, sum by(le) (rate(skywalking_trace_latency_bucket{service="api-gateway"}[5m]))) or vector(0))'),
   ])
@@ -55,7 +56,7 @@ local avgLatencyStat =
 
 local p99LatencyStat =
   g.panel.stat.new('P99 Latency')
-  + c.statPos(4)
+  + c.pos(18, 1, 6, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(histogram_quantile(0.99, sum by(le) (rate(skywalking_trace_latency_bucket{service="api-gateway"}[5m]))) or vector(0))'),
   ])
@@ -120,7 +121,7 @@ local operationErrorsTs =
 
 local spanLatencyTable =
   g.panel.table.new('Operations by Avg Latency (5m)')
-  + c.pos(0, 7, 24, 8)
+  + c.pos(0, 22, 24, 8)
   + g.panel.table.queryOptions.withTargets([
     c.vmQ(
       'topk(20, sort_desc(avg by (operation) (skywalking_span_latency_total{service="api-gateway"}) / avg by (operation) (skywalking_span_total{service="api-gateway"})))',
@@ -136,7 +137,7 @@ local spanLatencyTable =
 
 local guidancePanel =
   g.panel.text.new('📊 Service Tracing & Correlation Guide')
-  + c.pos(0, 15, 24, 3)
+  + c.pos(0, 31, 24, 3)
   + g.panel.text.options.withMode('markdown')
   + g.panel.text.options.withContent(|||
     ### 🔍 Analyze Slow Traces
@@ -170,7 +171,7 @@ local guidancePanel =
 
 // ── Logs panel ────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('API Gateway Logs', 'api-gateway', y=19);
+local logsPanel = c.serviceLogsPanel('API Gateway Logs', 'api-gateway', y=35);
 
 // ── Troubleshooting guide ──────────────────────────────────────────────────
 
@@ -179,7 +180,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('api-gateway', [
   { symptom: 'Error Rate Spike', runbook: 'api-gateway/errors', check: 'Monitor "Error Rate" stat and check "Trace Volume"' },
   { symptom: 'Slow Operations', runbook: 'api-gateway/slow-operations', check: 'Check "Operations by Avg Latency" table' },
   { symptom: 'High Trace Volume', runbook: 'api-gateway/volume', check: 'Monitor "Trace Volume (Success/Error)"' },
-], y=20);
+], y=46);
 
 // ── Dashboard ──────────────────────────────────────────────────────────────
 
@@ -198,13 +199,15 @@ g.dashboard.new('api-gateway — Distributed Tracing')
   traceVolumeTs, latencyDistributionTs,
   operationCountTs, operationErrorsTs,
 
-  g.panel.row.new('🔍 Operation Analysis') + c.pos(0, 6, 24, 1),
+  g.panel.row.new('🔍 Operation Analysis') + c.pos(0, 21, 24, 1),
   spanLatencyTable,
 
-  g.panel.row.new('🛠️ Troubleshooting') + c.pos(0, 14, 24, 1),
+  g.panel.row.new('📊 Correlation Guide') + c.pos(0, 30, 24, 1),
   guidancePanel,
-  troubleGuide,
 
-  g.panel.row.new('📝 Logs') + c.pos(0, 25, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 34, 24, 1),
   logsPanel,
+
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 45, 24, 1),
+  troubleGuide,
 ])

@@ -19,9 +19,10 @@ local hostVar =
 
 local alertPanel = c.alertCountPanel('vector', col=0);
 
+// 5-stat layout: alert(6) + uptime(4) + eventsIn(4) + eventsOut(5) + errorRate(5) = 24
 local uptimeStat =
   g.panel.stat.new('Vector Uptime')
-  + c.statPos(3)
+  + c.pos(6, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('max(vector_uptime_seconds{host=~"$host"}) or vector(0)', '{{host}}'),
   ])
@@ -31,7 +32,7 @@ local uptimeStat =
 
 local eventsInStat =
   g.panel.stat.new('Events In/sec')
-  + c.statPos(3)
+  + c.pos(10, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(rate(vector_component_received_events_total{host=~"$host"}[5m])) or vector(0)'),
   ])
@@ -41,7 +42,7 @@ local eventsInStat =
 
 local eventsOutStat =
   g.panel.stat.new('Events Out/sec')
-  + c.statPos(3)
+  + c.pos(14, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(rate(vector_component_sent_events_total{host=~"$host"}[5m])) or vector(0)'),
   ])
@@ -51,7 +52,7 @@ local eventsOutStat =
 
 local errorRateStat =
   g.panel.stat.new('Error Rate')
-  + c.statPos(4)
+  + c.pos(19, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(rate(vector_component_errors_total{host=~"$host"}[5m])) or vector(0)'),
   ])
@@ -117,7 +118,7 @@ local bytesTs =
 
 local logsPanel =
   g.panel.logs.new('Vector Service Logs')
-  + c.logPos(21)
+  + c.logPos(22)
   + g.panel.logs.queryOptions.withTargets([
     c.vlogsQ('{host=~"$host",service="vector"}'),
   ])
@@ -132,7 +133,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('vector', [
   { symptom: 'Events Backlog', runbook: 'vector/backpressure', check: 'Compare Events In/sec vs Out/sec - check for buffering' },
   { symptom: 'High Error Rate', runbook: 'vector/errors', check: 'Review Error Rate stat and "Errors & Bytes" trends' },
   { symptom: 'Data Loss', runbook: 'vector/data-loss', check: 'Check processed bytes and component error logs' },
-], y=18);
+], y=33);
 
 g.dashboard.new('Pipeline — Vector')
 + g.dashboard.withUid('pipeline-vector')
@@ -148,8 +149,8 @@ g.dashboard.new('Pipeline — Vector')
   eventsTs, eventsOutTs,
   g.panel.row.new('⚠️ Errors & Bytes') + c.pos(0, 12, 24, 1),
   errorsTs, bytesTs,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 17, 24, 1),
-  troubleGuide,
-  g.panel.row.new('📝 Logs') + c.pos(0, 25, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
   logsPanel,
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 32, 24, 1),
+  troubleGuide,
 ])

@@ -20,9 +20,10 @@ local c = import 'lib/common.libsonnet';
 
 local alertPanel = c.alertCountPanel('postgres-server', col=0);
 
+// 5-stat layout: alert(6) + queryRate(4) + avgLat(4) + p95Lat(5) + slowQ(5) = 24
 local queryRateStat =
   g.panel.stat.new('Queries/sec')
-  + c.statPos(1)
+  + c.pos(6, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('rate(skywalking_span_total{service="PostgreSQL",operation=~".*query.*"}[5m]) or vector(0)'),
   ])
@@ -31,7 +32,7 @@ local queryRateStat =
 
 local avgQueryLatencyStat =
   g.panel.stat.new('Avg Query Time')
-  + c.statPos(2)
+  + c.pos(10, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(histogram_quantile(0.50, sum by(le) (rate(skywalking_span_latency_bucket{service="postgres-server",operation=~"query.*"}[5m]))) or vector(0))'),
   ])
@@ -40,7 +41,7 @@ local avgQueryLatencyStat =
 
 local p95QueryLatencyStat =
   g.panel.stat.new('P95 Query Time')
-  + c.statPos(3)
+  + c.pos(14, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(histogram_quantile(0.95, sum by(le) (rate(skywalking_span_latency_bucket{service="postgres-server",operation=~"query.*"}[5m]))) or vector(0))'),
   ])
@@ -55,7 +56,7 @@ local p95QueryLatencyStat =
 
 local slowQueryCountStat =
   g.panel.stat.new('Slow Queries (>1s)')
-  + c.statPos(4)
+  + c.pos(19, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('count(skywalking_span_latency_bucket{service="postgres-server",operation=~"query.*"}{le="+Inf"} > 1000) or vector(0)'),
   ])
@@ -94,7 +95,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('postgres-server', [
   { symptom: 'Query Latency Spike', runbook: 'postgres/latency', check: 'Monitor "Query Latency Distribution" percentiles' },
   { symptom: 'High Query Volume', runbook: 'postgres/volume', check: 'Check "Queries/sec" and correlate with app traces' },
   { symptom: 'Connection Pool Exhausted', runbook: 'postgres/connections', check: 'Check PostgreSQL dashboard for active connections' },
-], y=10);
+], y=14);
 
 g.dashboard.new('PostgreSQL — Query Tracing & Performance')
 + g.dashboard.withUid('tracing-postgresql')
@@ -110,6 +111,6 @@ g.dashboard.new('PostgreSQL — Query Tracing & Performance')
   g.panel.row.new('🔍 Analysis') + c.pos(0, 4, 24, 1),
   queryLatencyTs, slowQueryVolumeTs,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 9, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 13, 24, 1),
   troubleGuide,
 ])
