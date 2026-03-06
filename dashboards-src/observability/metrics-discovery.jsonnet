@@ -46,9 +46,10 @@ local metricsByJobTs =
 
 local alertPanel = c.alertCountPanel('victoriametrics', col=0);
 
+// 5-stat layout: alert(6) + series(4) + unique(4) + jobs(5) + ingest(5) = 24
 local totalSeriesStat =
   g.panel.stat.new('Total Series')
-  + c.statPos(1)
+  + c.pos(6, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('count({__name__=~".+"}) or vector(0)'),
   ])
@@ -60,7 +61,7 @@ local totalSeriesStat =
 
 local uniqueMetricsStat =
   g.panel.stat.new('Unique Metrics')
-  + c.statPos(2)
+  + c.pos(10, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('count(count by (__name__) ({__name__=~".+"})) or vector(0)'),
   ])
@@ -72,7 +73,7 @@ local uniqueMetricsStat =
 
 local jobCountStat =
   g.panel.stat.new('Active Jobs')
-  + c.statPos(3)
+  + c.pos(14, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('count(count by (job) ({__name__=~".+"})) or vector(0)'),
   ])
@@ -84,7 +85,7 @@ local jobCountStat =
 
 local ingestionRateStat =
   g.panel.stat.new('Ingestion Rate (5m)')
-  + c.statPos(4)
+  + c.pos(19, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(rate({__name__=~".+"}[5m])) or vector(0)'),
   ])
@@ -97,7 +98,7 @@ local ingestionRateStat =
 
 local topJobsTable =
   g.panel.table.new('Top 10 Jobs by Series Count')
-  + c.pos(0, 5, 24, 8)
+  + c.pos(0, 14, 24, 8)
   + g.panel.table.queryOptions.withTargets([
     c.vmQ(
       'sort_desc(topk(10, count by (job) ({__name__=~".+"})  or vector(0)))',
@@ -113,7 +114,7 @@ local topJobsTable =
 
 local infoPanel =
   g.panel.text.new('📊 Metric Discovery Guide & Related Dashboards')
-  + c.pos(0, 13, 24, 3)
+  + c.pos(0, 22, 24, 3)
   + g.panel.text.options.withContent(|||
     ### 📊 Related Dashboards
     - **[Performance & Optimization](/d/performance-optimization)** — Monitor query latency and storage impact
@@ -143,11 +144,11 @@ local troubleGuide = c.serviceTroubleshootingGuide('victoriametrics', [
   { symptom: 'High Cardinality Alert', runbook: 'metrics/cardinality', check: 'Inspect "Top 20 Metrics" for high-cardinality offenders' },
   { symptom: 'Ingestion Rate Drop', runbook: 'metrics/ingest-drop', check: 'Compare current rate vs baseline in "Ingestion Rate" stat' },
   { symptom: 'Storage Growing Fast', runbook: 'metrics/retention', check: 'Review metric discovery dashboard and reduce retention or cardinality' },
-], y=17);
+], y=37);
 
 // ── Logs panel ────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('VictoriaMetrics Logs', 'victoriametrics', y=25);
+local logsPanel = c.serviceLogsPanel('VictoriaMetrics Logs', 'victoriametrics', y=26);
 
 // ── Dashboard ──────────────────────────────────────────────────────────────
 
@@ -156,7 +157,6 @@ g.dashboard.new('Observability — Metric Discovery')
 + g.dashboard.withDescription('Catalog of all metrics in VictoriaMetrics: cardinality, jobs, ingestion rate, trends.')
 + g.dashboard.withTags(['observability', 'metrics', 'discovery', 'troubleshooting', 'critical'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
@@ -165,12 +165,12 @@ g.dashboard.new('Observability — Metric Discovery')
   g.panel.row.new('📈 Metrics Overview') + c.pos(0, 4, 24, 1),
   topMetricsTs, metricsByJobTs,
 
-  g.panel.row.new('ℹ️ Jobs & Info') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('ℹ️ Jobs & Info') + c.pos(0, 13, 24, 1),
   topJobsTable, infoPanel,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 16, 24, 1),
-  troubleGuide,
-
-  g.panel.row.new('📝 Logs') + c.pos(0, 24, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 25, 24, 1),
   logsPanel,
+
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 36, 24, 1),
+  troubleGuide,
 ])

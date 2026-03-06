@@ -10,9 +10,10 @@ local c = import 'lib/common.libsonnet';
 
 local alertPanel = c.alertCountPanel('observability', col=0);
 
+// 5-stat layout: alert(6) + total(4) + cpu(4) + memory(5) + storage(5) = 24
 local totalCostStat =
   g.panel.stat.new('💰 Est. Monthly Cost')
-  + c.statPos(1)
+  + c.pos(6, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(rate(process_resident_memory_bytes[30d]) * 0.01 + rate(container_cpu_usage_seconds_total[30d]) * 0.05) or vector(0)'),
   ])
@@ -22,7 +23,7 @@ local totalCostStat =
 
 local cpuCostStat =
   g.panel.stat.new('📊 CPU Cost (30d)')
-  + c.statPos(2)
+  + c.pos(10, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(rate(container_cpu_usage_seconds_total[30d]) * 0.05) or vector(0)'),
   ])
@@ -32,7 +33,7 @@ local cpuCostStat =
 
 local memoryCostStat =
   g.panel.stat.new('💾 Memory Cost (30d)')
-  + c.statPos(3)
+  + c.pos(14, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(rate(process_resident_memory_bytes[30d]) * 0.01) or vector(0)'),
   ])
@@ -42,25 +43,13 @@ local memoryCostStat =
 
 local storageCostStat =
   g.panel.stat.new('🗄️ Storage Cost (30d)')
-  + c.statPos(4)
+  + c.pos(19, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(vm_data_size_bytes or vector(0)) * 0.000001 or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('currencyUSD')
   + g.panel.stat.standardOptions.withDecimals(2)
   + g.panel.stat.options.withColorMode('value');
-
-// ── Cost by Service (Top 10) ────────────────────────────────────────────────
-
-local serviceCostTable =
-  g.panel.table.new('Cost by Service (Top 10)')
-  + c.pos(0, 4, 24, 8)
-  + g.panel.table.queryOptions.withTargets([
-    c.vmQ('topk(10, sum by (job) (rate(container_cpu_usage_seconds_total[30d]) * 0.05 + rate(process_resident_memory_bytes[30d]) * 0.01) or vector(0))'),
-  ])
-  + g.panel.table.standardOptions.withUnit('currencyUSD')
-  + g.panel.table.standardOptions.withDecimals(2)
-  + g.panel.table.fieldConfig.defaults.custom.withAlign('center');
 
 // ── Cost Trends ─────────────────────────────────────────────────────────────
 
@@ -85,11 +74,23 @@ local cpuVsMemoryTs =
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
+// ── Cost by Service (Top 10) ────────────────────────────────────────────────
+
+local serviceCostTable =
+  g.panel.table.new('Cost by Service (Top 10)')
+  + c.pos(0, 14, 24, 8)
+  + g.panel.table.queryOptions.withTargets([
+    c.vmQ('topk(10, sum by (job) (rate(container_cpu_usage_seconds_total[30d]) * 0.05 + rate(process_resident_memory_bytes[30d]) * 0.01) or vector(0))'),
+  ])
+  + g.panel.table.standardOptions.withUnit('currencyUSD')
+  + g.panel.table.standardOptions.withDecimals(2)
+  + g.panel.table.fieldConfig.defaults.custom.withAlign('center');
+
 // ── Cost Analysis Info ──────────────────────────────────────────────────────
 
 local infoPanel =
   g.panel.text.new('💡 Cost Optimization Guide')
-  + c.pos(0, 17, 24, 3)
+  + c.pos(0, 23, 24, 3)
   + g.panel.text.options.withMode('markdown')
   + g.panel.text.options.withContent(|||
     ### Cost Drivers & Optimization
@@ -123,11 +124,11 @@ local troubleGuide = c.serviceTroubleshootingGuide('observability', [
   { symptom: 'High CPU Cost', runbook: 'cost/cpu-optimization', check: 'Review top CPU consumers in "Cost by Service" table' },
   { symptom: 'Memory Leak Detected', runbook: 'cost/memory-leak', check: 'Correlate with "Memory Cost" trend and service restarts' },
   { symptom: 'Storage Growing', runbook: 'cost/storage-cleanup', check: 'Use "Metrics Discovery" dashboard to identify high-cardinality metrics' },
-], y=18);
+], y=38);
 
 // ── Logs panel ──────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('Cost Tracking Logs', 'observability', y=26);
+local logsPanel = c.serviceLogsPanel('Cost Tracking Logs', 'observability', y=27);
 
 // ── Dashboard ───────────────────────────────────────────────────────────────
 
@@ -136,24 +137,23 @@ g.dashboard.new('Observability — Cost Tracking')
 + g.dashboard.withDescription('Infrastructure cost allocation and optimization: monitor resource consumption (CPU, memory, storage) and estimated monthly costs by service.')
 + g.dashboard.withTags(['observability', 'cost', 'optimization', 'budgeting', 'critical'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('💰 Cost Summary') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   alertPanel, totalCostStat, cpuCostStat, memoryCostStat, storageCostStat,
 
-  g.panel.row.new('📊 Service Breakdown') + c.pos(0, 3, 24, 1),
-  serviceCostTable,
-
-  g.panel.row.new('📈 Cost Trends') + c.pos(0, 11, 24, 1),
+  g.panel.row.new('📈 Cost Trends') + c.pos(0, 4, 24, 1),
   costTrendTs, cpuVsMemoryTs,
 
-  g.panel.row.new('🎯 Optimization Guide') + c.pos(0, 16, 24, 1),
+  g.panel.row.new('📊 Service Breakdown') + c.pos(0, 13, 24, 1),
+  serviceCostTable,
+
+  g.panel.row.new('🎯 Optimization Guide') + c.pos(0, 22, 24, 1),
   infoPanel,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 17, 24, 1),
-  troubleGuide,
-
-  g.panel.row.new('📝 Logs') + c.pos(0, 25, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 26, 24, 1),
   logsPanel,
+
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 37, 24, 1),
+  troubleGuide,
 ])

@@ -10,9 +10,10 @@ local c = import 'lib/common.libsonnet';
 
 local alertPanel = c.alertCountPanel('grafana', col=0);
 
+// 5-stat layout: alert(6) + views(4) + users(4) + engagement(5) + topDash(5) = 24
 local totalViewsStat =
   g.panel.stat.new('📊 Total Views (30d)')
-  + c.statPos(1)
+  + c.pos(6, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(increase(grafana_dashboard_view_count[30d])) or vector(0)'),
   ])
@@ -22,7 +23,7 @@ local totalViewsStat =
 
 local activeUsersStat =
   g.panel.stat.new('👥 Active Users (30d)')
-  + c.statPos(2)
+  + c.pos(10, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('count(count by (user) (increase(grafana_dashboard_view_count[30d])) > 0) or vector(0)'),
   ])
@@ -31,7 +32,7 @@ local activeUsersStat =
 
 local avgEngagementStat =
   g.panel.stat.new('✅ Avg Engagement')
-  + c.statPos(3)
+  + c.pos(14, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('(1 - avg(grafana_dashboard_bounce_rate) or vector(0.3)) * 100'),
   ])
@@ -40,34 +41,12 @@ local avgEngagementStat =
 
 local topDashboardsStat =
   g.panel.stat.new('🔝 Top Dashboards')
-  + c.statPos(4)
+  + c.pos(19, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('count(topk(10, sum by (dashboard) (increase(grafana_dashboard_view_count[30d]))) > 0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('short')
   + g.panel.stat.options.withColorMode('value');
-
-// ── Top Dashboards by Views ─────────────────────────────────────────────────
-
-local topDashboardsTable =
-  g.panel.table.new('Top Dashboards (30d)')
-  + c.pos(0, 4, 12, 8)
-  + g.panel.table.queryOptions.withTargets([
-    c.vmQ('topk(15, sum by (dashboard) (increase(grafana_dashboard_view_count[30d])))'),
-  ])
-  + g.panel.table.standardOptions.withUnit('short')
-  + g.panel.table.fieldConfig.defaults.custom.withAlign('left');
-
-// ── Underutilized Dashboards ────────────────────────────────────────────────
-
-local underutilizedTable =
-  g.panel.table.new('Underutilized Dashboards (<50 views)')
-  + c.pos(12, 4, 12, 8)
-  + g.panel.table.queryOptions.withTargets([
-    c.vmQ('sum by (dashboard) (increase(grafana_dashboard_view_count[30d])) <= 50'),
-  ])
-  + g.panel.table.standardOptions.withUnit('short')
-  + g.panel.table.fieldConfig.defaults.custom.withAlign('left');
 
 // ── Usage Trends ────────────────────────────────────────────────────────────
 
@@ -91,11 +70,33 @@ local engagementTs =
   + g.panel.timeSeries.standardOptions.withMin(0)
   + g.panel.timeSeries.standardOptions.withMax(100);
 
+// ── Top Dashboards by Views ─────────────────────────────────────────────────
+
+local topDashboardsTable =
+  g.panel.table.new('Top Dashboards (30d)')
+  + c.pos(0, 14, 12, 8)
+  + g.panel.table.queryOptions.withTargets([
+    c.vmQ('topk(15, sum by (dashboard) (increase(grafana_dashboard_view_count[30d])))'),
+  ])
+  + g.panel.table.standardOptions.withUnit('short')
+  + g.panel.table.fieldConfig.defaults.custom.withAlign('left');
+
+// ── Underutilized Dashboards ────────────────────────────────────────────────
+
+local underutilizedTable =
+  g.panel.table.new('Underutilized Dashboards (<50 views)')
+  + c.pos(12, 14, 12, 8)
+  + g.panel.table.queryOptions.withTargets([
+    c.vmQ('sum by (dashboard) (increase(grafana_dashboard_view_count[30d])) <= 50'),
+  ])
+  + g.panel.table.standardOptions.withUnit('short')
+  + g.panel.table.fieldConfig.defaults.custom.withAlign('left');
+
 // ── Analytics Guide ─────────────────────────────────────────────────────────
 
 local guidePanel =
   g.panel.text.new('📈 Usage Analytics Guide')
-  + c.pos(0, 19, 24, 3)
+  + c.pos(0, 23, 24, 3)
   + g.panel.text.options.withMode('markdown')
   + g.panel.text.options.withContent(|||
     ### Dashboard Performance Metrics
@@ -129,11 +130,11 @@ local troubleGuide = c.serviceTroubleshootingGuide('grafana', [
   { symptom: 'Missing Usage Data', runbook: 'grafana/metrics-missing', check: 'Verify Grafana is sending metrics to VictoriaMetrics (check targets)' },
   { symptom: 'High View Count Anomaly', runbook: 'grafana/usage-spike', check: 'Correlate with "Daily Views Trend" and check for bots/automation' },
   { symptom: 'Unexpected Dashboard Underutilization', runbook: 'grafana/discovery', check: 'Add links to underutilized dashboards in "Dashboard Index"' },
-], y=20);
+], y=38);
 
 // ── Logs panel ──────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('Analytics Logs', 'grafana', y=28);
+local logsPanel = c.serviceLogsPanel('Analytics Logs', 'grafana', y=27);
 
 // ── Dashboard ───────────────────────────────────────────────────────────────
 
@@ -142,24 +143,23 @@ g.dashboard.new('Observability — Dashboard Usage Analytics')
 + g.dashboard.withDescription('Monitor dashboard usage patterns: view counts, user engagement, top dashboards, underutilized dashboards. Identify optimization opportunities based on user behavior.')
 + g.dashboard.withTags(['observability', 'analytics', 'usage', 'optimization', 'critical'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Usage Summary') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
   alertPanel, totalViewsStat, activeUsersStat, avgEngagementStat, topDashboardsStat,
 
-  g.panel.row.new('⚡ Dashboard Performance') + c.pos(0, 3, 24, 1),
-  topDashboardsTable, underutilizedTable,
-
-  g.panel.row.new('📈 Usage Trends') + c.pos(0, 11, 24, 1),
+  g.panel.row.new('📈 Usage Trends') + c.pos(0, 4, 24, 1),
   usageTrendTs, engagementTs,
 
-  g.panel.row.new('🎯 Analytics Guide') + c.pos(0, 18, 24, 1),
+  g.panel.row.new('⚡ Dashboard Performance') + c.pos(0, 13, 24, 1),
+  topDashboardsTable, underutilizedTable,
+
+  g.panel.row.new('🎯 Analytics Guide') + c.pos(0, 22, 24, 1),
   guidePanel,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 19, 24, 1),
-  troubleGuide,
-
-  g.panel.row.new('📝 Logs') + c.pos(0, 27, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 26, 24, 1),
   logsPanel,
+
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 37, 24, 1),
+  troubleGuide,
 ])
