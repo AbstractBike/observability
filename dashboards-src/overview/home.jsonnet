@@ -180,7 +180,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('home', [
   { symptom: 'Observability Down', runbook: 'general/obs-recovery', check: 'Verify Metrics, Logs, and Traces links accessible from Observability row' },
   { symptom: 'Dashboard Not Found', runbook: 'general/dashboard-search', check: 'Use Dashboards row or search for specific service dashboard' },
   { symptom: 'External Tool Unreachable', runbook: 'general/connectivity', check: 'Check System Apps row (Temporal, Superset, etc.) and network status' },
-], y=1);
+], y=62);
 
 // ── Color palette ────────────────────────────────────────────────────────────
 local obsColor  = '#7c3aed';  // violet — observability
@@ -311,7 +311,6 @@ g.dashboard.new('Pin SI — Home')
     c.externalLinksPanel(y=0, x=18),
     alertPanel,
     headerPanel,
-    troubleGuide,
     observabilityRow,
     metricsCard, logsCard, tracesCard, alertsCard,
     appsRow,
@@ -332,4 +331,6 @@ g.dashboard.new('Pin SI — Home')
     pipelineRow,
     vectorDbCard, alertmgrDbCard, vmalertDbCard, sloDbCard, serenaBackDbCard, logsDbCard, matrixApmDbCard, nixosDeployerDbCard, grafanaSelfDbCard,
     newRow, newCard,
+    g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 61, 24, 1),
+    troubleGuide,
   ])

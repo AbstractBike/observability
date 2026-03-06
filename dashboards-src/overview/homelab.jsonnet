@@ -110,7 +110,7 @@ local services = [
 
 local systemLogsPanel =
   g.panel.logs.new('System Logs')
-  + c.logPos(22)
+  + c.logPos(23)
   + g.panel.logs.queryOptions.withTargets([
     c.vlogsQ('{host="homelab",level=~"(warn|error|critical)"}'),
   ])
@@ -143,7 +143,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('homelab', [
   { symptom: 'Memory Pressure', runbook: 'host/memory-pressure', check: 'Review RAM usage and service memory consumption' },
   { symptom: 'Disk Space Low', runbook: 'host/disk-cleanup', check: 'Check Disk / percentage and identify large files' },
   { symptom: 'Service Outage', runbook: 'host/service-recovery', check: 'Review "Services" grid and SLO compliance stats' },
-], y=19);
+], y=34);
 
 // ── Dashboard assembly ────────────────────────────────────────────────────────
 
@@ -152,7 +152,6 @@ g.dashboard.new('Homelab \u2014 Overview')
 + g.dashboard.withDescription('Command center: host health, service status, SLO compliance.')
 + g.dashboard.withTags(['homelab', 'overview', 'critical'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar])
 + g.dashboard.withPanels(
   [
     g.panel.row.new('🏠 Homelab — Host') + c.pos(0, 0, 24, 1),
@@ -172,9 +171,9 @@ g.dashboard.new('Homelab \u2014 Overview')
     sloStat('SLO: PostgreSQL',   '(1 - slo:postgresql:error_ratio_30d) * 100',   99.9, 1),
     sloStat('SLO: Redis',        '(1 - slo:redis:error_ratio_30d) * 100',        99.9, 2),
     sloStat('SLO: Grafana',      '(1 - slo:grafana:error_ratio_30d) * 100',      99.0, 3),
-    g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 19, 24, 1),
-    troubleGuide,
-    g.panel.row.new('📝 Logs') + c.pos(0, 27, 24, 1),
+    g.panel.row.new('📝 Logs') + c.pos(0, 22, 24, 1),
     systemLogsPanel,
+    g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 33, 24, 1),
+    troubleGuide,
   ]
 )

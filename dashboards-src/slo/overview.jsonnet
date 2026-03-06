@@ -3,9 +3,17 @@ local c = import 'lib/common.libsonnet';
 
 local alertPanel = c.alertCountPanel('slo', col=0);
 
+// 5-stat layout: alert(6) + host(4) + postgres(4) + redis(5) + grafana(5) = 24
+local sloStatPos = [
+  c.pos(6, 1, 4, 3),
+  c.pos(10, 1, 4, 3),
+  c.pos(14, 1, 5, 3),
+  c.pos(19, 1, 5, 3),
+];
+
 local sloStatPanel(title, errorRatioExpr, targetPct, col) =
   g.panel.stat.new(title)
-  + c.statPos(col + 1)
+  + sloStatPos[col]
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('((1 - ' + errorRatioExpr + ') * 100) or vector(0)'),
   ])
@@ -34,7 +42,7 @@ local budgetTs(title, errorRatioExpr, targetErrorRatio, col, row) =
 
 local guidancePanel =
   g.panel.text.new('📚 SLO Guidance')
-  + c.pos(0, 12, 24, 3)
+  + c.pos(0, 22, 24, 3)
   + g.panel.text.options.withMode('markdown')
   + g.panel.text.options.withContent(|||
     **SLO Budget Tracking**: Each service has a monthly error budget. When the budget reaches 0%, the service has violated its SLO target.
@@ -58,7 +66,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('slo', [
   { symptom: 'Budget Exhausted', runbook: 'slo/budget-exhausted', check: 'Check "Error Budget Remaining" charts for affected service' },
   { symptom: 'Unexpected Spike', runbook: 'slo/spike-investigation', check: 'Correlate error budget drop with specific timestamp in logs' },
   { symptom: 'SLO Target Change', runbook: 'slo/target-update', check: 'Verify new target percentage is correctly configured' },
-], y=12);
+], y=26);
 
 g.dashboard.new('SLO — Overview')
 + g.dashboard.withUid('slo-overview')
@@ -80,9 +88,9 @@ g.dashboard.new('SLO — Overview')
   budgetTs('Host Error Budget', 'slo:host_uptime:error_ratio_30d', 0.005, 0, 1),
   budgetTs('Grafana Error Budget', 'slo:grafana:error_ratio_30d', 0.01, 1, 1),
 
-  g.panel.row.new('💡 Guidance') + c.pos(0, 11, 24, 1),
+  g.panel.row.new('💡 Guidance') + c.pos(0, 21, 24, 1),
   guidancePanel,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 14, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 25, 24, 1),
   troubleGuide,
 ])

@@ -19,9 +19,10 @@ local alertPanel = c.alertCountPanel('serena-backends', col=0);
 
 // ── Row 0: Serena MCP stats ───────────────────────────────────────────────
 
+// 5-stat layout: alert(6) + cpm(4) + respTime(4) + sla(5) + errorRate(5) = 24
 local cpmStat =
   g.panel.stat.new('Calls/min')
-  + c.statPos(1)
+  + c.pos(6, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.swQ('(service_cpm{service="' + serenaService + '"}) or vector(0)'),
   ])
@@ -29,7 +30,7 @@ local cpmStat =
 
 local respTimeStat =
   g.panel.stat.new('Avg Response Time')
-  + c.statPos(2)
+  + c.pos(10, 1, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.swQ('(service_resp_time{service="' + serenaService + '"}) or vector(0)'),
   ])
@@ -43,7 +44,7 @@ local respTimeStat =
 
 local slaStat =
   g.panel.stat.new('Success Rate (SLA)')
-  + c.statPos(3)
+  + c.pos(14, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.swQ('(service_sla{service="' + serenaService + '"} / 100) or vector(0)'),
   ])
@@ -58,7 +59,7 @@ local slaStat =
 
 local errorRateStat =
   g.panel.stat.new('Error Rate')
-  + c.statPos(4)
+  + c.pos(19, 1, 5, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.swQ('(service_error_rate{service="' + serenaService + '"}) or vector(0)'),
   ])
@@ -150,13 +151,13 @@ local troubleGuide = c.serviceTroubleshootingGuide('serena-backends', [
   { symptom: 'Serena Error Rate Up', runbook: 'serena/error-investigation', check: 'Review Error Rate stat and check error logs for stack traces' },
   { symptom: 'Backend Service Down', runbook: 'serena/backend-outage', check: 'Check Backend Services grid for red status indicators' },
   { symptom: 'MCP Connection Lost', runbook: 'serena/mcp-reconnect', check: 'Verify Serena MCP process running and check SLA metric' },
-], y=36);
+], y=52);
 
 // ── Row 4: Error logs ─────────────────────────────────────────────────────
 
 local errorLogs =
   g.panel.logs.new('Recent Errors & Warnings')
-  + c.logPos(45)
+  + c.logPos(41)
   + g.panel.logs.queryOptions.withTargets([
     // Query VictoriaLogs for ERROR/WARN level logs or Exception mentions.
     c.vlogsQ('{level=~"(error|warning)"} or _msg:~"(Exception|Error)"'),
@@ -203,11 +204,11 @@ g.dashboard.new('Overview — Serena & Backends')
   upPanel('Alertmanager',       'alertmanager',         1, 2),
   upPanel('VMAlert',            'vmalert',              2, 2),
 
-  // Row 4: Troubleshooting
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 36, 24, 1),
-  troubleGuide,
-
-  // Row 5: Error logs
-  g.panel.row.new('❌ Error Logs') + c.pos(0, 44, 24, 1),
+  // Row 4: Error logs
+  g.panel.row.new('❌ Error Logs') + c.pos(0, 40, 24, 1),
   errorLogs,
+
+  // Row 5: Troubleshooting
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 51, 24, 1),
+  troubleGuide,
 ])
