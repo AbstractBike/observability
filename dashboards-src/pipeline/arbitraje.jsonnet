@@ -102,7 +102,7 @@ local profitTs =
 
 // ── Row 2: Logs ───────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('Arbitraje Logs', 'arbitraje', y=26);
+local logsPanel = c.serviceLogsPanel('Arbitraje Logs', 'arbitraje', y=22);
 
 // ── Troubleshooting Guide ──────────────────────────────────────────────────
 
@@ -110,7 +110,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('arbitraje', [
   { symptom: 'Scan Rate Drop', runbook: 'arbitraje/scan-stall', check: 'Check Scans/sec stat — drop means the scanning loop stalled' },
   { symptom: 'No Opportunities', runbook: 'arbitraje/market-dry', check: 'Review Opportunities Total — market may be dry or service hung' },
   { symptom: 'Metrics Missing', runbook: 'arbitraje/instrumentation', check: 'Missing: circuit breaker, binance API latency, JVM, HTTP — needs Micrometer config' },
-], y=22);
+], y=33);
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
@@ -128,9 +128,9 @@ g.dashboard.new('Arbitraje — Market Scalable')
   scanRateTs, opportunitiesTs,
   profitTs,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 21, 24, 1),
-  troubleGuide,
-
-  g.panel.row.new('📝 Logs') + c.pos(0, 25, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
   logsPanel,
+
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 32, 24, 1),
+  troubleGuide,
 ])

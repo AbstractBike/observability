@@ -306,7 +306,7 @@ g.dashboard.new('Pin SI — Home')
 + g.dashboard.withRefresh('30s')
 + g.dashboard.withEditable(false)
 + g.dashboard.graphTooltip.withSharedCrosshair()
-+ g.dashboard.withVariables([c.vmDsVar, c.swDsVar])
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, c.swDsVar])
 + g.dashboard.withPanels([
     c.externalLinksPanel(y=0, x=18),
     alertPanel,

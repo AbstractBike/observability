@@ -187,7 +187,7 @@ g.dashboard.new('Overview — Serena & Backends')
   errorRateTs, toolCpmTs,
 
   // Row 2: Per-tool breakdown
-  g.panel.row.new('🔧 Serena — Per-Tool Breakdown') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('🔧 Serena — Per-Tool Breakdown') + c.pos(0, 20, 24, 1),
   toolLatencyTs,
 
   // Row 3: Backend health grid

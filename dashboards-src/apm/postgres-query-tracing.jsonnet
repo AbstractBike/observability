@@ -102,7 +102,6 @@ g.dashboard.new('PostgreSQL — Query Tracing & Performance')
 + g.dashboard.withDescription('Database query tracing: latency distribution, slow query analysis, connection pool status.')
 + g.dashboard.withTags(['observability', 'tracing', 'database', 'performance', 'postgresql', 'critical'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Query Performance') + c.pos(0, 0, 24, 1),
   c.externalLinksPanel(y=1),
