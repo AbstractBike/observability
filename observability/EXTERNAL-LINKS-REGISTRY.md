@@ -25,7 +25,7 @@ These links appear in every dashboard's top-right corner:
 
 ```
 📊 VictoriaMetrics    http://192.168.0.4:8428
-📝 VictoriaLogs       http://192.168.0.4:9428/vmui
+📝 VictoriaLogs       http://192.168.0.4:9428/select/vmui
 🕵️  SkyWalking Traces http://192.168.0.4:8080
 ```
 
@@ -92,7 +92,7 @@ Add your service to `observability/dashboards-src/lib/common.libsonnet`:
 local config = {
   skywalking_ui_url: 'http://traces.pin',
   victoriametrics_url: 'http://192.168.0.4:8428',
-  victorialogs_ui_url: 'http://192.168.0.4:9428/vmui',
+  victorialogs_ui_url: 'http://192.168.0.4:9428/select/vmui',
 
   // Add service-specific URLs:
   postgresql_admin_url: 'http://pgadmin.pin',

@@ -6,7 +6,7 @@ local config = {
   // External service URLs
   skywalking_ui_url: 'http://traces.pin',
   victoriametrics_url: 'http://192.168.0.4:8428',
-  victorialogs_ui_url: 'http://192.168.0.4:9428/vmui',
+  victorialogs_ui_url: 'http://192.168.0.4:9428/select/vmui',
 };
 
 {
@@ -21,6 +21,11 @@ local config = {
   vlogsDsVar:
     g.dashboard.variable.datasource.new('vlogs', 'victoriametrics-logs-datasource')
     + g.dashboard.variable.datasource.generalOptions.withLabel('Logs'),
+
+  // Dashboard-level template variable for Elasticsearch datasource.
+  esDsVar:
+    g.dashboard.variable.datasource.new('esdatasource', 'elasticsearch')
+    + g.dashboard.variable.datasource.generalOptions.withLabel('Elasticsearch'),
 
   // Dashboard-level template variable for SkyWalking PromQL datasource.
   // Regex filters to show only the "SkyWalking-PromQL" datasource.
@@ -40,6 +45,14 @@ local config = {
   swQ(expr, legend=''):
     g.query.prometheus.new('$swdatasource', expr)
     + (if legend != '' then g.query.prometheus.withLegendFormat(legend) else {}),
+
+  // Elasticsearch query for Grafana ES datasource.
+  esQ(query, metrics, bucketAggs, alias='', timeField='@timestamp'):
+    g.query.elasticsearch.new('$esdatasource', query)
+    + g.query.elasticsearch.withMetrics(metrics)
+    + g.query.elasticsearch.withBucketAggs(bucketAggs)
+    + (if alias != '' then g.query.elasticsearch.withAlias(alias) else {})
+    + g.query.elasticsearch.withTimeField(timeField),
 
   // VictoriaLogs query (uses Loki query model with VM logs datasource).
   vlogsQ(expr): {
@@ -233,7 +246,7 @@ local config = {
       </style>
       <div class="ext-links-container">
         <a class="ext-link-btn" href="http://192.168.0.4:8428" target="_blank" title="VictoriaMetrics Metrics">📊</a>
-        <a class="ext-link-btn" href="http://192.168.0.4:9428/vmui" target="_blank" title="VictoriaLogs UI">📝</a>
+        <a class="ext-link-btn" href="http://192.168.0.4:9428/select/vmui" target="_blank" title="VictoriaLogs UI">📝</a>
         <a class="ext-link-btn" href="http://192.168.0.4:8080" target="_blank" title="SkyWalking Traces">🕵️</a>
       </div>
     |||;
