@@ -167,7 +167,13 @@ local card(name, icon, title, subtitle, url, accent, badge, pos, external=false)
 
 // ── Alert panel & troubleshooting guide ────────────────────────────────────
 
-local alertPanel = c.alertCountPanel('home', col=0);
+// Fix: ALERTS{service="home"} never matches (no such label value).
+// Count ALL firing alerts across the homelab instead.
+local alertPanel =
+  c.alertCountPanel('home', col=0)
+  + g.panel.stat.queryOptions.withTargets([
+    c.vmQ('count(ALERTS{alertstate="firing"}) or vector(0)'),
+  ]);
 
 local troubleGuide = c.serviceTroubleshootingGuide('home', [
   { symptom: 'Service Unavailable', runbook: 'general/service-recovery', check: 'Check Infrastructure row for service status indicators' },
@@ -245,7 +251,8 @@ local swCard       = dbCard('🌐', 'SkyWalking',     'observability-skywalking'
 // ── Heater Infrastructure row (y=38) ─────────────────────────────────────────
 
 local homelabSysCard      = cdbCard('🖥',  'Homelab',      'cpu · mem · network', 'services-homelab-system', infraColor, c.pos(0,  38, 4, 4), 'Homelab System');
-local heaterHomeCard      = cdbCard('🏠',  'Heater Home',  'health · overview',   'heater-home',             infraColor, c.pos(4,  38, 4, 4));
+// Replace legacy heater-home card with What's Down? incident view
+local whatsDownCard       = cdbCard('🔴',  "What's Down?", 'incident · live',     'home-whats-down',         '#dc2626',  c.pos(4,  38, 4, 4));
 local heaterSystemCard    = cdbCard('🖥',  'Heater Sys',   'cpu · mem · disk',    'heater-system',           infraColor, c.pos(8,  38, 4, 4));
 local heaterGpuCard       = cdbCard('🎮',  'GPU',          'vram · utilization',  'heater-gpu',              infraColor, c.pos(12, 38, 4, 4));
 local heaterClaudeCard    = cdbCard('🤖',  'Claude Code',  'tokens · cost · mcp', 'heater-claude-code',      infraColor, c.pos(16, 38, 4, 4));
@@ -319,7 +326,7 @@ g.dashboard.new('Pin SI — Home')
     dashboardsRow,
     homelabCard, claudeCard, tracesDbCard, serenaCard, vmCard, swCard,
     heaterRow,
-    homelabSysCard, heaterHomeCard, heaterSystemCard, heaterGpuCard, heaterClaudeCard, heaterProcCard,
+    homelabSysCard, whatsDownCard, heaterSystemCard, heaterGpuCard, heaterClaudeCard, heaterProcCard,
     servicesRow,
     temporalDbCard, postgresDbCard, redisDbCard, clickhouseDbCard, elasticDbCard, redpandaDbCard,
     pipelineRow,
