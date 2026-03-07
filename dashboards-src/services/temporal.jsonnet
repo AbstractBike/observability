@@ -43,7 +43,7 @@ local schedLatStat =
   g.panel.stat.new('Schedule-to-Start p99')
   + c.pos(18, 1, 3, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('histogram_quantile(0.99, rate(poll_latency_bucket{job="temporal"}[5m])) * 1000 or vector(0)'),
+    c.vmQ('max(histogram_quantile(0.99, rate(poll_latency_bucket{job="temporal"}[5m]))) * 1000 or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('ms')
   + g.panel.stat.options.withColorMode('value');
