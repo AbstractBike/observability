@@ -1,0 +1,30 @@
+groups:
+  - name: job-hunter
+    interval: 5m
+    rules:
+      - alert: HunterDrySpell
+        expr: max_over_time(hunter_jobs_found{tier="all"}[3d]) == 0
+        for: 0m
+        labels:
+          severity: warning
+          service: job-hunter
+        annotations:
+          summary: "No jobs found for {{ $labels.slug }} in 3 days"
+
+      - alert: HunterEmailFailed
+        expr: hunter_email_sent{status="error"} > 0
+        for: 0m
+        labels:
+          severity: critical
+          service: job-hunter
+        annotations:
+          summary: "Email delivery failed for {{ $labels.slug }}"
+
+      - alert: HunterDegraded
+        expr: hunter_errors_total > 5
+        for: 0m
+        labels:
+          severity: warning
+          service: job-hunter
+        annotations:
+          summary: "High error count for {{ $labels.slug }}: {{ $value }}"
