@@ -13,36 +13,36 @@
     {
       "type": "stat", "title": "Cost USD",
       "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 }, "id": 2,
-      "options": { "reduceOptions": { "calcs": ["sum"] }, "colorMode": "background", "graphMode": "none" },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "background", "graphMode": "none" },
       "fieldConfig": { "defaults": { "unit": "currencyUSD", "thresholds": { "steps": [
         { "color": "green", "value": null }, { "color": "yellow", "value": 5 }, { "color": "red", "value": 20 }
       ] } } },
       "targets": [{ "datasource": { "type": "victoriametrics-metrics-datasource" },
-        "expr": "sum(claude_session_cost_usd)", "legendFormat": "Cost" }]
+        "expr": "sum(last_over_time(claude_session_cost_usd[$__range]))", "legendFormat": "Cost" }]
     },
     {
       "type": "stat", "title": "Input tokens",
       "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 }, "id": 3,
-      "options": { "reduceOptions": { "calcs": ["sum"] }, "colorMode": "value", "graphMode": "area" },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value", "graphMode": "area" },
       "fieldConfig": { "defaults": { "unit": "short" } },
       "targets": [{ "datasource": { "type": "victoriametrics-metrics-datasource" },
-        "expr": "sum(claude_tokens_input_total)", "legendFormat": "Input" }]
+        "expr": "sum(last_over_time(claude_tokens_input_total[$__range]))", "legendFormat": "Input" }]
     },
     {
       "type": "stat", "title": "Output tokens",
       "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 }, "id": 4,
-      "options": { "reduceOptions": { "calcs": ["sum"] }, "colorMode": "value", "graphMode": "area" },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value", "graphMode": "area" },
       "fieldConfig": { "defaults": { "unit": "short" } },
       "targets": [{ "datasource": { "type": "victoriametrics-metrics-datasource" },
-        "expr": "sum(claude_tokens_output_total)", "legendFormat": "Output" }]
+        "expr": "sum(last_over_time(claude_tokens_output_total[$__range]))", "legendFormat": "Output" }]
     },
     {
       "type": "stat", "title": "Prompts",
       "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 }, "id": 5,
-      "options": { "reduceOptions": { "calcs": ["sum"] }, "colorMode": "value", "graphMode": "area" },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value", "graphMode": "area" },
       "fieldConfig": { "defaults": { "unit": "short" } },
       "targets": [{ "datasource": { "type": "victoriametrics-metrics-datasource" },
-        "expr": "sum(claude_prompt_count)", "legendFormat": "Prompts" }]
+        "expr": "sum(last_over_time(claude_prompt_count[$__range]))", "legendFormat": "Prompts" }]
     },
     {
       "type": "stat", "title": "Avg duration (s)",
@@ -50,17 +50,17 @@
       "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value", "graphMode": "none" },
       "fieldConfig": { "defaults": { "unit": "s" } },
       "targets": [{ "datasource": { "type": "victoriametrics-metrics-datasource" },
-        "expr": "sum(claude_duration_api_seconds) / clamp_min(sum(claude_prompt_count), 1)", "legendFormat": "Avg" }]
+        "expr": "sum(last_over_time(claude_duration_api_seconds[$__range])) / clamp_min(sum(last_over_time(claude_prompt_count[$__range])), 1)", "legendFormat": "Avg" }]
     },
     {
       "type": "stat", "title": "Lines added",
       "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 }, "id": 7,
-      "options": { "reduceOptions": { "calcs": ["sum"] }, "colorMode": "value", "graphMode": "none" },
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value", "graphMode": "none" },
       "fieldConfig": { "defaults": { "unit": "short", "thresholds": { "steps": [
         { "color": "green", "value": null }
       ] } } },
       "targets": [{ "datasource": { "type": "victoriametrics-metrics-datasource" },
-        "expr": "sum(claude_lines_added)", "legendFormat": "Added" }]
+        "expr": "sum(last_over_time(claude_lines_added[$__range]))", "legendFormat": "Added" }]
     },
 
     {
@@ -83,14 +83,14 @@
       "type": "piechart", "title": "Tokens by model",
       "gridPos": { "h": 8, "w": 6, "x": 12, "y": 6 }, "id": 12,
       "targets": [{ "datasource": { "type": "victoriametrics-metrics-datasource" },
-        "expr": "sum by (model) (claude_tokens_input_total + claude_tokens_output_total)", "legendFormat": "{{model}}" }]
+        "expr": "sum by (model) (last_over_time(claude_tokens_input_total[$__range]) + last_over_time(claude_tokens_output_total[$__range]))", "legendFormat": "{{model}}" }]
     },
     {
       "type": "barchart", "title": "Cost by model",
       "gridPos": { "h": 8, "w": 6, "x": 18, "y": 6 }, "id": 13,
       "fieldConfig": { "defaults": { "unit": "currencyUSD" } },
       "targets": [{ "datasource": { "type": "victoriametrics-metrics-datasource" },
-        "expr": "sum by (model) (claude_session_cost_usd)", "legendFormat": "{{model}}", "instant": true }]
+        "expr": "sum by (model) (last_over_time(claude_session_cost_usd[$__range]))", "legendFormat": "{{model}}" }]
     },
 
     {
@@ -174,5 +174,5 @@
   "timezone": "browser",
   "title": "Claude Metrics",
   "uid": "claude-metrics-v1",
-  "version": 1
+  "version": 2
 }
