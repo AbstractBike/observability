@@ -164,6 +164,62 @@
         { "datasource": { "type": "victoriametrics-metrics-datasource" },
           "expr": "sum(claude_tokens_cache_write)", "legendFormat": "Cache write" }
       ]
+    },
+
+    {
+      "type": "row", "title": "Model distribution by project",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 41 },
+      "id": 50, "collapsed": false
+    },
+    {
+      "type": "barchart", "title": "Model share % by project",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 42 }, "id": 51,
+      "options": {
+        "stacking": "normal",
+        "xField": "project",
+        "fillOpacity": 70,
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      },
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100 } },
+      "transformations": [
+        { "id": "labelsToFields", "options": { "mode": "columns", "valueLabel": "model" } },
+        { "id": "merge", "options": {} }
+      ],
+      "targets": [{ "datasource": { "type": "victoriametrics-metrics-datasource" },
+        "expr": "sum by (project, model) (last_over_time(claude_tokens_input_total[$__range]) + last_over_time(claude_tokens_output_total[$__range])) / on(project) group_left() sum by (project) (last_over_time(claude_tokens_input_total[$__range]) + last_over_time(claude_tokens_output_total[$__range])) * 100",
+        "instant": true, "legendFormat": "{{model}}" }]
+    },
+    {
+      "type": "table", "title": "Token breakdown: project × model",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 52 }, "id": 52,
+      "options": { "sortBy": [{ "displayName": "Tokens", "desc": true }] },
+      "fieldConfig": {
+        "defaults": { "unit": "short" },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "%" },
+            "properties": [{ "id": "unit", "value": "percent" }, { "id": "custom.width", "value": 80 }] },
+          { "matcher": { "id": "byName", "options": "project" },
+            "properties": [{ "id": "custom.width", "value": 160 }] },
+          { "matcher": { "id": "byName", "options": "model" },
+            "properties": [{ "id": "custom.width", "value": 200 }] }
+        ]
+      },
+      "transformations": [
+        { "id": "labelsToFields", "options": { "mode": "frame" } },
+        { "id": "merge", "options": {} },
+        { "id": "organize", "options": {
+            "renameByName": { "Value": "Tokens", "Value #B": "%" }
+          }
+        }
+      ],
+      "targets": [
+        { "datasource": { "type": "victoriametrics-metrics-datasource" },
+          "expr": "sum by (project, model) (last_over_time(claude_tokens_input_total[$__range]) + last_over_time(claude_tokens_output_total[$__range]))",
+          "instant": true, "legendFormat": "", "refId": "A" },
+        { "datasource": { "type": "victoriametrics-metrics-datasource" },
+          "expr": "sum by (project, model) (last_over_time(claude_tokens_input_total[$__range]) + last_over_time(claude_tokens_output_total[$__range])) / on(project) group_left() sum by (project) (last_over_time(claude_tokens_input_total[$__range]) + last_over_time(claude_tokens_output_total[$__range])) * 100",
+          "instant": true, "legendFormat": "", "refId": "B" }
+      ]
     }
   ],
   "refresh": "30s",
@@ -174,5 +230,5 @@
   "timezone": "browser",
   "title": "Claude Metrics",
   "uid": "claude-metrics-v1",
-  "version": 2
+  "version": 3
 }
