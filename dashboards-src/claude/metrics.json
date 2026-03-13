@@ -1,624 +1,175 @@
 {
-  "__inputs": [],
-  "__requires": [],
-  "annotations": {
-    "list": []
-  },
+  "annotations": { "list": [] },
   "editable": true,
-  "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "id": null,
   "links": [],
   "panels": [
     {
-      "type": "row",
-      "title": "Today at a glance",
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 1,
-      "collapsed": false
+      "type": "row", "title": "Today at a glance",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 1, "collapsed": false
     },
     {
-      "type": "stat",
-      "title": "Cost USD today",
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 0,
-        "y": 1
-      },
-      "id": 2,
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "sum"
-          ]
-        },
-        "colorMode": "background",
-        "graphMode": "none"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "currencyUSD",
-          "thresholds": {
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 5
-              },
-              {
-                "color": "red",
-                "value": 20
-              }
-            ]
-          }
-        }
-      },
+      "type": "stat", "title": "Cost USD",
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 }, "id": 2,
+      "options": { "reduceOptions": { "calcs": ["sum"] }, "colorMode": "background", "graphMode": "none" },
+      "fieldConfig": { "defaults": { "unit": "currencyUSD", "thresholds": { "steps": [
+        { "color": "green", "value": null }, { "color": "yellow", "value": 5 }, { "color": "red", "value": 20 }
+      ] } } },
+      "targets": [{ "datasource": { "type": "victoriametrics-metrics-datasource" },
+        "expr": "sum(claude_session_cost_usd)", "legendFormat": "Cost" }]
+    },
+    {
+      "type": "stat", "title": "Input tokens",
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 }, "id": 3,
+      "options": { "reduceOptions": { "calcs": ["sum"] }, "colorMode": "value", "graphMode": "area" },
+      "fieldConfig": { "defaults": { "unit": "short" } },
+      "targets": [{ "datasource": { "type": "victoriametrics-metrics-datasource" },
+        "expr": "sum(claude_tokens_input_total)", "legendFormat": "Input" }]
+    },
+    {
+      "type": "stat", "title": "Output tokens",
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 }, "id": 4,
+      "options": { "reduceOptions": { "calcs": ["sum"] }, "colorMode": "value", "graphMode": "area" },
+      "fieldConfig": { "defaults": { "unit": "short" } },
+      "targets": [{ "datasource": { "type": "victoriametrics-metrics-datasource" },
+        "expr": "sum(claude_tokens_output_total)", "legendFormat": "Output" }]
+    },
+    {
+      "type": "stat", "title": "Prompts",
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 }, "id": 5,
+      "options": { "reduceOptions": { "calcs": ["sum"] }, "colorMode": "value", "graphMode": "area" },
+      "fieldConfig": { "defaults": { "unit": "short" } },
+      "targets": [{ "datasource": { "type": "victoriametrics-metrics-datasource" },
+        "expr": "sum(claude_prompt_count)", "legendFormat": "Prompts" }]
+    },
+    {
+      "type": "stat", "title": "Avg duration (s)",
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 }, "id": 6,
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "colorMode": "value", "graphMode": "none" },
+      "fieldConfig": { "defaults": { "unit": "s" } },
+      "targets": [{ "datasource": { "type": "victoriametrics-metrics-datasource" },
+        "expr": "sum(claude_duration_api_seconds) / clamp_min(sum(claude_prompt_count), 1)", "legendFormat": "Avg" }]
+    },
+    {
+      "type": "stat", "title": "Lines added",
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 }, "id": 7,
+      "options": { "reduceOptions": { "calcs": ["sum"] }, "colorMode": "value", "graphMode": "none" },
+      "fieldConfig": { "defaults": { "unit": "short", "thresholds": { "steps": [
+        { "color": "green", "value": null }
+      ] } } },
+      "targets": [{ "datasource": { "type": "victoriametrics-metrics-datasource" },
+        "expr": "sum(claude_lines_added)", "legendFormat": "Added" }]
+    },
+
+    {
+      "type": "row", "title": "Token usage over time",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "id": 10, "collapsed": false
+    },
+    {
+      "type": "timeseries", "title": "Tokens over time (input vs output)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 }, "id": 11,
+      "fieldConfig": { "defaults": { "unit": "short" } },
       "targets": [
-        {
-          "datasource": {
-            "type": "victoriametrics-metrics-datasource"
-          },
-          "expr": "(sum(increase(claude_messages_input_tokens_total{host=\"heater\"}[24h])) * 3 + sum(increase(claude_messages_output_tokens_total{host=\"heater\"}[24h])) * 15) / 1000000",
-          "legendFormat": "Cost today"
-        }
+        { "datasource": { "type": "victoriametrics-metrics-datasource" },
+          "expr": "sum(claude_tokens_input_total)", "legendFormat": "Input" },
+        { "datasource": { "type": "victoriametrics-metrics-datasource" },
+          "expr": "sum(claude_tokens_output_total)", "legendFormat": "Output" }
       ]
     },
     {
-      "type": "stat",
-      "title": "Input tokens today",
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 4,
-        "y": 1
-      },
-      "id": 3,
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "sum"
-          ]
-        },
-        "colorMode": "value",
-        "graphMode": "area"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short"
-        }
+      "type": "piechart", "title": "Tokens by model",
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 6 }, "id": 12,
+      "targets": [{ "datasource": { "type": "victoriametrics-metrics-datasource" },
+        "expr": "sum by (model) (claude_tokens_input_total + claude_tokens_output_total)", "legendFormat": "{{model}}" }]
+    },
+    {
+      "type": "barchart", "title": "Cost by model",
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 6 }, "id": 13,
+      "fieldConfig": { "defaults": { "unit": "currencyUSD" } },
+      "targets": [{ "datasource": { "type": "victoriametrics-metrics-datasource" },
+        "expr": "sum by (model) (claude_session_cost_usd)", "legendFormat": "{{model}}", "instant": true }]
+    },
+
+    {
+      "type": "row", "title": "By project",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
+      "id": 20, "collapsed": false
+    },
+    {
+      "type": "timeseries", "title": "Cost by project",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 15 }, "id": 21,
+      "fieldConfig": { "defaults": { "unit": "currencyUSD" } },
+      "targets": [{ "datasource": { "type": "victoriametrics-metrics-datasource" },
+        "expr": "sum by (project) (claude_session_cost_usd)", "legendFormat": "{{project}}" }]
+    },
+    {
+      "type": "timeseries", "title": "Tokens by project",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 15 }, "id": 22,
+      "fieldConfig": { "defaults": { "unit": "short" } },
+      "targets": [
+        { "datasource": { "type": "victoriametrics-metrics-datasource" },
+          "expr": "sum by (project) (claude_tokens_input_total + claude_tokens_output_total)", "legendFormat": "{{project}}" }
+      ]
+    },
+
+    {
+      "type": "row", "title": "Performance",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 },
+      "id": 30, "collapsed": false
+    },
+    {
+      "type": "timeseries", "title": "API duration (s) over time",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 }, "id": 31,
+      "fieldConfig": { "defaults": { "unit": "s" } },
+      "targets": [{ "datasource": { "type": "victoriametrics-metrics-datasource" },
+        "expr": "sum(claude_duration_api_seconds)", "legendFormat": "Total API seconds" }]
+    },
+    {
+      "type": "timeseries", "title": "Context usage %",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 }, "id": 32,
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100 } },
+      "targets": [{ "datasource": { "type": "victoriametrics-metrics-datasource" },
+        "expr": "avg(claude_context_used_pct)", "legendFormat": "Avg context %" }]
+    },
+
+    {
+      "type": "row", "title": "Code impact",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 32 },
+      "id": 40, "collapsed": false
+    },
+    {
+      "type": "timeseries", "title": "Lines added / removed",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 33 }, "id": 41,
+      "fieldConfig": { "defaults": { "unit": "short" },
+        "overrides": [{ "matcher": { "id": "byName", "options": "Removed" },
+          "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] }]
       },
       "targets": [
-        {
-          "datasource": {
-            "type": "victoriametrics-metrics-datasource"
-          },
-          "expr": "sum(increase(claude_messages_input_tokens_total{host=\"heater\"}[24h]))",
-          "legendFormat": "Input tokens"
-        }
+        { "datasource": { "type": "victoriametrics-metrics-datasource" },
+          "expr": "sum(claude_lines_added)", "legendFormat": "Added" },
+        { "datasource": { "type": "victoriametrics-metrics-datasource" },
+          "expr": "sum(claude_lines_removed)", "legendFormat": "Removed" }
       ]
     },
     {
-      "type": "stat",
-      "title": "Output tokens today",
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 8,
-        "y": 1
-      },
-      "id": 4,
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "sum"
-          ]
-        },
-        "colorMode": "value",
-        "graphMode": "area"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short"
-        }
-      },
+      "type": "timeseries", "title": "Cache tokens (read / write)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 33 }, "id": 42,
+      "fieldConfig": { "defaults": { "unit": "short" } },
       "targets": [
-        {
-          "datasource": {
-            "type": "victoriametrics-metrics-datasource"
-          },
-          "expr": "sum(increase(claude_messages_output_tokens_total{host=\"heater\"}[24h]))",
-          "legendFormat": "Output tokens"
-        }
-      ]
-    },
-    {
-      "type": "stat",
-      "title": "API calls today",
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 12,
-        "y": 1
-      },
-      "id": 5,
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "sum"
-          ]
-        },
-        "colorMode": "value",
-        "graphMode": "area"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "victoriametrics-metrics-datasource"
-          },
-          "expr": "sum(increase(claude_api_calls_total{host=\"heater\"}[24h]))",
-          "legendFormat": "Calls"
-        }
-      ]
-    },
-    {
-      "type": "stat",
-      "title": "Avg TTFB (ms)",
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 16,
-        "y": 1
-      },
-      "id": 6,
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "colorMode": "value",
-        "graphMode": "none"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ms"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "victoriametrics-metrics-datasource"
-          },
-          "expr": "sum(rate(claude_messages_ttfb_ms_total{host=\"heater\"}[1h])) / sum(rate(claude_api_calls_total{host=\"heater\"}[1h]))",
-          "legendFormat": "Avg TTFB"
-        }
-      ]
-    },
-    {
-      "type": "row",
-      "title": "Token usage over time",
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 5
-      },
-      "id": 10,
-      "collapsed": false
-    },
-    {
-      "type": "timeseries",
-      "title": "Input vs Output tokens / hour",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 6
-      },
-      "id": 11,
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "victoriametrics-metrics-datasource"
-          },
-          "expr": "sum(increase(claude_messages_input_tokens_total{host=\"heater\"}[1h]))",
-          "legendFormat": "Input"
-        },
-        {
-          "datasource": {
-            "type": "victoriametrics-metrics-datasource"
-          },
-          "expr": "sum(increase(claude_messages_output_tokens_total{host=\"heater\"}[1h]))",
-          "legendFormat": "Output"
-        }
-      ]
-    },
-    {
-      "type": "piechart",
-      "title": "Tokens by model",
-      "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 12,
-        "y": 6
-      },
-      "id": 12,
-      "targets": [
-        {
-          "datasource": {
-            "type": "victoriametrics-metrics-datasource"
-          },
-          "expr": "sum by(model) (increase(claude_messages_input_tokens_total{host=\"heater\"}[24h]) + increase(claude_messages_output_tokens_total{host=\"heater\"}[24h]))",
-          "legendFormat": "{{model}}"
-        }
-      ]
-    },
-    {
-      "type": "barchart",
-      "title": "Cost by model (24h)",
-      "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 18,
-        "y": 6
-      },
-      "id": 13,
-      "fieldConfig": {
-        "defaults": {
-          "unit": "currencyUSD"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "victoriametrics-metrics-datasource"
-          },
-          "expr": "topk(10, (sum by(model) (increase(claude_messages_input_tokens_total{host=\"heater\"}[24h])) * 3 + sum by(model) (increase(claude_messages_output_tokens_total{host=\"heater\"}[24h])) * 15) / 1000000)",
-          "legendFormat": "{{model}}"
-        }
-      ]
-    },
-    {
-      "type": "row",
-      "title": "API performance (wire-level)",
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 14
-      },
-      "id": 20,
-      "collapsed": false
-    },
-    {
-      "type": "timeseries",
-      "title": "Avg request duration (ms)",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 15
-      },
-      "id": 21,
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ms"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "victoriametrics-metrics-datasource"
-          },
-          "expr": "sum(rate(claude_messages_duration_ms_total{host=\"heater\"}[5m])) / sum(rate(claude_api_calls_total{host=\"heater\"}[5m]))",
-          "legendFormat": "Avg duration"
-        }
-      ]
-    },
-    {
-      "type": "timeseries",
-      "title": "Avg time to first byte (ms)",
-      "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 12,
-        "y": 15
-      },
-      "id": 22,
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ms"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "victoriametrics-metrics-datasource"
-          },
-          "expr": "sum(rate(claude_messages_ttfb_ms_total{host=\"heater\"}[5m])) / sum(rate(claude_api_calls_total{host=\"heater\"}[5m]))",
-          "legendFormat": "Avg TTFB"
-        }
-      ]
-    },
-    {
-      "type": "piechart",
-      "title": "Stop reasons",
-      "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 18,
-        "y": 15
-      },
-      "id": 23,
-      "targets": [
-        {
-          "datasource": {
-            "type": "victoriametrics-metrics-datasource"
-          },
-          "expr": "sum by(stop_reason) (increase(claude_api_calls_total{host=\"heater\"}[24h]))",
-          "legendFormat": "{{stop_reason}}"
-        }
-      ]
-    },
-    {
-      "type": "row",
-      "title": "Behavioral telemetry",
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 23
-      },
-      "id": 30,
-      "collapsed": false
-    },
-    {
-      "type": "timeseries",
-      "title": "API Calls / hour",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 24
-      },
-      "id": 31,
-      "targets": [
-        {
-          "datasource": {
-            "type": "victoriametrics-metrics-datasource"
-          },
-          "expr": "sum by(provider) (increase(claude_api_calls_total{host=\"heater\"}[1h]))",
-          "legendFormat": "{{provider}}"
-        }
-      ]
-    },
-    {
-      "type": "timeseries",
-      "title": "Avg Response Duration (ms)",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 24
-      },
-      "id": 32,
-      "targets": [
-        {
-          "datasource": {
-            "type": "victoriametrics-metrics-datasource"
-          },
-          "expr": "rate(claude_messages_duration_ms_total{host=\"heater\"}[1h]) / clamp_min(rate(claude_api_calls_total{host=\"heater\"}[1h]), 0.001)",
-          "legendFormat": "avg ms"
-        }
-      ]
-    },
-    {
-      "type": "row",
-      "title": "SkyWalking \u2014 Process traces (eBPF)",
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 32
-      },
-      "id": 40,
-      "collapsed": false
-    },
-    {
-      "type": "timeseries",
-      "title": "Input Tokens / 5min",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 33
-      },
-      "id": 41,
-      "fieldConfig": {
-        "defaults": {
-          "unit": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "victoriametrics-metrics-datasource"
-          },
-          "expr": "sum by(model) (increase(claude_messages_input_tokens_total{host=\"heater\"}[5m]))",
-          "legendFormat": "{{model}}",
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "type": "timeseries",
-      "title": "Output Tokens / 5min",
-      "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 12,
-        "y": 33
-      },
-      "id": 42,
-      "fieldConfig": {
-        "defaults": {
-          "unit": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "victoriametrics-metrics-datasource"
-          },
-          "expr": "sum by(model) (increase(claude_messages_output_tokens_total{host=\"heater\"}[5m]))",
-          "legendFormat": "{{model}}",
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "type": "stat",
-      "title": "Avg TTFB (ms) today",
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 18,
-        "y": 33
-      },
-      "id": 43,
-      "options": {
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ]
-        },
-        "colorMode": "background"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "thresholds": {
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
-            ]
-          }
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "victoriametrics-metrics-datasource"
-          },
-          "expr": "sum(increase(claude_messages_ttfb_ms_total{host=\"heater\"}[24h])) / clamp_min(sum(increase(claude_api_calls_total{host=\"heater\"}[24h])), 0.001)",
-          "legendFormat": "TTFB ms",
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "type": "row",
-      "title": "Historical",
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 41
-      },
-      "id": 50,
-      "collapsed": false
-    },
-    {
-      "type": "timeseries",
-      "title": "Daily cost trend",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 42
-      },
-      "id": 51,
-      "fieldConfig": {
-        "defaults": {
-          "unit": "currencyUSD"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "victoriametrics-metrics-datasource"
-          },
-          "expr": "(sum(increase(claude_messages_input_tokens_total{host=\"heater\"}[1d])) * 3 + sum(increase(claude_messages_output_tokens_total{host=\"heater\"}[1d])) * 15) / 1000000",
-          "legendFormat": "Cost/day"
-        }
-      ]
-    },
-    {
-      "type": "table",
-      "title": "Most expensive models (7d)",
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 42
-      },
-      "id": 52,
-      "options": {
-        "sortBy": [
-          {
-            "displayName": "Cost USD",
-            "desc": true
-          }
-        ]
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "victoriametrics-metrics-datasource"
-          },
-          "expr": "topk(10, (sum by(model) (increase(claude_messages_input_tokens_total{host=\"heater\"}[7d])) * 3 + sum by(model) (increase(claude_messages_output_tokens_total{host=\"heater\"}[7d])) * 15) / 1000000)",
-          "legendFormat": "{{model}}",
-          "instant": true
-        }
+        { "datasource": { "type": "victoriametrics-metrics-datasource" },
+          "expr": "sum(claude_tokens_cache_read)", "legendFormat": "Cache read" },
+        { "datasource": { "type": "victoriametrics-metrics-datasource" },
+          "expr": "sum(claude_tokens_cache_write)", "legendFormat": "Cache write" }
       ]
     }
   ],
   "refresh": "30s",
   "schemaVersion": 38,
-  "tags": [
-    "claude",
-    "ai",
-    "metrics"
-  ],
-  "time": {
-    "from": "now-24h",
-    "to": "now"
-  },
+  "tags": ["claude", "ai", "metrics"],
+  "time": { "from": "now-24h", "to": "now" },
   "timepicker": {},
   "timezone": "browser",
   "title": "Claude Metrics",
