@@ -12,17 +12,20 @@
 // Health queries:
 //   svcCard: up{job="..."} or probe_success{instance="http://..."} — 0=red, 1=green
 //   navCard: vector(1) — always green (Grafana built-in URLs)
-//   dbCard:  clamp_max(count_over_time(up{job}[5m]),1) or vector(0) — data present check
+//   dbCard:  max(up{job="..."}) — green if scrape up, grey if no data
 local g = import 'github.com/grafana/grafonnet/gen/grafonnet-v11.4.0/main.libsonnet';
 local c = import 'lib/common.libsonnet';
 
 // ── Card helpers ──────────────────────────────────────────────────────────────
 
 // Base card: PromQL query drives green/red background. Click navigates same tab.
+// Title is shown inside the colored body (textMode='name' + displayName override).
+// Panel title is empty so the Grafana gray header is hidden — no ⓘ/↗ clutter.
 local svcCard(title, subtitle, query, url) =
-  g.panel.stat.new(title)
+  g.panel.stat.new('')
   + g.panel.stat.panelOptions.withDescription(subtitle)
   + g.panel.stat.queryOptions.withTargets([c.vmQ('max(' + query + ')')])
+  + g.panel.stat.standardOptions.withDisplayName(title)
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')
   + g.panel.stat.standardOptions.thresholds.withSteps([
       { color: 'red',   value: null },
@@ -31,7 +34,7 @@ local svcCard(title, subtitle, query, url) =
     ])
   + g.panel.stat.options.withGraphMode('none')
   + g.panel.stat.options.withColorMode('background')
-  + g.panel.stat.options.withTextMode('none')
+  + g.panel.stat.options.withTextMode('name')
   + g.panel.stat.panelOptions.withLinks([{ title: title, url: url, targetBlank: false }]);
 
 // Grafana nav links — no real metric, always green.
@@ -113,7 +116,7 @@ local headerHtml = |||
 |||;
 
 local headerPanel =
-  g.panel.text.new('Pin SI')
+  g.panel.text.new('')
   + g.panel.text.options.withMode('html')
   + g.panel.text.options.withContent(headerHtml)
   + c.pos(0, 0, 24, 2);
