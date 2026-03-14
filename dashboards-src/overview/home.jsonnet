@@ -1,20 +1,50 @@
 // Dashboard: Pin SI — Home
 //
-// Launchpad hub — grid of cards for all services and Grafana dashboards.
-// Design: "Operator Terminal" — clean precision, monospace identifiers,
-//   category accent borders, smooth hover transitions.
-// All panels are transparent to eliminate Grafana's chrome (double titles/borders).
-// Rows:
-//   0  Header — Pin SI branding + live clock
-//   1  Observability — Metrics · Logs · Traces · Alerts
-//   2  System Apps — Temporal · Superset · Nexus · AdGuard · Redpanda · Matrix Chat
-//   3  Arbitrage — Dev · Prod (dashboards)
-//   4  Matrix Suite — Explorer · Vault · Generator · Technicals (Dev+Prod dashboards)
-//   5  Dashboards — internal Grafana dashboard links
+// Navigation Status Hub — replaces Grafana sidebar with a full-viewport launchpad.
+// All cards are stat panels with real-time green/red health indicators.
+// Kiosk mode active via nginx CSS injection (modules/nginx.nix [data-page-type="home"]).
+//
+// Sections:
+//   Grafana Navigation — nav links (always green via vector(1))
+//   Grafana Dashboards — dashboard links with no-data health check
+//   Homelab Services   — service cards via up{job} or probe_success{instance}
+//
+// Health queries:
+//   svcCard: up{job="..."} or probe_success{instance="http://..."} — 0=red, 1=green
+//   navCard: vector(1) — always green (Grafana built-in URLs)
+//   dbCard:  clamp_max(count_over_time(up{job}[5m]),1) or vector(0) — data present check
 local g = import 'github.com/grafana/grafonnet/gen/grafonnet-v11.4.0/main.libsonnet';
 local c = import 'lib/common.libsonnet';
 
-// ── Header panel (row 0) ─────────────────────────────────────────────────────
+// ── Card helpers ──────────────────────────────────────────────────────────────
+
+// Base card: PromQL query drives green/red background. Click navigates same tab.
+local svcCard(title, subtitle, query, url) =
+  g.panel.stat.new(title)
+  + g.panel.stat.panelOptions.withDescription(subtitle)
+  + g.panel.stat.queryOptions.withTargets([c.vmQ(query)])
+  + g.panel.stat.standardOptions.thresholds.withMode('absolute')
+  + g.panel.stat.standardOptions.thresholds.withSteps([
+      { color: 'red',   value: null },
+      { color: 'red',   value: 0 },
+      { color: 'green', value: 1 },
+    ])
+  + g.panel.stat.options.withGraphMode('none')
+  + g.panel.stat.options.withColorMode('background')
+  + g.panel.stat.options.withTextMode('name')
+  + g.panel.stat.panelOptions.withLinks([{ title: title, url: url, targetBlank: false }]);
+
+// Grafana nav links — no real metric, always green.
+local navCard(title, subtitle, url) =
+  svcCard(title, subtitle, 'vector(1)', url);
+
+// Dashboard health card — green if key job has data in last 5m, red if not.
+local dbCard(title, subtitle, healthJob, url) =
+  svcCard(title, subtitle,
+    'clamp_max(count_over_time(up{job="' + healthJob + '"}[5m]), 1) or vector(0)',
+    url);
+
+// ── Header panel (x=0, y=0, w=24, h=2) ───────────────────────────────────────
 
 local headerHtml = |||
   <style>
@@ -30,33 +60,23 @@ local headerHtml = |||
     }
     #pin-header .brand { display:flex; align-items:center; gap:14px; }
     #pin-header .logo {
-      width:40px; height:40px; flex-shrink:0;
+      width:36px; height:36px; flex-shrink:0;
       background: rgba(255,255,255,0.2);
-      backdrop-filter: blur(8px);
-      border-radius:10px;
+      border-radius:8px;
       display:flex; align-items:center; justify-content:center;
-      color:#fff; font-size:20px; font-weight:900; letter-spacing:-1px;
+      color:#fff; font-size:18px; font-weight:900;
       border: 1px solid rgba(255,255,255,0.25);
     }
-    #pin-header .name {
-      font-size:17px; font-weight:700; color:#fff; letter-spacing:-0.025em;
-    }
+    #pin-header .name { font-size:15px; font-weight:700; color:#fff; letter-spacing:-0.02em; }
     #pin-header .tagline {
-      font-size:10px; color:rgba(255,255,255,0.7); letter-spacing:0.12em;
+      font-size:10px; color:rgba(255,255,255,0.7); letter-spacing:0.1em;
       text-transform:uppercase; margin-top:2px;
       font-family: "SFMono-Regular", Consolas, monospace;
     }
-    #pin-header .meta { text-align:right; }
     #pin-clock {
       font-family: "SFMono-Regular", Consolas, monospace;
-      font-size:13px; font-weight:500; color:#fff;
+      font-size:12px; color:rgba(255,255,255,0.85);
       font-variant-numeric: tabular-nums;
-      letter-spacing:0.01em;
-    }
-    #pin-uptime {
-      font-family: "SFMono-Regular", Consolas, monospace;
-      font-size:10px; color:rgba(255,255,255,0.6); margin-top:3px;
-      letter-spacing:0.05em;
     }
   </style>
   <div id="pin-header">
@@ -64,31 +84,19 @@ local headerHtml = |||
       <div class="logo">P</div>
       <div>
         <div class="name">Pin Soluciones Informáticas</div>
-        <div class="tagline">observability.hub / production</div>
+        <div class="tagline">observability.hub</div>
       </div>
     </div>
-    <div class="meta">
-      <div id="pin-clock"></div>
-      <div id="pin-uptime"></div>
-    </div>
+    <div id="pin-clock"></div>
   </div>
   <script>
     (function() {
-      var start = Date.now();
-      function pad(n) { return n < 10 ? '0' + n : n; }
       function tick() {
-        var now = new Date();
-        var cl = document.getElementById('pin-clock');
-        if (cl) cl.textContent = now.toLocaleString('es-ES', {
+        var el = document.getElementById('pin-clock');
+        if (el) el.textContent = new Date().toLocaleString('es-ES', {
           weekday:'short', year:'numeric', month:'short', day:'numeric',
           hour:'2-digit', minute:'2-digit', second:'2-digit'
         });
-        var up = document.getElementById('pin-uptime');
-        if (up) {
-          var s = Math.floor((Date.now() - start) / 1000);
-          var h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
-          up.textContent = 'session ' + pad(h) + ':' + pad(m) + ':' + pad(sec);
-        }
       }
       tick();
       setInterval(tick, 1000);
@@ -98,240 +106,87 @@ local headerHtml = |||
 
 local headerPanel =
   g.panel.text.new('Pin SI')
-  + g.panel.text.panelOptions.withDescription('')
-  + g.panel.text.panelOptions.withTransparent(true)
   + g.panel.text.options.withMode('html')
   + g.panel.text.options.withContent(headerHtml)
-  + c.pos(0, 0, 24, 3);
+  + c.pos(0, 0, 24, 2);
 
-// ── Card helper ──────────────────────────────────────────────────────────────
-// accent: CSS color string for the left border stripe (category identity)
-// badge:  short label shown top-right (e.g. "obs", "app", "dash")
+// ── Grafana Navigation (x=0..18, y=3 and y=7) ────────────────────────────────
 
-local cardHtml(icon, title, subtitle, url, accent='#7c3aed', badge='', external=false) =
-  local target = if external then '_blank' else '_self';
-  local extMark = if external then ' ↗' else '';
-  |||
-    <a href="%(url)s" target="%(target)s"
-      style="
-        display:flex; align-items:center; gap:14px;
-        padding:16px 18px; height:100%%; width:100%%;
-        background:#ffffff;
-        border:1px solid #e4e4eb;
-        border-left:4px solid %(accent)s;
-        border-radius:8px;
-        text-decoration:none; color:inherit;
-        font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        cursor:pointer; box-sizing:border-box;
-        transition: box-shadow 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
-        overflow:hidden;
-      "
-      onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)';this.style.transform='translateY(-1px)';"
-      onmouseout="this.style.boxShadow='none';this.style.transform='translateY(0)';"
-    >
-      <div style="
-        width:40px; height:40px; flex-shrink:0;
-        background:%(accent)s10;
-        border-radius:10px;
-        display:flex; align-items:center; justify-content:center;
-        font-size:20px; line-height:1;
-      ">%(icon)s</div>
-      <div style="flex:1; min-width:0;">
-        <div style="display:flex; align-items:baseline; justify-content:space-between;">
-          <div style="font-size:14px; font-weight:700; color:#111827; letter-spacing:-0.01em;">%(title)s</div>
-          <span style="
-            font-family:'SFMono-Regular',Consolas,monospace;
-            font-size:9px; font-weight:600; letter-spacing:0.1em;
-            color:%(accent)s; text-transform:uppercase; opacity:0.6;
-          ">%(badge)s%(extMark)s</span>
-        </div>
-        <div style="
-          font-family:'SFMono-Regular',Consolas,monospace;
-          font-size:10px; color:#9ca3af; margin-top:2px; letter-spacing:0.02em;
-          white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-        ">%(subtitle)s</div>
-      </div>
-    </a>
-  ||| % {
-    url: url, target: target, icon: icon, title: title,
-    subtitle: subtitle, accent: accent, badge: badge, extMark: extMark,
-  };
+local grafanaRow = g.panel.row.new('Grafana Navigation') + c.pos(0, 2, 24, 1);
 
-// Helper: create a transparent text panel with card HTML.
-local card(name, icon, title, subtitle, url, accent, badge, pos, external=false) =
-  g.panel.text.new(name)
-  + g.panel.text.panelOptions.withTransparent(true)
-  + g.panel.text.options.withMode('html')
-  + g.panel.text.options.withContent(cardHtml(icon, title, subtitle, url, accent, badge, external))
-  + pos;
+local exploreMetrics   = navCard('Metrics Explore',   'VictoriaMetrics query', '/explore')                             + c.pos(0,  3, 6, 4);
+local exploreLogs      = navCard('Logs Explore',      'VictoriaLogs query',    '/explore')                             + c.pos(6,  3, 6, 4);
+local alertingNav      = navCard('Alerting',          'Rules & notifications', '/alerting')                            + c.pos(12, 3, 6, 4);
+local dashboardsNav    = navCard('Dashboards',        'All dashboard folders', '/dashboards')                          + c.pos(18, 3, 6, 4);
 
-// ── Alert panel & troubleshooting guide ────────────────────────────────────
+local metricsDrilldown = navCard('Metrics Drilldown', 'Metrics drilldown app', '/a/grafana-metricsdrilldown-app/')     + c.pos(0,  7, 6, 4);
+local logsDrilldown    = navCard('Logs Drilldown',    'Logs explore app',      '/a/grafana-lokiexplore-app/')           + c.pos(6,  7, 6, 4);
+local tracesDrilldown  = navCard('Traces Drilldown',  'Traces explore app',    '/a/grafana-exploretraces-app/explore') + c.pos(12, 7, 6, 4);
+local profilesNav      = navCard('Profiles',          'Pyroscope profiling',   '/a/grafana-pyroscope-app/')            + c.pos(18, 7, 6, 4);
 
-// Fix: ALERTS{service="home"} never matches (no such label value).
-// Count ALL firing alerts across the homelab instead.
-local alertPanel =
-  c.alertCountPanel('home', col=0)
-  + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('count(ALERTS{alertstate="firing"}) or vector(0)'),
-  ]);
+// ── Grafana Dashboards (x=0..18, y=12 and y=16) ──────────────────────────────
 
-local troubleGuide = c.serviceTroubleshootingGuide('home', [
-  { symptom: 'Service Unavailable', runbook: 'general/service-recovery', check: 'Check Infrastructure row for service status indicators' },
-  { symptom: 'Observability Down', runbook: 'general/obs-recovery', check: 'Verify Metrics, Logs, and Traces links accessible from Observability row' },
-  { symptom: 'Dashboard Not Found', runbook: 'general/dashboard-search', check: 'Use Dashboards row or search for specific service dashboard' },
-  { symptom: 'External Tool Unreachable', runbook: 'general/connectivity', check: 'Check System Apps row (Temporal, Superset, etc.) and network status' },
-], y=62);
+local dashboardsRow = g.panel.row.new('Grafana Dashboards') + c.pos(0, 11, 24, 1);
 
-// ── Color palette ────────────────────────────────────────────────────────────
-local obsColor  = '#7c3aed';  // violet — observability
-local appColor  = '#2563eb';  // blue   — system apps
-local cloudColor = '#f6821f';  // orange  — cloud / cloudflare
-local arbColor   = '#059669';  // emerald — arbitrage
-local mtxColor  = '#d946ef';  // fuchsia — matrix suite
-local dashColor  = '#475569';  // slate  — dashboards
-local infraColor = '#0891b2';  // cyan   — infrastructure
-local svcColor   = '#d97706';  // amber  — services
-local pipeColor  = '#be185d';  // rose   — pipeline & APM
+// dbCard: green if job has data in last 5m. navCard: always green (no reliable metric).
+local homelabDb   = dbCard('Homelab Overview', 'System health',      'victoriametrics-self', '/d/homelab-overview') + c.pos(0,  12, 6, 4);
+local arbitrajeDb = dbCard('Arbitraje',        'Trading pipeline',   'arbitraje',            '/d/arbitraje')        + c.pos(6,  12, 6, 4);
+local pinTracesDb = navCard('Pin Traces',       'APM traces',                                 '/d/pin-traces')       + c.pos(12, 12, 6, 4);
+local serenaMcpDb = navCard('Serena MCP',       'MCP server metrics',                         '/d/serena-mcp')       + c.pos(18, 12, 6, 4);
 
-// ── Observability row (y=4) ──────────────────────────────────────────────────
+local vectorDb    = navCard('Vector Pipeline',  'Log/metric pipeline',                        '/d/vector-pipeline')  + c.pos(0,  16, 6, 4);
+local sloDb       = navCard('SLO Overview',     'Error budgets',                              '/d/slo-overview')     + c.pos(6,  16, 6, 4);
+local systemDb    = navCard('Homelab System',   'Host resources',                             '/d/homelab-system')   + c.pos(12, 16, 6, 4);
+local jobHunterDb = navCard('Job Hunter',       'Pipeline metrics',                           '/d/job-hunter')       + c.pos(18, 16, 6, 4);
 
-local metricsCard = card('Metrics',  '📊', 'Metrics',    'vmui · explore',   'http://victoria.pin/vmui', obsColor, 'obs', c.pos(0,  4, 6, 4), true);
-local logsCard    = card('Logs',     '📋', 'Logs',       'live tail',        'http://logs.pin/select/vmui', obsColor, 'obs', c.pos(6,  4, 6, 4), true);
-local tracesCard  = card('Traces',   '🔍', 'Traces',     'tempo · drilldown', '/a/grafana-exploretraces-app/explore', obsColor, 'obs', c.pos(12, 4, 6, 4));
-local alertsCard  = card('Alerts',   '🔔', 'Alerts',     'rules · history',  '/alerting/list',              obsColor, 'obs', c.pos(18, 4, 6, 4));
+// ── Homelab Services — up{job} (x=0..18, y=21 and y=25) ─────────────────────
 
-// ── System Apps row (y=9) ────────────────────────────────────────────────────
+local servicesRow = g.panel.row.new('Homelab Services') + c.pos(0, 20, 24, 1);
 
-local temporalCard = card('Temporal', '⏱',  'Temporal',    'workflow-engine', 'http://temporal.pin', appColor, 'app', c.pos(0,  9, 4, 4), true);
-local supersetCard = card('Superset', '📊', 'Superset',   'data-analytics',  'http://superset.pin', appColor, 'app', c.pos(4,  9, 4, 4), true);
-local nexusCard    = card('Nexus',    '📦', 'Nexus',      'artifact-registry','http://nexus.pin',    appColor, 'app', c.pos(8,  9, 4, 4), true);
-local adguardCard  = card('AdGuard',  '🛡',  'AdGuard',    'dns-filtering',   'http://adguard.pin',  appColor, 'app', c.pos(12, 9, 4, 4), true);
-local redpandaCard = card('Redpanda', '🗄',  'Redpanda',   'kafka-console',   'http://redpanda.pin', appColor, 'app', c.pos(16, 9, 4, 4), true);
-local matrixChat   = card('Matrix',   '💬', 'Matrix Chat', 'element-web',     'https://matrix.abstract.bike', appColor, 'app', c.pos(20, 9, 4, 4), true);
+local vmCard      = svcCard('VictoriaMetrics', 'Metrics storage',    'up{job="victoriametrics-self"}',   'http://victoria.pin')  + c.pos(0,  21, 6, 4);
+local vlogsCard   = svcCard('VictoriaLogs',   'Log storage',         'up{job="victorialogs"}',           'http://logs.pin')      + c.pos(6,  21, 6, 4);
+local chCard      = svcCard('ClickHouse',     'Columnar analytics',  'up{job="clickhouse"}',             'http://clickhouse.pin')+ c.pos(12, 21, 6, 4);
+local rpCard      = svcCard('Redpanda',       'Kafka-compat MQ',     'up{job="redpanda"}',               'http://redpanda.pin')  + c.pos(18, 21, 6, 4);
 
-// ── Cloud row (y=13) — Cloudflare plugin & dashboards ────────────────────
+local pgCard      = svcCard('PostgreSQL',     'Relational DB',       'up{job="postgres-exporter"}',      '/d/postgresql')        + c.pos(0,  25, 6, 4);
+local redisCard   = svcCard('Redis',          'In-memory cache',     'up{job="redis-exporter"}',         '/d/redis')             + c.pos(6,  25, 6, 4);
+local esCard      = svcCard('Elasticsearch',  'Search & analytics',  'up{job="elasticsearch-exporter"}', '/d/elasticsearch')     + c.pos(12, 25, 6, 4);
+local temporalCard= svcCard('Temporal',       'Workflow engine',     'up{job="temporal"}',               'http://temporal.pin')  + c.pos(18, 25, 6, 4);
 
-local cfAppCard    = card('Cloudflare',  '☁️', 'Cloudflare',  'plugin · config',  '/a/abstractbike-cloudflare-app', cloudColor, 'cloud', c.pos(0,  14, 8, 4));
-local cfZonesCard  = card('CF Zones',   '🌐', 'CF Zones',    'http · analytics', '/d/cf-zones-v1',                 cloudColor, 'cloud', c.pos(8,  14, 8, 4));
-local cfTunnelCard = card('CF Tunnel',  '🔒', 'CF Tunnel',   'tunnel · metrics', '/d/cf-tunnel-v1',                cloudColor, 'cloud', c.pos(16, 14, 8, 4));
+// ── Homelab Services — probe_success (x=0..18, y=29 and y=33) ────────────────
+// Requires blackbox exporter: modules/exporters.nix + modules/victoriametrics.nix
 
-// ── Arbitrage row (y=19) — dashboards ────────────────────────────────────────
+local firecrawlCard = svcCard('Firecrawl',  'Web scraping',    'up{job="firecrawl"}',                          'http://firecrawl.pin') + c.pos(0,  29, 6, 4);
+local alertmgrCard  = svcCard('Alertmanager','Alert routing',  'up{job="alertmanager"}',                       '/alerting')            + c.pos(6,  29, 6, 4);
+local adguardCard   = svcCard('AdGuard',    'DNS filtering',   'probe_success{instance="http://adguard.pin"}', 'http://adguard.pin')   + c.pos(12, 29, 6, 4);
+local nexusCard     = svcCard('Nexus',      'Artifact registry','probe_success{instance="http://nexus.pin"}',  'http://nexus.pin')     + c.pos(18, 29, 6, 4);
 
-local arbDevCard  = card('Arb Dev',  '📈', 'Arbitrage Dev',  '/d/arbitraje-dev',  '/d/arbitraje-dev',  arbColor, 'dev',  c.pos(0,  19, 12, 4));
-local arbProdCard = card('Arb Prod', '📈', 'Arbitrage Prod', '/d/arbitraje-main', '/d/arbitraje-main', arbColor, 'prod', c.pos(12, 19, 12, 4));
+local matrixCard    = svcCard('Matrix',     'Chat server',     'probe_success{instance="http://matrix.pin"}',  'http://matrix.pin')    + c.pos(0,  33, 6, 4);
+local supersetCard  = svcCard('Superset',   'Data analytics',  'probe_success{instance="http://superset.pin"}','http://superset.pin')  + c.pos(6,  33, 6, 4);
+local cockpitCard   = svcCard('Cockpit',    'System admin',    'probe_success{instance="http://cockpit.pin"}', 'http://cockpit.pin')   + c.pos(12, 33, 6, 4);
+local searxngCard   = svcCard('Searxng',    'Search engine',   'probe_success{instance="http://searxng.pin"}', 'http://searxng.pin')   + c.pos(18, 33, 6, 4);
 
-// ── Matrix Suite row (y=24) — dashboards ─────────────────────────────────────
-
-local mxExplorerDev  = card('Explorer Dev',    '🔎', 'Explorer Dev',    '/d/matrix-explorer-dev',    '/d/matrix-explorer-dev',    mtxColor, 'dev',  c.pos(0,  24, 6, 4));
-local mxExplorerProd = card('Explorer Prod',   '🔎', 'Explorer Prod',   '/d/matrix-explorer',        '/d/matrix-explorer',        mtxColor, 'prod', c.pos(6,  24, 6, 4));
-local mxVaultDev     = card('Vault Dev',       '🔐', 'Vault Dev',       '/d/matrix-vault-dev',       '/d/matrix-vault-dev',       mtxColor, 'dev',  c.pos(12, 24, 6, 4));
-local mxVaultProd    = card('Vault Prod',      '🔐', 'Vault Prod',      '/d/matrix-vault',           '/d/matrix-vault',           mtxColor, 'prod', c.pos(18, 24, 6, 4));
-local mxGeneratorDev = card('Generator Dev',   '⚙',  'Generator Dev',   '/d/matrix-generator-dev',   '/d/matrix-generator-dev',   mtxColor, 'dev',  c.pos(0,  28, 6, 4));
-local mxGeneratorProd= card('Generator Prod',  '⚙',  'Generator Prod',  '/d/matrix-generator',       '/d/matrix-generator',       mtxColor, 'prod', c.pos(6,  28, 6, 4));
-local mxTechDev      = card('Technicals Dev',  '📐', 'Technicals Dev',  '/d/matrix-technicals-dev',  '/d/matrix-technicals-dev',  mtxColor, 'dev',  c.pos(12, 28, 6, 4));
-local mxTechProd     = card('Technicals Prod', '📐', 'Technicals Prod', '/d/matrix-technicals',      '/d/matrix-technicals',      mtxColor, 'prod', c.pos(18, 28, 6, 4));
-
-// ── Dashboards row (y=33) — verified UIDs from Grafana API ──────────────────
-
-local dbCard(icon, title, uid, pos) =
-  card(title, icon, title, '/d/' + uid, '/d/' + uid, dashColor, 'dash', pos);
-
-// Colored dashboard card — same as dbCard but with an explicit accent color and subtitle.
-// `name` defaults to `title` but can be overridden to avoid duplicate panel titles.
-local cdbCard(icon, title, sub, uid, color, pos, name=null) =
-  card(if name != null then name else title, icon, title, sub, '/d/' + uid, color, 'dash', pos);
-
-local homelabCard  = dbCard('🖥',  'Homelab',         'homelab-overview',         c.pos(0,  33, 4, 4));
-local claudeCard   = dbCard('🤖', 'Claude Metrics',  'claude-metrics-v1',        c.pos(4,  33, 4, 4));
-local tracesDbCard = cdbCard('🔍', 'Traces Unified',  'spans · services',  'apm-traces-unified',       dashColor, c.pos(8,  33, 4, 4));
-local serenaCard   = dbCard('🧠', 'Serena MCP',      'serena-mcp-observability', c.pos(12, 33, 4, 4));
-local vmCard       = dbCard('📈', 'VictoriaMetrics', 'vm-overview',              c.pos(16, 33, 4, 4));
-local sbtcpDbCard  = cdbCard('🤖', 'SBTCP',           'temporal · llm · entity',  'sbtcp-entity-overview',    dashColor, c.pos(20, 33, 4, 4));
-
-// ── Heater Infrastructure row (y=38) ─────────────────────────────────────────
-
-local homelabSysCard      = cdbCard('🖥',  'Homelab',      'cpu · mem · network', 'services-homelab-system', infraColor, c.pos(0,  38, 4, 4), 'Homelab System');
-// Replace legacy heater-home card with What's Down? incident view
-local whatsDownCard       = cdbCard('🔴',  "What's Down?", 'incident · live',     'home-whats-down',         '#dc2626',  c.pos(4,  38, 4, 4));
-local heaterSystemCard    = cdbCard('🖥',  'Heater Sys',   'cpu · mem · disk',    'heater-system',           infraColor, c.pos(8,  38, 4, 4));
-local heaterGpuCard       = cdbCard('🎮',  'GPU',          'vram · utilization',  'heater-gpu',              infraColor, c.pos(12, 38, 4, 4));
-local heaterClaudeCard    = cdbCard('🤖',  'Claude Code',  'tokens · cost · mcp', 'heater-claude-code',      infraColor, c.pos(16, 38, 4, 4));
-local heaterProcCard      = cdbCard('⚙',   'Processes',    'top · cpu · mem',     'heater-processes',        infraColor, c.pos(20, 38, 4, 4));
-
-// ── Services row (y=43) ───────────────────────────────────────────────────────
-
-local temporalDbCard   = cdbCard('⏱',  'Temporal',      'workflows · queues', 'services-temporal',       svcColor, c.pos(0,  43, 4, 4), 'Temporal Dashboard');
-local postgresDbCard   = cdbCard('🐘',  'PostgreSQL',    'queries · pool',     'services-postgresql',     svcColor, c.pos(4,  43, 4, 4));
-local redisDbCard      = cdbCard('🔴',  'Redis',         'cache · memory',     'services-redis',          svcColor, c.pos(8,  43, 4, 4));
-local clickhouseDbCard = cdbCard('⚡',  'ClickHouse',    'insert · select',    'services-clickhouse',     svcColor, c.pos(12, 43, 4, 4));
-local elasticDbCard    = cdbCard('🔍',  'Elasticsearch', 'index · search',     'services-elasticsearch',  svcColor, c.pos(16, 43, 4, 4));
-local redpandaDbCard   = cdbCard('📡',  'Redpanda',      'kafka · topics',     'services-redpanda',       svcColor, c.pos(20, 43, 4, 4), 'Redpanda Dashboard');
-
-// ── Pipeline & APM row (y=48) ─────────────────────────────────────────────────
-
-local vectorDbCard     = cdbCard('🚀', 'Vector',          'pipeline · ingest', 'pipeline-vector',            pipeColor, c.pos(0,  48, 4, 4));
-local alertmgrDbCard   = cdbCard('🔔', 'Alertmanager',    'rules · silences',  'observability-alertmanager', pipeColor, c.pos(4,  48, 4, 4));
-local vmalertDbCard    = cdbCard('📢', 'VM Alert',        'eval · firing',     'observability-vmalert',      pipeColor, c.pos(8,  48, 4, 4));
-local sloDbCard        = cdbCard('📊', 'SLO Overview',    'error budgets',     'slo-overview',               pipeColor, c.pos(12, 48, 4, 4));
-local serenaBackDbCard = cdbCard('🧠', 'Serena Backends', 'lsp · indexing',    'overview-serena-backends',   pipeColor, c.pos(16, 48, 4, 4));
-local logsDbCard       = cdbCard('📋', 'Logs',            'all-services · levels', 'observability-logs',        pipeColor, c.pos(20, 48, 4, 4), 'Logs Dashboard');
-local hunterDbCard        = cdbCard('🎯', 'Hunter Pipeline',  'search · rank · send', 'hunter-pipeline-main',     pipeColor, c.pos(0,  52, 4, 4));
-local tracesUnifiedDbCard = cdbCard('🔍', 'APM Traces',       'spans · services',     'apm-traces-unified',       pipeColor, c.pos(4,  52, 4, 4));
-local nixosDeployerDbCard = cdbCard('🚀', 'NixOS Deployer',   'gitops · deploys',     'services-nixos-deployer',  pipeColor, c.pos(8,  52, 4, 4));
-local grafanaSelfDbCard   = cdbCard('📊', 'Grafana',          'http · alerts · ds',   'observability-grafana',    pipeColor, c.pos(12, 52, 4, 4));
-
-// ── New Dashboards row (y=56) ─────────────────────────────────────────────
-local newRow  = g.panel.row.new('✨ New Dashboards') + c.pos(0, 56, 24, 1);
-local newCard = card('New Dashboards', '📂', 'New Dashboards',
-                     'dashboards_new/ · auto-provisioned',
-                     '/dashboards', dashColor, 'new', c.pos(0, 57, 6, 4));
-
-// ── Row separators ───────────────────────────────────────────────────────────
-
-local observabilityRow = g.panel.row.new('📊 Observability')        + c.pos(0, 3,  24, 1);
-local appsRow          = g.panel.row.new('🔧 System Apps')          + c.pos(0, 8,  24, 1);
-local cloudRow         = g.panel.row.new('☁️ Cloud')                + c.pos(0, 13, 24, 1);
-local arbitrageRow     = g.panel.row.new('📈 Arbitrage')            + c.pos(0, 18, 24, 1);
-local matrixRow        = g.panel.row.new('💬 Matrix Suite')         + c.pos(0, 23, 24, 1);
-local dashboardsRow    = g.panel.row.new('📋 Dashboards')           + c.pos(0, 32, 24, 1);
-local heaterRow        = g.panel.row.new('🏗️ Infrastructure')       + c.pos(0, 37, 24, 1);
-local servicesRow      = g.panel.row.new('⚡ Services')             + c.pos(0, 42, 24, 1);
-local pipelineRow      = g.panel.row.new('🔄 Pipeline & APM')       + c.pos(0, 47, 24, 1);
-
-// ── Dashboard assembly ───────────────────────────────────────────────────────
+// ── Dashboard assembly ────────────────────────────────────────────────────────
 
 g.dashboard.new('Pin SI — Home')
 + g.dashboard.withUid('pin-si-home')
-+ g.dashboard.withDescription('Pin Soluciones Informáticas — Central Operations & Observability Hub. Navigation dashboard providing quick access to all observability dashboards (metrics, logs, traces, alerts), infrastructure services (databases, cache, message brokers), and external tools (Temporal, Superset, Matrix Chat, Redpanda Console).')
-+ g.dashboard.withTags(['home', 'pin-si', 'critical'])
++ g.dashboard.withDescription('Pin Soluciones Informáticas — Navigation Status Hub')
++ g.dashboard.withTags(['home', 'pin-si', 'navigation'])
 + g.dashboard.withRefresh('30s')
 + g.dashboard.withEditable(false)
 + g.dashboard.graphTooltip.withSharedCrosshair()
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, c.tempoDsVar])
++ g.dashboard.withVariables([c.vmDsVar])
 + g.dashboard.withPanels([
-    c.externalLinksPanel(y=0, x=18),
-    alertPanel,
     headerPanel,
-    observabilityRow,
-    metricsCard, logsCard, tracesCard, alertsCard,
-    appsRow,
-    temporalCard, supersetCard, nexusCard, adguardCard, redpandaCard, matrixChat,
-    cloudRow,
-    cfAppCard, cfZonesCard, cfTunnelCard,
-    arbitrageRow,
-    arbDevCard, arbProdCard,
-    matrixRow,
-    mxExplorerDev, mxExplorerProd, mxVaultDev, mxVaultProd,
-    mxGeneratorDev, mxGeneratorProd, mxTechDev, mxTechProd,
+    grafanaRow,
+    exploreMetrics, exploreLogs, alertingNav, dashboardsNav,
+    metricsDrilldown, logsDrilldown, tracesDrilldown, profilesNav,
     dashboardsRow,
-    homelabCard, claudeCard, tracesDbCard, serenaCard, vmCard, sbtcpDbCard,
-    heaterRow,
-    homelabSysCard, whatsDownCard, heaterSystemCard, heaterGpuCard, heaterClaudeCard, heaterProcCard,
+    homelabDb, arbitrajeDb, pinTracesDb, serenaMcpDb,
+    vectorDb, sloDb, systemDb, jobHunterDb,
     servicesRow,
-    temporalDbCard, postgresDbCard, redisDbCard, clickhouseDbCard, elasticDbCard, redpandaDbCard,
-    pipelineRow,
-    vectorDbCard, alertmgrDbCard, vmalertDbCard, sloDbCard, serenaBackDbCard, logsDbCard, hunterDbCard, tracesUnifiedDbCard, nixosDeployerDbCard, grafanaSelfDbCard,
-    newRow, newCard,
-    g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 61, 24, 1),
-    troubleGuide,
+    vmCard, vlogsCard, chCard, rpCard,
+    pgCard, redisCard, esCard, temporalCard,
+    firecrawlCard, alertmgrCard, adguardCard, nexusCard,
+    matrixCard, supersetCard, cockpitCard, searxngCard,
   ])
