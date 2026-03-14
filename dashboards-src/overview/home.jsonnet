@@ -44,6 +44,14 @@ local dbCard(title, subtitle, healthJob, url) =
     'clamp_max(count_over_time(up{job="' + healthJob + '"}[5m]), 1) or vector(0)',
     url);
 
+// Restrict datasource picker to the production homelab VictoriaMetrics instance.
+// Without the regex, Grafana picks HunterMetrics-Dev (port 9430) first — that
+// instance has no homelab up{} metrics, making all svcCard panels red.
+local homeDsVar =
+  g.dashboard.variable.datasource.new('datasource', 'victoriametrics-metrics-datasource')
+  + g.dashboard.variable.datasource.generalOptions.withLabel('Metrics')
+  + g.dashboard.variable.datasource.withRegex('^VictoriaMetrics$');
+
 // ── Header panel (x=0, y=0, w=24, h=2) ───────────────────────────────────────
 
 local headerHtml = |||
@@ -175,7 +183,7 @@ g.dashboard.new('Pin SI — Home')
 + g.dashboard.withRefresh('30s')
 + g.dashboard.withEditable(false)
 + g.dashboard.graphTooltip.withSharedCrosshair()
-+ g.dashboard.withVariables([c.vmDsVar])
++ g.dashboard.withVariables([homeDsVar])
 + g.dashboard.withPanels([
     headerPanel,
     grafanaRow,
