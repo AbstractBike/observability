@@ -125,9 +125,10 @@ local headerPanel =
 
 local grafanaRow = g.panel.row.new('Grafana Navigation') + c.pos(0, 2, 24, 1);
 
-// Logs Explore URL pre-selects VictoriaLogs datasource (uid set in grafana.nix).
-// panes value decoded: {"logs":{"datasource":"victorialogs","queries":[{"refId":"A"}],"range":{"from":"now-1h","to":"now"}}}
-local logsExploreUrl = '/explore?schemaVersion=1&panes=%7B%22logs%22%3A%7B%22datasource%22%3A%22victorialogs%22%2C%22queries%22%3A%5B%7B%22refId%22%3A%22A%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22now-1h%22%2C%22to%22%3A%22now%22%7D%7D%7D&orgId=1';
+// Logs Explore URL pre-selects VictoriaLogs datasource.
+// UID PD775F2863313E6C7 = VictoriaLogs at 127.0.0.1:9428 (auto-provisioned, stable).
+// panes value decoded: {"logs":{"datasource":"PD775F2863313E6C7","queries":[{"refId":"A"}],"range":{"from":"now-1h","to":"now"}}}
+local logsExploreUrl = '/explore?schemaVersion=1&panes=%7B%22logs%22%3A%7B%22datasource%22%3A%22PD775F2863313E6C7%22%2C%22queries%22%3A%5B%7B%22refId%22%3A%22A%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22now-1h%22%2C%22to%22%3A%22now%22%7D%7D%7D&orgId=1';
 
 local exploreMetrics   = navCard('Metrics Explore',   'VictoriaMetrics query', '/explore')        + c.pos(0,  3, 6, 4);
 local exploreLogs      = navCard('Logs Explore',      'VictoriaLogs query',    logsExploreUrl)    + c.pos(6,  3, 6, 4);
