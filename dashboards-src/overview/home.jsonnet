@@ -38,11 +38,11 @@ local svcCard(title, subtitle, query, url) =
 local navCard(title, subtitle, url) =
   svcCard(title, subtitle, 'vector(1)', url);
 
-// Dashboard health card — green if key job has data in last 5m, red if not.
+// Dashboard health card — green if job is up, red if down/absent.
+// max() collapses multi-instance jobs to a single series; avoids the
+// "split card" caused by `or vector(0)` adding an extra series.
 local dbCard(title, subtitle, healthJob, url) =
-  svcCard(title, subtitle,
-    'clamp_max(count_over_time(up{job="' + healthJob + '"}[5m]), 1) or vector(0)',
-    url);
+  svcCard(title, subtitle, 'max(up{job="' + healthJob + '"})', url);
 
 // Restrict datasource picker to the production homelab VictoriaMetrics instance.
 // Without the regex, Grafana picks HunterMetrics-Dev (port 9430) first — that
