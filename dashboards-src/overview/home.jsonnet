@@ -22,7 +22,7 @@ local c = import 'lib/common.libsonnet';
 local svcCard(title, subtitle, query, url) =
   g.panel.stat.new(title)
   + g.panel.stat.panelOptions.withDescription(subtitle)
-  + g.panel.stat.queryOptions.withTargets([c.vmQ(query)])
+  + g.panel.stat.queryOptions.withTargets([c.vmQ('max(' + query + ')')])
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')
   + g.panel.stat.standardOptions.thresholds.withSteps([
       { color: 'red',   value: null },
