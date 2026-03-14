@@ -31,7 +31,7 @@ local svcCard(title, subtitle, query, url) =
     ])
   + g.panel.stat.options.withGraphMode('none')
   + g.panel.stat.options.withColorMode('background')
-  + g.panel.stat.options.withTextMode('name')
+  + g.panel.stat.options.withTextMode('none')
   + g.panel.stat.panelOptions.withLinks([{ title: title, url: url, targetBlank: false }]);
 
 // Grafana nav links — no real metric, always green.
