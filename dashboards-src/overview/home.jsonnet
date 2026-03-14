@@ -159,7 +159,7 @@ local rpCard      = svcCard('Redpanda',       'Kafka-compat MQ',     'up{job="re
 local pgCard      = svcCard('PostgreSQL',     'Relational DB',       'up{job="postgres-exporter"}',      '/d/postgresql')        + c.pos(0,  25, 6, 4);
 local redisCard   = svcCard('Redis',          'In-memory cache',     'up{job="redis-exporter"}',         '/d/redis')             + c.pos(6,  25, 6, 4);
 local esCard      = svcCard('Elasticsearch',  'Search & analytics',  'up{job="elasticsearch-exporter"}', '/d/elasticsearch')     + c.pos(12, 25, 6, 4);
-local temporalCard= svcCard('Temporal',       'Workflow engine',     'up{job="temporal"}',               'http://temporal.pin')  + c.pos(18, 25, 6, 4);
+local temporalCard= svcCard('Temporal',       'Workflow engine',     'probe_success{instance="http://temporal.pin"}', 'http://temporal.pin')  + c.pos(18, 25, 6, 4);
 
 // ── Homelab Services — probe_success (x=0..18, y=29 and y=33) ────────────────
 // Requires blackbox exporter: modules/exporters.nix + modules/victoriametrics.nix
