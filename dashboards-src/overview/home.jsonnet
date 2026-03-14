@@ -197,7 +197,7 @@ local pipeColor  = '#be185d';  // rose   — pipeline & APM
 
 local metricsCard = card('Metrics',  '📊', 'Metrics',    'vmui · explore',   'http://victoria.pin/vmui', obsColor, 'obs', c.pos(0,  4, 6, 4), true);
 local logsCard    = card('Logs',     '📋', 'Logs',       'live tail',        'http://logs.pin/select/vmui', obsColor, 'obs', c.pos(6,  4, 6, 4), true);
-local tracesCard  = card('Traces',   '🔍', 'Pin Traces', 'apm · skywalking',  'http://traces.pin',           obsColor, 'obs', c.pos(12, 4, 6, 4), true);
+local tracesCard  = card('Traces',   '🔍', 'Traces',     'tempo · drilldown', '/a/grafana-exploretraces-app/explore', obsColor, 'obs', c.pos(12, 4, 6, 4));
 local alertsCard  = card('Alerts',   '🔔', 'Alerts',     'rules · history',  '/alerting/list',              obsColor, 'obs', c.pos(18, 4, 6, 4));
 
 // ── System Apps row (y=9) ────────────────────────────────────────────────────
@@ -243,10 +243,10 @@ local cdbCard(icon, title, sub, uid, color, pos, name=null) =
 
 local homelabCard  = dbCard('🖥',  'Homelab',         'homelab-overview',         c.pos(0,  33, 4, 4));
 local claudeCard   = dbCard('🤖', 'Claude Metrics',  'claude-metrics-v1',        c.pos(4,  33, 4, 4));
-local tracesDbCard = dbCard('🔍', 'Pin Traces',      'pin-traces',               c.pos(8,  33, 4, 4));
+local tracesDbCard = cdbCard('🔍', 'Traces Unified',  'spans · services',  'apm-traces-unified',       dashColor, c.pos(8,  33, 4, 4));
 local serenaCard   = dbCard('🧠', 'Serena MCP',      'serena-mcp-observability', c.pos(12, 33, 4, 4));
 local vmCard       = dbCard('📈', 'VictoriaMetrics', 'vm-overview',              c.pos(16, 33, 4, 4));
-local swCard       = dbCard('🌐', 'SkyWalking',     'observability-skywalking',           c.pos(20, 33, 4, 4));
+local sbtcpDbCard  = cdbCard('🤖', 'SBTCP',           'temporal · llm · entity',  'sbtcp-entity-overview',    dashColor, c.pos(20, 33, 4, 4));
 
 // ── Heater Infrastructure row (y=38) ─────────────────────────────────────────
 
@@ -275,10 +275,10 @@ local vmalertDbCard    = cdbCard('📢', 'VM Alert',        'eval · firing',   
 local sloDbCard        = cdbCard('📊', 'SLO Overview',    'error budgets',     'slo-overview',               pipeColor, c.pos(12, 48, 4, 4));
 local serenaBackDbCard = cdbCard('🧠', 'Serena Backends', 'lsp · indexing',    'overview-serena-backends',   pipeColor, c.pos(16, 48, 4, 4));
 local logsDbCard       = cdbCard('📋', 'Logs',            'all-services · levels', 'observability-logs',        pipeColor, c.pos(20, 48, 4, 4), 'Logs Dashboard');
-local hunterDbCard        = cdbCard('🎯', 'Hunter Pipeline',  'search · rank · send', 'hunter-pipeline-main',   pipeColor, c.pos(0,  52, 4, 4));
-local matrixApmDbCard     = cdbCard('💬', 'Matrix APM',       'requests · spans',   'matrix-apm-skywalking',    pipeColor, c.pos(4,  52, 4, 4));
-local nixosDeployerDbCard = cdbCard('🚀', 'NixOS Deployer',   'gitops · deploys',   'services-nixos-deployer',  pipeColor, c.pos(8,  52, 4, 4));
-local grafanaSelfDbCard   = cdbCard('📊', 'Grafana',          'http · alerts · ds', 'observability-grafana',    pipeColor, c.pos(12, 52, 4, 4));
+local hunterDbCard        = cdbCard('🎯', 'Hunter Pipeline',  'search · rank · send', 'hunter-pipeline-main',     pipeColor, c.pos(0,  52, 4, 4));
+local tracesUnifiedDbCard = cdbCard('🔍', 'APM Traces',       'spans · services',     'apm-traces-unified',       pipeColor, c.pos(4,  52, 4, 4));
+local nixosDeployerDbCard = cdbCard('🚀', 'NixOS Deployer',   'gitops · deploys',     'services-nixos-deployer',  pipeColor, c.pos(8,  52, 4, 4));
+local grafanaSelfDbCard   = cdbCard('📊', 'Grafana',          'http · alerts · ds',   'observability-grafana',    pipeColor, c.pos(12, 52, 4, 4));
 
 // ── New Dashboards row (y=56) ─────────────────────────────────────────────
 local newRow  = g.panel.row.new('✨ New Dashboards') + c.pos(0, 56, 24, 1);
@@ -307,7 +307,7 @@ g.dashboard.new('Pin SI — Home')
 + g.dashboard.withRefresh('30s')
 + g.dashboard.withEditable(false)
 + g.dashboard.graphTooltip.withSharedCrosshair()
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, c.swDsVar])
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, c.tempoDsVar])
 + g.dashboard.withPanels([
     c.externalLinksPanel(y=0, x=18),
     alertPanel,
@@ -324,13 +324,13 @@ g.dashboard.new('Pin SI — Home')
     mxExplorerDev, mxExplorerProd, mxVaultDev, mxVaultProd,
     mxGeneratorDev, mxGeneratorProd, mxTechDev, mxTechProd,
     dashboardsRow,
-    homelabCard, claudeCard, tracesDbCard, serenaCard, vmCard, swCard,
+    homelabCard, claudeCard, tracesDbCard, serenaCard, vmCard, sbtcpDbCard,
     heaterRow,
     homelabSysCard, whatsDownCard, heaterSystemCard, heaterGpuCard, heaterClaudeCard, heaterProcCard,
     servicesRow,
     temporalDbCard, postgresDbCard, redisDbCard, clickhouseDbCard, elasticDbCard, redpandaDbCard,
     pipelineRow,
-    vectorDbCard, alertmgrDbCard, vmalertDbCard, sloDbCard, serenaBackDbCard, logsDbCard, hunterDbCard, matrixApmDbCard, nixosDeployerDbCard, grafanaSelfDbCard,
+    vectorDbCard, alertmgrDbCard, vmalertDbCard, sloDbCard, serenaBackDbCard, logsDbCard, hunterDbCard, tracesUnifiedDbCard, nixosDeployerDbCard, grafanaSelfDbCard,
     newRow, newCard,
     g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 61, 24, 1),
     troubleGuide,

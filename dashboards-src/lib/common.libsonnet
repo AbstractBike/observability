@@ -4,7 +4,7 @@ local g = import 'github.com/grafana/grafonnet/gen/grafonnet-v11.4.0/main.libson
 
 local config = {
   // External service URLs
-  skywalking_ui_url: 'http://traces.pin',
+  tempo_explore_url: '/a/grafana-exploretraces-app/explore',
   victoriametrics_url: 'http://192.168.0.4:8428',
   victorialogs_ui_url: 'http://192.168.0.4:9428/select/vmui',
 };
@@ -27,8 +27,12 @@ local config = {
     g.dashboard.variable.datasource.new('esdatasource', 'elasticsearch')
     + g.dashboard.variable.datasource.generalOptions.withLabel('Elasticsearch'),
 
-  // Dashboard-level template variable for SkyWalking PromQL datasource.
-  // Regex filters to show only the "SkyWalking-PromQL" datasource.
+  // Dashboard-level template variable for Grafana Tempo tracing datasource.
+  tempoDsVar:
+    g.dashboard.variable.datasource.new('tempodatasource', 'tempo')
+    + g.dashboard.variable.datasource.generalOptions.withLabel('Traces'),
+
+  // Kept for backward compat — dashboards that still reference swDsVar compile cleanly.
   swDsVar:
     g.dashboard.variable.datasource.new('swdatasource', 'prometheus')
     + g.dashboard.variable.datasource.generalOptions.withLabel('SkyWalking')
@@ -247,7 +251,7 @@ local config = {
       <div class="ext-links-container">
         <a class="ext-link-btn" href="http://192.168.0.4:8428" target="_blank" title="VictoriaMetrics Metrics">📊</a>
         <a class="ext-link-btn" href="http://192.168.0.4:9428/select/vmui" target="_blank" title="VictoriaLogs UI">📝</a>
-        <a class="ext-link-btn" href="http://192.168.0.4:8080" target="_blank" title="SkyWalking Traces">🕵️</a>
+        <a class="ext-link-btn" href="/a/grafana-exploretraces-app/explore" target="_blank" title="Tempo Traces">🔍</a>
       </div>
     |||;
     g.panel.text.new('')
