@@ -24,12 +24,19 @@
     }
   ],
   "uid": "hunter-namespace-health",
-  "title": "Hunter — Namespace Health",
-  "tags": ["hunter", "namespace", "temporal"],
+  "title": "Hunter \u2014 Namespace Health",
+  "tags": [
+    "hunter",
+    "namespace",
+    "temporal"
+  ],
   "schemaVersion": 38,
-  "version": 1,
+  "version": 2,
   "refresh": "30s",
-  "time": {"from": "now-24h", "to": "now"},
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "templating": {
     "list": []
   },
@@ -37,223 +44,180 @@
     {
       "id": 1,
       "type": "row",
-      "title": "Worker Status",
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0},
+      "title": "Worker Status \u2014 hunter-prod",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
       "collapsed": false,
       "panels": []
     },
     {
       "id": 2,
       "type": "stat",
-      "title": "silvio worker",
-      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 1},
-      "datasource": {"type": "prometheus", "uid": "${DS_VICTORIAMETRICS}"},
+      "title": "hunter worker (all candidates)",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_VICTORIAMETRICS}"
+      },
+      "targets": [
+        {
+          "expr": "hunter_namespace_worker_up{namespace=\"hunter-prod\"}",
+          "legendFormat": "hunter-prod",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "orientation": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "thresholds"},
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"color": "red", "value": null},
-              {"color": "green", "value": 1}
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
             ]
           },
           "mappings": [
-            {"type": "value", "options": {"0": {"text": "DOWN", "color": "red"}, "1": {"text": "UP", "color": "green"}}}
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "DOWN"
+                },
+                "1": {
+                  "text": "UP"
+                }
+              }
+            }
           ]
         }
-      },
-      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "orientation": "auto", "textMode": "auto", "colorMode": "background"},
-      "targets": [
-        {
-          "datasource": {"type": "prometheus", "uid": "${DS_VICTORIAMETRICS}"},
-          "expr": "hunter_namespace_worker_up{namespace=\"hunter-silvio\"}",
-          "legendFormat": "hunter-silvio",
-          "refId": "A"
-        }
-      ]
+      }
     },
     {
       "id": 3,
       "type": "stat",
-      "title": "mar worker",
-      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 1},
-      "datasource": {"type": "prometheus", "uid": "${DS_VICTORIAMETRICS}"},
+      "title": "prefetch worker",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_VICTORIAMETRICS}"
+      },
+      "targets": [
+        {
+          "expr": "hunter_namespace_worker_up{namespace=\"hunter-prod\"}",
+          "legendFormat": "hunter-prod/prefetch",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "orientation": "auto",
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "thresholds"},
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"color": "red", "value": null},
-              {"color": "green", "value": 1}
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
             ]
           },
           "mappings": [
-            {"type": "value", "options": {"0": {"text": "DOWN", "color": "red"}, "1": {"text": "UP", "color": "green"}}}
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "DOWN"
+                },
+                "1": {
+                  "text": "UP"
+                }
+              }
+            }
           ]
         }
-      },
-      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "orientation": "auto", "textMode": "auto", "colorMode": "background"},
-      "targets": [
-        {
-          "datasource": {"type": "prometheus", "uid": "${DS_VICTORIAMETRICS}"},
-          "expr": "hunter_namespace_worker_up{namespace=\"hunter-mar\"}",
-          "legendFormat": "hunter-mar",
-          "refId": "A"
-        }
-      ]
+      }
     },
     {
       "id": 4,
-      "type": "stat",
-      "title": "macarena worker",
-      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 1},
-      "datasource": {"type": "prometheus", "uid": "${DS_VICTORIAMETRICS}"},
-      "fieldConfig": {
-        "defaults": {
-          "color": {"mode": "thresholds"},
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {"color": "red", "value": null},
-              {"color": "green", "value": 1}
-            ]
-          },
-          "mappings": [
-            {"type": "value", "options": {"0": {"text": "DOWN", "color": "red"}, "1": {"text": "UP", "color": "green"}}}
-          ]
-        }
-      },
-      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "orientation": "auto", "textMode": "auto", "colorMode": "background"},
-      "targets": [
-        {
-          "datasource": {"type": "prometheus", "uid": "${DS_VICTORIAMETRICS}"},
-          "expr": "hunter_namespace_worker_up{namespace=\"hunter-macarena\"}",
-          "legendFormat": "hunter-macarena",
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "id": 5,
-      "type": "stat",
-      "title": "palmira worker",
-      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 1},
-      "datasource": {"type": "prometheus", "uid": "${DS_VICTORIAMETRICS}"},
-      "fieldConfig": {
-        "defaults": {
-          "color": {"mode": "thresholds"},
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {"color": "red", "value": null},
-              {"color": "green", "value": 1}
-            ]
-          },
-          "mappings": [
-            {"type": "value", "options": {"0": {"text": "DOWN", "color": "red"}, "1": {"text": "UP", "color": "green"}}}
-          ]
-        }
-      },
-      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "orientation": "auto", "textMode": "auto", "colorMode": "background"},
-      "targets": [
-        {
-          "datasource": {"type": "prometheus", "uid": "${DS_VICTORIAMETRICS}"},
-          "expr": "hunter_namespace_worker_up{namespace=\"hunter-palmira\"}",
-          "legendFormat": "hunter-palmira",
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "id": 6,
-      "type": "row",
-      "title": "Pipeline Activity per Namespace",
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 5},
-      "collapsed": false,
-      "panels": []
-    },
-    {
-      "id": 7,
       "type": "timeseries",
-      "title": "Pipeline runs por namespace (1h rate)",
-      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 6},
-      "datasource": {"type": "prometheus", "uid": "${DS_VICTORIAMETRICS}"},
-      "fieldConfig": {
-        "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 2, "fillOpacity": 10}
-        }
+      "title": "Worker Up History",
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 5
       },
-      "options": {"tooltip": {"mode": "multi"}},
-      "targets": [
-        {
-          "datasource": {"type": "prometheus", "uid": "${DS_VICTORIAMETRICS}"},
-          "expr": "sum by (namespace) (rate(hunter_pipeline_run{status=\"started\"}[1h]))",
-          "legendFormat": "{{namespace}}",
-          "refId": "A"
-        }
-      ]
-    },
-    {
-      "id": 8,
-      "type": "row",
-      "title": "Error Rates",
-      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 14},
-      "collapsed": false,
-      "panels": []
-    },
-    {
-      "id": 9,
-      "type": "timeseries",
-      "title": "Pipeline errors por namespace (1h rate)",
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 15},
-      "datasource": {"type": "prometheus", "uid": "${DS_VICTORIAMETRICS}"},
-      "fieldConfig": {
-        "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {"lineWidth": 2, "fillOpacity": 10},
-          "thresholds": {"steps": [{"color": "green"}, {"color": "red", "value": 1}]}
-        }
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_VICTORIAMETRICS}"
       },
       "targets": [
         {
-          "datasource": {"type": "prometheus", "uid": "${DS_VICTORIAMETRICS}"},
-          "expr": "sum by (namespace) (rate(hunter_pipeline_run{status=\"error\"}[1h]))",
-          "legendFormat": "{{namespace}} errors",
+          "expr": "hunter_namespace_worker_up{namespace=\"hunter-prod\"}",
+          "legendFormat": "hunter-prod",
           "refId": "A"
         }
-      ]
-    },
-    {
-      "id": 10,
-      "type": "stat",
-      "title": "Workers activos (total)",
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 15},
-      "datasource": {"type": "prometheus", "uid": "${DS_VICTORIAMETRICS}"},
+      ],
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "thresholds"},
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"color": "red", "value": null},
-              {"color": "yellow", "value": 2},
-              {"color": "green", "value": 4}
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
             ]
           }
         }
-      },
-      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "colorMode": "background"},
-      "targets": [
-        {
-          "datasource": {"type": "prometheus", "uid": "${DS_VICTORIAMETRICS}"},
-          "expr": "sum(hunter_namespace_worker_up)",
-          "legendFormat": "workers up",
-          "refId": "A"
-        }
-      ]
+      }
     }
   ]
 }
