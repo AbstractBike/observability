@@ -1,0 +1,436 @@
+{
+  "uid": "hunter-cot-ranking",
+  "title": "Hunter — CoT Ranking Quality",
+  "description": "Chain-of-Thought LLM re-ranking quality: tier distribution, top jobs, source quality per candidate",
+  "tags": ["hunter", "cot", "ranking", "llm"],
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "5m",
+  "time": { "from": "now-7d", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "label": "Hunter Logs",
+        "name": "hunterlogs",
+        "query": "victoriametrics-logs-datasource",
+        "regex": "HunterLogs$",
+        "type": "datasource"
+      },
+      {
+        "label": "Candidate",
+        "name": "slug",
+        "type": "custom",
+        "query": "all : *,silvio : silvio,mar : mar,macarena : macarena,palmira : palmira",
+        "current": { "selected": true, "text": "all", "value": "*" },
+        "options": [
+          { "selected": true, "text": "all", "value": "*" },
+          { "selected": false, "text": "silvio", "value": "silvio" },
+          { "selected": false, "text": "mar", "value": "mar" },
+          { "selected": false, "text": "macarena", "value": "macarena" },
+          { "selected": false, "text": "palmira", "value": "palmira" }
+        ]
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "row",
+      "id": 1,
+      "title": "Tier Distribution — $slug",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "stat",
+      "id": 2,
+      "title": "Tier 1 (Strong Fit)",
+      "description": "Jobs with CoT score >= 0.7 — high interview probability",
+      "datasource": { "type": "datasource", "uid": "-- Mixed --" },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
+      "options": {
+        "colorMode": "background",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "blue", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${hunterlogs}" },
+          "editorMode": "code",
+          "expr": "_msg:\"job_ranked\" slug:$slug tier:1 | stats count() as tier1",
+          "queryType": "statsRange",
+          "refId": "A",
+          "step": "1d"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "id": 3,
+      "title": "Tier 2 (Worth Applying)",
+      "description": "Jobs with CoT score 0.4-0.7 — worth applying",
+      "datasource": { "type": "datasource", "uid": "-- Mixed --" },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
+      "options": {
+        "colorMode": "background",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "yellow", "value": null }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${hunterlogs}" },
+          "editorMode": "code",
+          "expr": "_msg:\"job_ranked\" slug:$slug tier:2 | stats count() as tier2",
+          "queryType": "statsRange",
+          "refId": "A",
+          "step": "1d"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "id": 4,
+      "title": "Tier 3 (Stretch)",
+      "description": "Jobs with CoT score < 0.4 — stretch / low probability",
+      "datasource": { "type": "datasource", "uid": "-- Mixed --" },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+      "options": {
+        "colorMode": "background",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null }
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${hunterlogs}" },
+          "editorMode": "code",
+          "expr": "_msg:\"job_ranked\" slug:$slug tier:3 | stats count() as tier3",
+          "queryType": "statsRange",
+          "refId": "A",
+          "step": "1d"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "id": 5,
+      "title": "Total Jobs Ranked",
+      "datasource": { "type": "datasource", "uid": "-- Mixed --" },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "options": {
+        "colorMode": "value",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "textMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "text", "value": null }]
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${hunterlogs}" },
+          "editorMode": "code",
+          "expr": "_msg:\"job_ranked\" slug:$slug | stats count() as total",
+          "queryType": "statsRange",
+          "refId": "A",
+          "step": "1d"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "id": 6,
+      "title": "Tier Distribution Over Time",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "piechart",
+      "id": 7,
+      "title": "Tier Share — $slug",
+      "description": "Distribution of CoT tiers across all ranked jobs in the selected window",
+      "datasource": { "type": "datasource", "uid": "-- Mixed --" },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 6 },
+      "options": {
+        "pieType": "pie",
+        "displayLabels": ["name", "percent"],
+        "legend": { "displayMode": "table", "placement": "right", "values": ["value", "percent"] }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${hunterlogs}" },
+          "editorMode": "code",
+          "expr": "_msg:\"job_ranked\" slug:$slug | stats by(tier) count() as jobs",
+          "queryType": "statsRange",
+          "legendFormat": "Tier {{tier}}",
+          "refId": "A",
+          "step": "7d"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "id": 8,
+      "title": "Tier 1 Jobs Over Time — $slug",
+      "description": "Number of Tier 1 jobs per day (CoT score >= 0.7)",
+      "datasource": { "type": "datasource", "uid": "-- Mixed --" },
+      "gridPos": { "h": 8, "w": 16, "x": 8, "y": 6 },
+      "options": {
+        "tooltip": { "mode": "multi" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2 }
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${hunterlogs}" },
+          "editorMode": "code",
+          "expr": "_msg:\"job_ranked\" slug:$slug tier:1 | stats by(slug) count() as tier1",
+          "queryType": "range",
+          "legendFormat": "{{slug}} tier1",
+          "refId": "A",
+          "step": "1d"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "id": 9,
+      "title": "Source Quality",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "barchart",
+      "id": 10,
+      "title": "Tier 1 Jobs by Source — $slug",
+      "description": "Which sources produce the most high-quality (Tier 1) matches",
+      "datasource": { "type": "datasource", "uid": "-- Mixed --" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 15 },
+      "options": {
+        "barWidth": 0.7,
+        "xTickLabelMaxLength": 20,
+        "xTickLabelRotation": -30
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 80 }
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${hunterlogs}" },
+          "editorMode": "code",
+          "expr": "_msg:\"job_ranked\" slug:$slug tier:1 | stats by(route_origin) count() as tier1_jobs",
+          "queryType": "statsRange",
+          "legendFormat": "{{route_origin}}",
+          "refId": "A",
+          "step": "7d"
+        }
+      ]
+    },
+    {
+      "type": "barchart",
+      "id": 11,
+      "title": "Jobs by Source and Tier — $slug",
+      "description": "All jobs ranked per source, split by tier",
+      "datasource": { "type": "datasource", "uid": "-- Mixed --" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 15 },
+      "options": {
+        "barWidth": 0.7,
+        "xTickLabelMaxLength": 15,
+        "xTickLabelRotation": -30,
+        "stacking": "normal"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 80 }
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${hunterlogs}" },
+          "editorMode": "code",
+          "expr": "_msg:\"job_ranked\" slug:$slug tier:1 | stats by(route_origin) count() as jobs",
+          "queryType": "statsRange",
+          "legendFormat": "Tier1 {{route_origin}}",
+          "refId": "A",
+          "step": "7d"
+        },
+        {
+          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${hunterlogs}" },
+          "editorMode": "code",
+          "expr": "_msg:\"job_ranked\" slug:$slug tier:2 | stats by(route_origin) count() as jobs",
+          "queryType": "statsRange",
+          "legendFormat": "Tier2 {{route_origin}}",
+          "refId": "B",
+          "step": "7d"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "id": 12,
+      "title": "Top Tier 1 Jobs",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "table",
+      "id": 13,
+      "title": "Top Tier 1 Jobs — $slug",
+      "description": "Highest-scoring Tier 1 jobs from CoT re-ranking",
+      "datasource": { "type": "datasource", "uid": "-- Mixed --" },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 24 },
+      "options": {
+        "sortBy": [{ "displayName": "score", "desc": true }]
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "align": "auto" }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "url" },
+            "properties": [
+              { "id": "links", "value": [{ "title": "Open", "url": "${__value.raw}" }] }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "score" },
+            "properties": [
+              { "id": "custom.width", "value": 80 },
+              { "id": "color", "value": { "mode": "continuous-GrYlRd" } },
+              { "id": "thresholds", "value": { "steps": [{ "color": "red", "value": 0 }, { "color": "yellow", "value": 0.5 }, { "color": "green", "value": 0.7 }] } }
+            ]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${hunterlogs}" },
+          "editorMode": "code",
+          "expr": "_msg:\"job_ranked\" slug:$slug tier:1 | fields slug, title, score, route_origin, url, _time | sort by(_time desc)",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "id": 14,
+      "title": "CoT Span Latency (Tempo)",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 34 },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "id": 15,
+      "title": "forge.cot.rank Duration",
+      "description": "Duration of CoT LLM re-ranking activity over time (from Tempo traces)",
+      "datasource": { "type": "tempo", "uid": "tempo" },
+      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 35 },
+      "options": { "tooltip": { "mode": "single" } },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 10, "lineWidth": 2 }
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "tempo", "uid": "tempo" },
+          "filters": [
+            { "id": "span-name", "operator": "=", "value": "forge.cot.rank", "tag": "span.name" }
+          ],
+          "limit": 20,
+          "queryType": "traceqlSearch",
+          "refId": "A",
+          "tableType": "spans"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "id": 16,
+      "title": "CoT Fallback Rate",
+      "description": "% of CoT runs that fell back to TF-IDF (cot.status=fallback in Tempo spans)",
+      "datasource": { "type": "tempo", "uid": "tempo" },
+      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 35 },
+      "options": {
+        "colorMode": "background",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "unit": "none",
+          "thresholds": {
+            "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 0.2 }, { "color": "red", "value": 0.5 }]
+          }
+        }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "tempo", "uid": "tempo" },
+          "filters": [
+            { "id": "span-name", "operator": "=", "value": "forge.cot.rank", "tag": "span.name" },
+            { "id": "cot-status", "operator": "=", "value": "fallback", "tag": "span.cot.status" }
+          ],
+          "limit": 10,
+          "queryType": "traceqlSearch",
+          "refId": "A",
+          "tableType": "spans"
+        }
+      ]
+    }
+  ]
+}
