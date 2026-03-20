@@ -208,7 +208,7 @@ local temporalCard = svcCard('Temporal',        'Workflow engine',    'probe_suc
 
 // ── Infrastructure — Utilities (y=11, h=3) — 6 cards, 4w each ──────────────
 
-local alertmgrCard  = svcCard('Alertmanager', 'Alert routing',    'up{job="alertmanager"}',                        '/alerting')             + c.pos(0,  11, 4, 3);
+local alertmgrCard  = svcCard('Alertmanager', 'Alert routing',    'up{job="alertmanager"}',                        '/d/observability-alertmanager')             + c.pos(0,  11, 4, 3);
 local firecrawlCard = svcCard('Firecrawl',    'Web scraping',     'up{job="firecrawl"}',                           'http://firecrawl.pin')  + c.pos(4,  11, 4, 3);
 local adguardCard   = svcCard('AdGuard',      'DNS filtering',    'probe_success{instance="http://adguard.pin"}',  'http://adguard.pin')    + c.pos(8,  11, 4, 3);
 local nexusCard     = svcCard('Nexus',        'Artifact registry','probe_success{instance="http://nexus.pin"}',    'http://nexus.pin')      + c.pos(12, 11, 4, 3);
