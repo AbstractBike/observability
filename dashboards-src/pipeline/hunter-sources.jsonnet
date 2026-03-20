@@ -24,7 +24,7 @@ local c = import 'lib/common.libsonnet';
 local hunterLogsDsVar =
   g.dashboard.variable.datasource.new('hunterlogs', 'victoriametrics-logs-datasource')
   + g.dashboard.variable.datasource.generalOptions.withLabel('Hunter Logs')
-  + g.dashboard.variable.datasource.withRegex('HunterLogs.*');
+  + g.dashboard.variable.datasource.withRegex('^HunterLogs-Prod$');
 
 local slugVar =
   g.dashboard.variable.custom.new('slug', [
