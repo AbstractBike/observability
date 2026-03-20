@@ -8,7 +8,6 @@
 //   Status Bar   — services up/down, alerts firing, host CPU
 //   Infrastructure — databases (6w) + utilities (4w), green/red health
 //   Hunter Pipeline — 3 large cards + 6 nav cards
-//   Dashboard Directory — markdown panels with all dashboard links
 //   Claude/MCP   — Claude Proxy, Claude Code, MCP Vanguard, SBTCP
 //   Grafana Tools — explore, drilldown, dashboards nav
 local g = import 'github.com/grafana/grafonnet/gen/grafonnet-v11.4.0/main.libsonnet';
@@ -20,7 +19,8 @@ local ALL_JOBS = 'alertmanager|clickhouse|elasticsearch-exporter|firecrawl|grafa
 
 // ── Card helpers ─────────────────────────────────────────────────────────────
 
-// Base card: PromQL query drives green/red background. Click navigates same tab.
+// Base card: PromQL query drives green/red background. Entire card is clickable.
+// Data links make the stat value area clickable; panel links cover the header.
 local svcCard(title, subtitle, query, url) =
   g.panel.stat.new('')
   + g.panel.stat.panelOptions.withDescription(subtitle)
@@ -32,10 +32,10 @@ local svcCard(title, subtitle, query, url) =
       { color: 'red', value: 0 },
       { color: 'green', value: 1 },
     ])
+  + g.panel.stat.standardOptions.withLinks([{ title: title, url: url, targetBlank: false }])
   + g.panel.stat.options.withGraphMode('none')
   + g.panel.stat.options.withColorMode('background')
-  + g.panel.stat.options.withTextMode('name')
-  + g.panel.stat.panelOptions.withLinks([{ title: title, url: url, targetBlank: false }]);
+  + g.panel.stat.options.withTextMode('name');
 
 // Grafana nav links — no real metric, always green.
 local navCard(title, subtitle, url) =
@@ -44,13 +44,6 @@ local navCard(title, subtitle, url) =
 // Dashboard health card — green if job is up, red if down/absent.
 local dbCard(title, subtitle, healthJob, url) =
   svcCard(title, subtitle, 'max(up{job="' + healthJob + '"})', url);
-
-// Markdown panel for dashboard directory sections.
-local linkPanel(title, content, x, y, w, h) =
-  g.panel.text.new(title)
-  + g.panel.text.options.withMode('markdown')
-  + g.panel.text.options.withContent(content)
-  + c.pos(x, y, w, h);
 
 // ── Datasource ───────────────────────────────────────────────────────────────
 
@@ -143,7 +136,7 @@ local statusUpPanel =
   ])
   + g.panel.stat.options.withColorMode('background')
   + g.panel.stat.options.withGraphMode('none')
-  + g.panel.stat.panelOptions.withLinks([{ title: 'Services Health', url: '/d/services-health', targetBlank: false }]);
+  + g.panel.stat.standardOptions.withLinks([{ title: 'Services Health', url: '/d/services-health', targetBlank: false }]);
 
 local statusDownPanel =
   g.panel.stat.new('Services Down')
@@ -160,7 +153,7 @@ local statusDownPanel =
   ])
   + g.panel.stat.options.withColorMode('background')
   + g.panel.stat.options.withGraphMode('none')
-  + g.panel.stat.panelOptions.withLinks([{ title: "What's Down?", url: '/d/home-whats-down', targetBlank: false }]);
+  + g.panel.stat.standardOptions.withLinks([{ title: "What's Down?", url: '/d/home-whats-down', targetBlank: false }]);
 
 local statusAlertsPanel =
   g.panel.stat.new('Alerts Firing')
@@ -177,7 +170,7 @@ local statusAlertsPanel =
   ])
   + g.panel.stat.options.withColorMode('background')
   + g.panel.stat.options.withGraphMode('none')
-  + g.panel.stat.panelOptions.withLinks([{ title: 'Alerting', url: '/alerting/list', targetBlank: false }]);
+  + g.panel.stat.standardOptions.withLinks([{ title: 'Alerting', url: '/alerting/list', targetBlank: false }]);
 
 local statusCpuPanel =
   g.panel.stat.new('Host CPU')
@@ -190,7 +183,7 @@ local statusCpuPanel =
   + c.percentThresholds
   + g.panel.stat.options.withColorMode('background')
   + g.panel.stat.options.withGraphMode('none')
-  + g.panel.stat.panelOptions.withLinks([{ title: 'Homelab Overview', url: '/d/homelab-overview', targetBlank: false }]);
+  + g.panel.stat.standardOptions.withLinks([{ title: 'Homelab Overview', url: '/d/homelab-overview', targetBlank: false }]);
 
 // ── Infrastructure — Databases (y=4, h=3) — 4+4 cards, 6w each ─────────────
 
@@ -232,91 +225,29 @@ local scalableCard  = navCard('Scalable Market',   'Market data pipeline',      
 local pathrankerCard= navCard('PathRanker',        'Path ranking engine',         '/d/pathranker-main')         + c.pos(16, 19, 4, 2);
 local routeCard     = navCard('Route Comparison',  'Route comparison analysis',   '/d/hunter-route-comparison') + c.pos(20, 19, 4, 2);
 
-// ── Dashboard Directory (y=21, h=6) — 2 markdown panels ────────────────────
+// ── Claude / MCP (y=21, h=3) ────────────────────────────────────────────────
 
-local directoryRow = g.panel.row.new('Dashboard Directory') + c.pos(0, 21, 24, 1);
+local claudeRow = g.panel.row.new('Claude / MCP') + c.pos(0, 21, 24, 1);
 
-local directoryLeft = linkPanel(
-  'Observability / APM / SLO',
-  |||
-    **Observability**
-    - [Services Health](/d/services-health) — live up/down status
-    - [What's Down?](/d/home-whats-down) — incident diagnosis
-    - [Dashboard Index](/d/dashboard-index) — complete navigator
-    - [Grafana](/d/observability-grafana) — Grafana self-monitoring
-    - [Alertmanager](/d/observability-alertmanager) — alert routing
-    - [VMAlert](/d/observability-vmalert) — rule evaluation
-    - [Logs](/d/observability-logs) — structured log search
-    - [Alerts](/d/alerts-dashboard) — active alerts overview
-    - [Metrics Discovery](/d/metrics-discovery) — cardinality & ingestion
-    - [Performance](/d/performance-optimization) — query latency
-    - [Cost Tracking](/d/cost-tracking) — storage & retention
+local claudeProxyCard  = navCard('Claude Proxy',   'API proxy metrics',    '/d/claude-proxy')          + c.pos(0,  22, 6, 3);
+local claudeCodeCard   = navCard('Claude Code',    'Agent activity',       '/d/heater-claude-code')    + c.pos(6,  22, 6, 3);
+local mcpVanguardCard  = navCard('MCP Vanguard',   'MCP server metrics',   '/d/services-mcp-vanguard') + c.pos(12, 22, 6, 3);
+local sbtcpCard        = navCard('SBTCP',          'Entity overview',      '/d/sbtcp-entity-overview') + c.pos(18, 22, 6, 3);
 
-    **APM & Traces**
-    - [Pin Traces](/d/pin-traces) — distributed tracing
-    - [Unified Traces](/d/apm-traces) — trace explorer
-    - [API Gateway Tracing](/d/tracing-api-gateway) — request flows
-    - [PostgreSQL Tracing](/d/tracing-postgresql) — slow query correlation
+// ── Grafana Tools (y=25, h=3) ───────────────────────────────────────────────
 
-    **SLO & Analytics**
-    - [SLO Overview](/d/slo-overview) — error budgets
-    - [Health Scoring](/d/system-health-scoring) — risk analysis
-    - [Service Dependencies](/d/service-dependencies) — blast radius
-    - [Dashboard Usage](/d/dashboard-usage-analytics) — usage analytics
-    - [Query Performance](/d/query-performance) — datasource latency
-  |||,
-  0, 22, 12, 6,
-);
+local toolsRow = g.panel.row.new('Grafana Tools') + c.pos(0, 25, 24, 1);
 
-local directoryRight = linkPanel(
-  'Services / Heater / Overview',
-  |||
-    **Services**
-    - [PostgreSQL](/d/services-postgresql) · [Redis](/d/services-redis) · [ClickHouse](/d/services-clickhouse)
-    - [Elasticsearch](/d/services-elasticsearch) · [Redpanda](/d/services-redpanda) · [Temporal](/d/services-temporal)
-    - [Matrix](/d/services-matrix) · [NixOS MCP](/d/services-nixos-mcp) · [NixOS Deployer](/d/services-nixos-deployer)
-    - [VictoriaLogs General](/d/pin-si-victorialogs-general) · [Homelab System](/d/services-homelab-system)
+// Explore URLs pre-select the correct datasource.
+local metricsExploreUrl = '/explore?schemaVersion=1&panes=%7B%22vm%22%3A%7B%22datasource%22%3A%22P4169E866C3094E38%22%2C%22queries%22%3A%5B%7B%22refId%22%3A%22A%22%2C%22datasource%22%3A%7B%22type%22%3A%22victoriametrics-metrics-datasource%22%2C%22uid%22%3A%22P4169E866C3094E38%22%7D%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22now-1h%22%2C%22to%22%3A%22now%22%7D%2C%22compact%22%3Afalse%7D%7D&orgId=1';
+local logsExploreUrl = '/explore?schemaVersion=1&panes=%7B%22qfl%22%3A%7B%22datasource%22%3A%22PD775F2863313E6C7%22%2C%22queries%22%3A%5B%7B%22refId%22%3A%22A%22%2C%22datasource%22%3A%7B%22type%22%3A%22victoriametrics-logs-datasource%22%2C%22uid%22%3A%22PD775F2863313E6C7%22%7D%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22now-1h%22%2C%22to%22%3A%22now%22%7D%2C%22compact%22%3Afalse%7D%7D&orgId=1';
 
-    **Heater (workstation)**
-    - [Heater Home](/d/heater-home) — workstation overview
-    - [System](/d/heater-system) · [Processes](/d/heater-processes) · [JVM](/d/heater-jvm)
-    - [GPU](/d/heater-gpu) · [Networking](/d/heater-networking)
-    - [Claude Code](/d/heater-claude-code) — agent activity
-
-    **Overview**
-    - [Homelab Overview](/d/homelab-overview) — system health
-    - [Vector Pipeline](/d/pipeline-vector) — log/metric routing
-    - [SkyWalking](/d/observability-skywalking) — distributed tracing OAP
-    - [Serena Backends](/d/overview-serena-backends) — MCP backends
-
-    **Data**
-    - [Cockpit](http://cockpit.pin) · [Searxng](http://searxng.pin)
-  |||,
-  12, 22, 12, 6,
-);
-
-// ── Claude / MCP (y=28, h=3) ────────────────────────────────────────────────
-
-local claudeRow = g.panel.row.new('Claude / MCP') + c.pos(0, 28, 24, 1);
-
-local claudeProxyCard  = navCard('Claude Proxy',   'API proxy metrics',    '/d/claude-proxy')          + c.pos(0,  29, 6, 3);
-local claudeCodeCard   = navCard('Claude Code',    'Agent activity',       '/d/heater-claude-code')    + c.pos(6,  29, 6, 3);
-local mcpVanguardCard  = navCard('MCP Vanguard',   'MCP server metrics',   '/d/services-mcp-vanguard') + c.pos(12, 29, 6, 3);
-local sbtcpCard        = navCard('SBTCP',          'Entity overview',      '/d/sbtcp-entity-overview') + c.pos(18, 29, 6, 3);
-
-// ── Grafana Tools (y=32, h=3) ───────────────────────────────────────────────
-
-local toolsRow = g.panel.row.new('Grafana Tools') + c.pos(0, 32, 24, 1);
-
-// Logs Explore URL pre-selects VictoriaLogs datasource.
-local logsExploreUrl = '/explore?schemaVersion=1&panes=%7B%22logs%22%3A%7B%22datasource%22%3A%22PD775F2863313E6C7%22%2C%22queries%22%3A%5B%7B%22refId%22%3A%22A%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22now-1h%22%2C%22to%22%3A%22now%22%7D%7D%7D&orgId=1';
-
-local exploreMetrics   = navCard('Metrics Explore',   'VictoriaMetrics query', '/explore')                         + c.pos(0,  33, 4, 3);
-local exploreLogs      = navCard('Logs Explore',      'VictoriaLogs query',    logsExploreUrl)                     + c.pos(4,  33, 4, 3);
-local tracesDrilldown  = navCard('Traces Drilldown',  'Traces explore app',    '/a/grafana-exploretraces-app/explore') + c.pos(8, 33, 4, 3);
-local metricsDrilldown = navCard('Metrics Drilldown', 'Metrics drilldown app', '/a/grafana-metricsdrilldown-app/') + c.pos(12, 33, 4, 3);
-local logsDrilldown    = navCard('Logs Drilldown',    'Logs explore app',      '/a/grafana-lokiexplore-app/')       + c.pos(16, 33, 4, 3);
-local dashboardsNav    = navCard('Dashboards',        'All dashboard folders', '/dashboards')                       + c.pos(20, 33, 4, 3);
+local exploreMetrics   = navCard('Metrics Explore',   'VictoriaMetrics query', metricsExploreUrl)                   + c.pos(0,  26, 4, 3);
+local exploreLogs      = navCard('Logs Explore',      'VictoriaLogs query',    logsExploreUrl)                     + c.pos(4,  26, 4, 3);
+local tracesDrilldown  = navCard('Traces Drilldown',  'Traces explore app',    '/a/grafana-exploretraces-app/explore') + c.pos(8, 26, 4, 3);
+local metricsDrilldown = navCard('Metrics Drilldown', 'Metrics drilldown app', '/a/grafana-metricsdrilldown-app/') + c.pos(12, 26, 4, 3);
+local logsDrilldown    = navCard('Logs Drilldown',    'Logs explore app',      '/a/grafana-lokiexplore-app/')       + c.pos(16, 26, 4, 3);
+local dashboardsNav    = navCard('Dashboards',        'All dashboard folders', '/dashboards')                       + c.pos(20, 26, 4, 3);
 
 // ── Dashboard assembly ──────────────────────────────────────────────────────
 
@@ -343,9 +274,6 @@ g.dashboard.new('Pin SI — Home')
     hunterRow,
     hunterPipelineCard, hunterSourcesCard, hunterNamespaceCard,
     cotCard, prefetchCard, arbitrajeCard, scalableCard, pathrankerCard, routeCard,
-    // Dashboard Directory
-    directoryRow,
-    directoryLeft, directoryRight,
     // Claude / MCP
     claudeRow,
     claudeProxyCard, claudeCodeCard, mcpVanguardCard, sbtcpCard,

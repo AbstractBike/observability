@@ -2,7 +2,7 @@ local g = import 'github.com/grafana/grafonnet/gen/grafonnet-v11.4.0/main.libson
 local c = import 'lib/common.libsonnet';
 
 // Claude Code — Full Observability Dashboard
-// Metrics:  VictoriaMetrics (claude_prompt_*, claude_tokens_*, claude_session_*)
+// Metrics:  VictoriaMetrics (claude_tokens_*, claude_session_*, claude_context_*, claude_lines_*, claude_duration_*)
 // Logs:     VictoriaLogs (claude-code, claude-code-debug, mitmproxy-claude)
 // Traces:   SkyWalking OAP PromQL (mcp-vanguard)
 
@@ -12,7 +12,7 @@ local projectVar =
   g.dashboard.variable.query.new('project')
   + g.dashboard.variable.query.queryTypes.withLabelValues(
       'project',
-      'claude_prompt_session_cost_usd{host="heater"}'
+      'claude_session_cost_usd'
     )
   + g.dashboard.variable.query.generalOptions.withLabel('Project')
   + g.dashboard.variable.query.selectionOptions.withMulti(true)
@@ -22,7 +22,7 @@ local modelVar =
   g.dashboard.variable.query.new('model')
   + g.dashboard.variable.query.queryTypes.withLabelValues(
       'model',
-      'claude_prompt_input_tokens{host="heater"}'
+      'claude_tokens_input_total'
     )
   + g.dashboard.variable.query.generalOptions.withLabel('Model')
   + g.dashboard.variable.query.selectionOptions.withMulti(true)
@@ -34,7 +34,7 @@ local sessionCostStat =
   g.panel.stat.new('Session Cost')
   + c.pos(6, 1, 9, 4)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(claude_prompt_session_cost_usd{host="heater",project=~"$project",model=~"$model"}) or vector(0)'),
+    c.vmQ('sum(claude_session_cost_usd{project=~"$project",model=~"$model"}) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('currencyUSD')
   + g.panel.stat.standardOptions.withDecimals(2)
@@ -51,7 +51,7 @@ local contextUsedStat =
   g.panel.stat.new('Context Used %')
   + c.pos(15, 1, 9, 4)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('max(claude_prompt_context_used_pct{host="heater",project=~"$project",model=~"$model"}) or vector(0)'),
+    c.vmQ('max(claude_context_used_pct{project=~"$project",model=~"$model"}) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.withMax(100)
@@ -65,7 +65,7 @@ local totalTokensStat =
   g.panel.stat.new('Tokens')
   + c.pos(0, 5, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(claude_prompt_input_tokens{host="heater",project=~"$project",model=~"$model"}) + sum(claude_prompt_output_tokens{host="heater",project=~"$project",model=~"$model"}) or vector(0)'),
+    c.vmQ('sum(claude_tokens_input_total{project=~"$project",model=~"$model"}) + sum(claude_tokens_output_total{project=~"$project",model=~"$model"}) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('short')
   + g.panel.stat.standardOptions.withDecimals(0)
@@ -76,7 +76,7 @@ local cacheTokensStat =
   g.panel.stat.new('Cache Hit')
   + c.pos(4, 5, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(claude_prompt_cache_read_tokens{host="heater",project=~"$project",model=~"$model"}) / (sum(claude_prompt_cache_read_tokens{host="heater",project=~"$project",model=~"$model"}) + sum(claude_prompt_input_tokens{host="heater",project=~"$project",model=~"$model"}) + 1) * 100 or vector(0)'),
+    c.vmQ('sum(claude_tokens_cache_read{project=~"$project",model=~"$model"}) / (sum(claude_tokens_cache_read{project=~"$project",model=~"$model"}) + sum(claude_tokens_input_total{project=~"$project",model=~"$model"}) + 1) * 100 or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('percent')
   + g.panel.stat.standardOptions.withDecimals(0)
@@ -93,8 +93,8 @@ local linesAddedStat =
   g.panel.stat.new('Lines +/-')
   + c.pos(8, 5, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(claude_prompt_lines_added{host="heater",project=~"$project",model=~"$model"}) or vector(0)', 'added'),
-    c.vmQ('sum(claude_prompt_lines_removed{host="heater",project=~"$project",model=~"$model"}) or vector(0)', 'removed'),
+    c.vmQ('sum(claude_lines_added{project=~"$project",model=~"$model"}) or vector(0)', 'added'),
+    c.vmQ('sum(claude_lines_removed{project=~"$project",model=~"$model"}) or vector(0)', 'removed'),
   ])
   + g.panel.stat.standardOptions.withUnit('short')
   + g.panel.stat.standardOptions.withDecimals(0)
@@ -105,7 +105,7 @@ local apiWaitStat =
   g.panel.stat.new('API Wait')
   + c.pos(12, 5, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('max(claude_prompt_api_wait_ms{host="heater",project=~"$project",model=~"$model"}) or vector(0)'),
+    c.vmQ('max(claude_duration_api_seconds{project=~"$project",model=~"$model"}) * 1000 or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('ms')
   + g.panel.stat.standardOptions.withDecimals(0)
@@ -132,7 +132,7 @@ local linesRemovedStat =
   g.panel.stat.new('Lines Removed')
   + c.pos(20, 5, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(claude_prompt_lines_removed{host="heater",project=~"$project",model=~"$model"}) or vector(0)'),
+    c.vmQ('sum(claude_lines_removed{project=~"$project",model=~"$model"}) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('short')
   + g.panel.stat.standardOptions.withDecimals(0)
@@ -145,8 +145,8 @@ local tokensTs =
   g.panel.timeSeries.new('Token Usage (Input vs Output)')
   + c.pos(0, 9, 12, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('sum by (project) (claude_prompt_input_tokens{host="heater",project=~"$project",model=~"$model"}) or vector(0)', 'input {{project}}'),
-    c.vmQ('sum by (project) (claude_prompt_output_tokens{host="heater",project=~"$project",model=~"$model"}) or vector(0)', 'output {{project}}'),
+    c.vmQ('sum by (project) (claude_tokens_input_total{project=~"$project",model=~"$model"}) or vector(0)', 'input {{project}}'),
+    c.vmQ('sum by (project) (claude_tokens_output_total{project=~"$project",model=~"$model"}) or vector(0)', 'output {{project}}'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('short')
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(10)
@@ -156,7 +156,7 @@ local costTs =
   g.panel.timeSeries.new('Session Cost by Project')
   + c.pos(12, 9, 12, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('sum by (project) (claude_prompt_session_cost_usd{host="heater",project=~"$project",model=~"$model"}) or vector(0)', '{{project}}'),
+    c.vmQ('sum by (project) (claude_session_cost_usd{project=~"$project",model=~"$model"}) or vector(0)', '{{project}}'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('currencyUSD')
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
@@ -168,8 +168,8 @@ local cacheTs =
   g.panel.timeSeries.new('Cache Tokens (Read vs Write)')
   + c.pos(0, 18, 12, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('sum by (project) (claude_prompt_cache_read_tokens{host="heater",project=~"$project",model=~"$model"}) or vector(0)', 'read {{project}}'),
-    c.vmQ('sum by (project) (claude_prompt_cache_write_tokens{host="heater",project=~"$project",model=~"$model"}) or vector(0)', 'write {{project}}'),
+    c.vmQ('sum by (project) (claude_tokens_cache_read{project=~"$project",model=~"$model"}) or vector(0)', 'read {{project}}'),
+    c.vmQ('sum by (project) (claude_tokens_cache_write{project=~"$project",model=~"$model"}) or vector(0)', 'write {{project}}'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('short')
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(10)
@@ -179,7 +179,7 @@ local tokensByModelTs =
   g.panel.timeSeries.new('Token Usage by Model')
   + c.pos(12, 18, 12, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('sum by (model) (claude_prompt_input_tokens{host="heater",project=~"$project",model=~"$model"} + claude_prompt_output_tokens{host="heater",project=~"$project",model=~"$model"}) or vector(0)', '{{model}}'),
+    c.vmQ('sum by (model) (claude_tokens_input_total{project=~"$project",model=~"$model"} + claude_tokens_output_total{project=~"$project",model=~"$model"}) or vector(0)', '{{model}}'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('short')
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(10)
@@ -192,7 +192,7 @@ local apiWaitTs =
   g.panel.timeSeries.new('API Wait Time vs MCP Latency')
   + c.pos(0, 27, 12, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('max(claude_prompt_api_wait_ms{host="heater",project=~"$project",model=~"$model"}) or vector(0)', 'API wait (Claude)'),
+    c.vmQ('max(claude_duration_api_seconds{project=~"$project",model=~"$model"}) * 1000 or vector(0)', 'API wait (Claude)'),
     c.swQ(
       'avg(rate(meter_service_resp_time_sum{service="mcp-vanguard"}[5m]) / rate(meter_service_resp_time_count{service="mcp-vanguard"}[5m])) or vector(0)',
       'MCP avg latency'
@@ -206,7 +206,7 @@ local contextTs =
   g.panel.timeSeries.new('Context Window Usage')
   + c.pos(12, 27, 12, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('max by (project) (claude_prompt_context_used_pct{host="heater",project=~"$project",model=~"$model"}) or vector(0)', '{{project}}'),
+    c.vmQ('max by (project) (claude_context_used_pct{project=~"$project",model=~"$model"}) or vector(0)', '{{project}}'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('percent')
   + g.panel.timeSeries.standardOptions.withMax(100)
@@ -220,8 +220,8 @@ local linesTs =
   g.panel.timeSeries.new('Lines Added / Removed')
   + c.pos(0, 36, 12, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('sum by (project) (claude_prompt_lines_added{host="heater",project=~"$project",model=~"$model"}) or vector(0)', '+added {{project}}'),
-    c.vmQ('-sum by (project) (claude_prompt_lines_removed{host="heater",project=~"$project",model=~"$model"}) or vector(0)', '-removed {{project}}'),
+    c.vmQ('sum by (project) (claude_lines_added{project=~"$project",model=~"$model"}) or vector(0)', '+added {{project}}'),
+    c.vmQ('-sum by (project) (claude_lines_removed{project=~"$project",model=~"$model"}) or vector(0)', '-removed {{project}}'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('short')
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(15)
