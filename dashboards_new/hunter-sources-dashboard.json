@@ -7,13 +7,29 @@
       "type": "datasource",
       "pluginId": "victoriametrics-logs-datasource",
       "pluginName": "VictoriaLogs"
+    },
+    {
+      "name": "DS_VICTORIAMETRICS",
+      "label": "VictoriaMetrics",
+      "description": "192.168.0.4:8428",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
     }
   ],
   "__requires": [
-    { "type": "grafana", "id": "grafana", "name": "Grafana", "version": "10.0.0" }
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "10.0.0"
+    }
   ],
-  "annotations": { "list": [] },
-  "description": "Hunter Sources Monitor — per-source job counts, 0-result alerts, failures grouped by category",
+  "annotations": {
+    "list": []
+  },
+  "description": "Hunter Sources Monitor \u2014 per-source job counts, health scores, circuit breaker state, 0-result alerts, failures grouped by category",
+  "refresh": "5m",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -26,7 +42,7 @@
       "keepTime": false,
       "tags": [],
       "targetBlank": true,
-      "title": "Temporal UI — Prefetch Schedule",
+      "title": "Temporal UI \u2014 Prefetch Schedule",
       "type": "link",
       "url": "http://temporal.pin/namespaces/prod/schedules/hunter-prefetch-schedule"
     },
@@ -43,132 +59,297 @@
     }
   ],
   "panels": [
-
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
       "id": 1,
       "title": "Resumen Global",
       "type": "row"
     },
-
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
-          "thresholds": { "mode": "absolute", "steps": [
-            { "color": "green", "value": null },
-            { "color": "yellow", "value": 0 }
-          ]},
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0
+              }
+            ]
+          },
           "mappings": []
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 1
+      },
       "id": 10,
-      "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
       "title": "Sources Completadas",
       "description": "Sources con jobs > 0 en el periodo seleccionado",
       "type": "stat",
-      "targets": [{
-        "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-        "expr": "_msg:\"Source done\" AND service:hunter-engine-worker",
-        "refId": "A"
-      }]
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
     },
-
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
-          "thresholds": { "mode": "absolute", "steps": [
-            { "color": "green", "value": null },
-            { "color": "orange", "value": 1 },
-            { "color": "red", "value": 5 }
-          ]},
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          },
           "mappings": []
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 1
+      },
       "id": 11,
-      "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
       "title": "Sources con 0 Jobs",
       "description": "Sources que devolvieron 0 resultados",
       "type": "stat",
-      "targets": [{
-        "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-        "expr": "_msg:\"Source zero\" AND service:hunter-engine-worker",
-        "refId": "A"
-      }]
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source zero\" AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
     },
-
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
-          "thresholds": { "mode": "absolute", "steps": [
-            { "color": "green", "value": null },
-            { "color": "orange", "value": 1 },
-            { "color": "red", "value": 3 }
-          ]},
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 3
+              }
+            ]
+          },
           "mappings": []
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 1
+      },
       "id": 12,
-      "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
       "title": "Source Failures",
       "description": "Sources que fallaron con error",
       "type": "stat",
-      "targets": [{
-        "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-        "expr": "_msg:\"Source failed\" AND service:hunter-engine-worker",
-        "refId": "A"
-      }]
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source failed\" AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
     },
-
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
-          "thresholds": { "mode": "absolute", "steps": [
-            { "color": "blue", "value": null },
-            { "color": "green", "value": 100 }
-          ]},
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 100
+              }
+            ]
+          },
           "mappings": []
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 1
+      },
       "id": 13,
-      "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
       "title": "Jobs Descubiertos",
       "description": "Total job_discovered events en el periodo",
       "type": "stat",
-      "targets": [{
-        "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-        "expr": "_msg:job_discovered AND service:hunters AND env:prod",
-        "refId": "A"
-      }]
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:job_discovered AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
     },
-
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
       "id": 2,
-      "title": "Alertas — Sources con 0 Jobs o Error",
+      "title": "Alertas \u2014 Sources con 0 Jobs o Error",
       "type": "row"
     },
-
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 6
+      },
       "id": 20,
       "options": {
         "showTime": true,
@@ -181,18 +362,30 @@
         "sortOrder": "Descending"
       },
       "title": "Sources con 0 Resultados",
-      "description": "Source ejecutó correctamente pero no encontró jobs — investigar keywords o API",
+      "description": "Source ejecut\u00f3 correctamente pero no encontr\u00f3 jobs \u2014 investigar keywords o API",
       "type": "logs",
-      "targets": [{
-        "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-        "expr": "_msg:\"Source zero\" AND service:hunter-engine-worker",
-        "refId": "A"
-      }]
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source zero\" AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
     },
-
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 6
+      },
       "id": 21,
       "options": {
         "showTime": true,
@@ -205,395 +398,2356 @@
         "sortOrder": "Descending"
       },
       "title": "Source Failures (con error)",
-      "description": "Sources que fallaron con error — JSON decode, API error, etc.",
+      "description": "Sources que fallaron con error \u2014 JSON decode, API error, etc.",
       "type": "logs",
-      "targets": [{
-        "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-        "expr": "_msg:\"Source failed\" AND service:hunter-engine-worker",
-        "refId": "A"
-      }]
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source failed\" AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
     },
-
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
       "id": 3,
-      "title": "Sources por Categoría",
+      "title": "Sources por Categor\u00eda",
       "type": "row"
     },
-
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 15 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 15
+      },
       "id": 30,
-      "title": "🌍 General  (linkedin · adzuna · remotive · remoteok · jobicy · jooble · reed · wwr)",
+      "title": "\ud83c\udf0d General  (linkedin \u00b7 adzuna \u00b7 remotive \u00b7 remoteok \u00b7 jobicy \u00b7 jooble \u00b7 reed \u00b7 wwr)",
       "type": "row"
     },
-
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 3, "x": 0, "y": 16 },
-      "id": 100, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "linkedin", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:linkedin AND service:hunter-engine-worker", "refId": "A" }]
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 0,
+        "y": 16
+      },
+      "id": 100,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "linkedin",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:linkedin AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
     },
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 3, "x": 3, "y": 16 },
-      "id": 101, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "adzuna", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:adzuna AND service:hunter-engine-worker", "refId": "A" }]
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 12,
+        "y": 16
+      },
+      "id": 104,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "jobicy (keywords)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:jobicy AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
     },
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 3, "x": 6, "y": 16 },
-      "id": 102, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "remotive (tech)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:remotive AND service:hunter-engine-worker", "refId": "A" }]
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 15,
+        "y": 16
+      },
+      "id": 105,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "jooble (API key opt.)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:jooble AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
     },
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 3, "x": 9, "y": 16 },
-      "id": 103, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "remoteok (keywords)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:remoteok AND service:hunter-engine-worker", "refId": "A" }]
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 18,
+        "y": 16
+      },
+      "id": 106,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "reed (API key opt.)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:reed AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
     },
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 3, "x": 12, "y": 16 },
-      "id": 104, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "jobicy (keywords)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:jobicy AND service:hunter-engine-worker", "refId": "A" }]
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 21,
+        "y": 16
+      },
+      "id": 107,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "findwork (HN+ROK)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:findwork AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
     },
-    {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 3, "x": 15, "y": 16 },
-      "id": 105, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "jooble (API key opt.)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:jooble AND service:hunter-engine-worker", "refId": "A" }]
-    },
-    {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 3, "x": 18, "y": 16 },
-      "id": 106, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "reed (API key opt.)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:reed AND service:hunter-engine-worker", "refId": "A" }]
-    },
-    {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 3, "x": 21, "y": 16 },
-      "id": 107, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "findwork (HN+ROK)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:findwork AND service:hunter-engine-worker", "refId": "A" }]
-    },
-
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 19 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 19
+      },
       "id": 31,
-      "title": "💻 Tech  (himalayas · wwr · arbeitnow · workingnomads · wttj · landingjobs · manfred · tecnoempleo)",
+      "title": "\ud83d\udcbb Tech  (himalayas \u00b7 wwr \u00b7 arbeitnow \u00b7 workingnomads \u00b7 wttj \u00b7 landingjobs \u00b7 manfred \u00b7 tecnoempleo)",
       "type": "row"
     },
-
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 3, "x": 0, "y": 20 },
-      "id": 110, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "himalayas", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:himalayas AND service:hunter-engine-worker", "refId": "A" }]
-    },
-    {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 3, "x": 3, "y": 20 },
-      "id": 111, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "wwr (WeWorkRemotely)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:wwr AND service:hunter-engine-worker", "refId": "A" }]
-    },
-    {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 3, "x": 6, "y": 20 },
-      "id": 112, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "arbeitnow (EU remote)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:arbeitnow AND service:hunter-engine-worker", "refId": "A" }]
-    },
-    {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 3, "x": 9, "y": 20 },
-      "id": 113, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "workingnomads", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:workingnomads AND service:hunter-engine-worker", "refId": "A" }]
-    },
-    {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 3, "x": 12, "y": 20 },
-      "id": 114, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "wttj (welcometothejungle)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:wttj AND service:hunter-engine-worker", "refId": "A" }]
-    },
-    {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "red", "value": null }, { "color": "orange", "value": 0 } ] }, "mappings": [{ "type": "special", "options": { "match": "null", "result": { "text": "ROTO" } } }] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 3, "x": 15, "y": 20 },
-      "id": 115, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "landingjobs ⚠ BROKEN", "description": "JSON decode error — API cambió formato de respuesta",
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 0,
+        "y": 20
+      },
+      "id": 110,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "himalayas",
       "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:landingjobs AND service:hunter-engine-worker", "refId": "A" }]
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:himalayas AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
     },
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 3, "x": 18, "y": 20 },
-      "id": 116, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "manfred (getmanfred.com)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:manfred AND service:hunter-engine-worker", "refId": "A" }]
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 3,
+        "y": 20
+      },
+      "id": 111,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "wwr (WeWorkRemotely)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:wwr AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
     },
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 3, "x": 21, "y": 20 },
-      "id": 117, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "tecnoempleo", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:tecnoempleo AND service:hunter-engine-worker", "refId": "A" }]
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 6,
+        "y": 20
+      },
+      "id": 112,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "arbeitnow (EU remote)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:arbeitnow AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
     },
-
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 9,
+        "y": 20
+      },
+      "id": 113,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "workingnomads",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:workingnomads AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 12,
+        "y": 20
+      },
+      "id": 114,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "wttj (welcometothejungle)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:wttj AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "special",
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "ROTO"
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 15,
+        "y": 20
+      },
+      "id": 115,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "landingjobs \u26a0 BROKEN",
+      "description": "JSON decode error \u2014 API cambi\u00f3 formato de respuesta",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:landingjobs AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 18,
+        "y": 20
+      },
+      "id": 116,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "manfred (getmanfred.com)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:manfred AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 21,
+        "y": 20
+      },
+      "id": 117,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "tecnoempleo",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:tecnoempleo AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
+    },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 23
+      },
       "id": 32,
-      "title": "💊 Pharma  (pharmiweb · biospace · europharmajobs)",
+      "title": "\ud83d\udc8a Pharma  (pharmiweb \u00b7 biospace \u00b7 europharmajobs)",
       "type": "row"
     },
-
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 4, "x": 0, "y": 24 },
-      "id": 120, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "pharmiweb (pharmiweb.com)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:pharmiweb AND service:hunter-engine-worker", "refId": "A" }]
-    },
-    {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 4, "x": 4, "y": 24 },
-      "id": 121, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "biospace (biospace.com)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:biospace AND service:hunter-engine-worker", "refId": "A" }]
-    },
-    {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 4, "x": 8, "y": 24 },
-      "id": 122, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "europharmajobs", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:europharmajobs AND service:hunter-engine-worker", "refId": "A" }]
-    },
-
-    {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 27 },
-      "id": 33,
-      "title": "🇪🇸 Spain  (infojobs · tecnoempleo · manfred · boe · boja · ibima)",
-      "type": "row"
-    },
-
-    {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 4, "x": 0, "y": 28 },
-      "id": 130, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "infojobs (infojobs.net)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:infojobs AND service:hunter-engine-worker", "refId": "A" }]
-    },
-    {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 4, "x": 4, "y": 28 },
-      "id": 131, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "boe (boe.es)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:boe AND service:hunter-engine-worker", "refId": "A" }]
-    },
-    {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 4, "x": 8, "y": 28 },
-      "id": 132, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "boja (juntadeandalucia.es)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:boja AND service:hunter-engine-worker", "refId": "A" }]
-    },
-    {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 4, "x": 12, "y": 28 },
-      "id": 133, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "ibima (ibima.eu)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:ibima AND service:hunter-engine-worker", "refId": "A" }]
-    },
-
-    {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 31 },
-      "id": 34,
-      "title": "🇪🇺 Public EU  (ema · eu_careers · jrc · eulisa · europol · euspa)",
-      "type": "row"
-    },
-
-    {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 4, "x": 0, "y": 32 },
-      "id": 140, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "ema (ema.europa.eu)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:ema AND service:hunter-engine-worker", "refId": "A" }]
-    },
-    {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 4, "x": 4, "y": 32 },
-      "id": 141, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "eu_careers (epso.europa.eu)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:eu_careers AND service:hunter-engine-worker", "refId": "A" }]
-    },
-    {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 4, "x": 8, "y": 32 },
-      "id": 142, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "jrc (ec.europa.eu/jrc)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:jrc AND service:hunter-engine-worker", "refId": "A" }]
-    },
-    {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 4, "x": 12, "y": 32 },
-      "id": 143, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "eulisa (eulisa.europa.eu)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:eulisa AND service:hunter-engine-worker", "refId": "A" }]
-    },
-    {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 4, "x": 16, "y": 32 },
-      "id": 144, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "europol (europol.europa.eu)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:europol AND service:hunter-engine-worker", "refId": "A" }]
-    },
-    {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 4, "x": 20, "y": 32 },
-      "id": 145, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "euspa (euspa.europa.eu)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:euspa AND service:hunter-engine-worker", "refId": "A" }]
-    },
-
-    {
-      "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 35 },
-      "id": 35,
-      "title": "🔬 QA  (qajobboard) · 📣 Marketing  (remotive_marketing · jobicy_marketing · wttj) · 🪙 Crypto  (cryptojobslist)",
-      "type": "row"
-    },
-
-    {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 4, "x": 0, "y": 36 },
-      "id": 150, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "qajobboard (QA)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:qajobboard AND service:hunter-engine-worker", "refId": "A" }]
-    },
-    {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 4, "x": 4, "y": 36 },
-      "id": 151, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "remotive_marketing", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:remotive_marketing AND service:hunter-engine-worker", "refId": "A" }]
-    },
-    {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 4, "x": 8, "y": 36 },
-      "id": 152, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "jobicy_marketing", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:jobicy_marketing AND service:hunter-engine-worker", "refId": "A" }]
-    },
-    {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 4, "x": 12, "y": 36 },
-      "id": 153, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "cryptojobslist", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:cryptojobslist AND service:hunter-engine-worker", "refId": "A" }]
-    },
-    {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 4, "x": 16, "y": 36 },
-      "id": 154, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "tjh (internal VLogs)", "description": "Reutiliza jobs de semanas anteriores. Con slug=_global no funciona en prefetch.",
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 0,
+        "y": 24
+      },
+      "id": 120,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "pharmiweb (pharmiweb.com)",
       "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:tjh AND service:hunter-engine-worker", "refId": "A" }]
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:pharmiweb AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
     },
-
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 4,
+        "y": 24
+      },
+      "id": 121,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "biospace (biospace.com)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:biospace AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 8,
+        "y": 24
+      },
+      "id": 122,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "europharmajobs",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:europharmajobs AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
+    },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 39 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 27
+      },
+      "id": 33,
+      "title": "\ud83c\uddea\ud83c\uddf8 Spain  (infojobs \u00b7 tecnoempleo \u00b7 manfred \u00b7 boe \u00b7 boja \u00b7 ibima)",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 0,
+        "y": 28
+      },
+      "id": 130,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "infojobs (infojobs.net)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:infojobs AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 4,
+        "y": 28
+      },
+      "id": 131,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "boe (boe.es)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:boe AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 8,
+        "y": 28
+      },
+      "id": 132,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "boja (juntadeandalucia.es)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:boja AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 12,
+        "y": 28
+      },
+      "id": 133,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "ibima (ibima.eu)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:ibima AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 31
+      },
+      "id": 34,
+      "title": "\ud83c\uddea\ud83c\uddfa Public EU  (ema \u00b7 eu_careers \u00b7 jrc \u00b7 eulisa \u00b7 europol \u00b7 euspa)",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 0,
+        "y": 32
+      },
+      "id": 140,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "ema (ema.europa.eu)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:ema AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 4,
+        "y": 32
+      },
+      "id": 141,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "eu_careers (epso.europa.eu)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:eu_careers AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 8,
+        "y": 32
+      },
+      "id": 142,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "jrc (ec.europa.eu/jrc)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:jrc AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 12,
+        "y": 32
+      },
+      "id": 143,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "eulisa (eulisa.europa.eu)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:eulisa AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 16,
+        "y": 32
+      },
+      "id": 144,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "europol (europol.europa.eu)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:europol AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 20,
+        "y": 32
+      },
+      "id": 145,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "euspa (euspa.europa.eu)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:euspa AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 35
+      },
+      "id": 35,
+      "title": "\ud83d\udd2c QA  (qajobboard) \u00b7 \ud83d\udce3 Marketing  (remotive_marketing \u00b7 jobicy_marketing \u00b7 wttj) \u00b7 \ud83e\ude99 Crypto  (cryptojobslist)",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 0,
+        "y": 36
+      },
+      "id": 150,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "qajobboard (QA)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:qajobboard AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 4,
+        "y": 36
+      },
+      "id": 151,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "remotive_marketing",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:remotive_marketing AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 8,
+        "y": 36
+      },
+      "id": 152,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "jobicy_marketing",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:jobicy_marketing AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 12,
+        "y": 36
+      },
+      "id": 153,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "cryptojobslist",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:cryptojobslist AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 16,
+        "y": 36
+      },
+      "id": 154,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "tjh (internal VLogs)",
+      "description": "Reutiliza jobs de semanas anteriores. Con slug=_global no funciona en prefetch.",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:tjh AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 39
+      },
       "id": 36,
-      "title": "🔍 Discovery (Firecrawl/SearXNG)  — firecrawl-cloud · firecrawl-auckland · firecrawl-local",
+      "title": "\ud83d\udd0d Discovery (Firecrawl/SearXNG)  \u2014 firecrawl-cloud \u00b7 firecrawl-auckland \u00b7 firecrawl-local",
       "type": "row"
     },
-
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 8, "x": 0, "y": 40 },
-      "id": 160, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "firecrawl-cloud (api.firecrawl.dev)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:\"firecrawl-cloud\" AND service:hunter-engine-worker", "refId": "A" }]
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 8,
+        "x": 0,
+        "y": 40
+      },
+      "id": 160,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "firecrawl-cloud (api.firecrawl.dev)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:\"firecrawl-cloud\" AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
     },
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 8, "x": 8, "y": 40 },
-      "id": 161, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "firecrawl-auckland (fc.auckland.pin)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:\"firecrawl-auckland\" AND service:hunter-engine-worker", "refId": "A" }]
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 8,
+        "x": 8,
+        "y": 40
+      },
+      "id": 161,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "firecrawl-auckland (fc.auckland.pin)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:\"firecrawl-auckland\" AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
     },
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "orange", "value": 0 }, { "color": "red", "value": 0 } ] }, "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 3, "w": 8, "x": 16, "y": 40 },
-      "id": 162, "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["count"], "fields": "", "values": false }, "textMode": "auto" },
-      "title": "firecrawl-local (192.168.0.4:3002)", "type": "stat",
-      "targets": [{ "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" }, "expr": "_msg:\"Source done\" AND source:\"firecrawl-local\" AND service:hunter-engine-worker", "refId": "A" }]
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 8,
+        "x": 16,
+        "y": 40
+      },
+      "id": 162,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "count"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "firecrawl-local (192.168.0.4:3002)",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND _msg:\"firecrawl-local\" AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
     },
-
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 43 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 43
+      },
       "id": 37,
-      "title": "Stream Completo — All Sources",
+      "title": "Stream Completo \u2014 All Sources",
       "type": "row"
     },
-
     {
-      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 44 },
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 44
+      },
       "id": 170,
       "options": {
         "showTime": true,
@@ -605,24 +2759,123 @@
         "dedupStrategy": "none",
         "sortOrder": "Descending"
       },
-      "title": "All Source Events (done · zero · failed)",
+      "title": "All Source Events (done \u00b7 zero \u00b7 failed)",
       "description": "Stream completo de eventos de source: completado con jobs, 0 resultados, o error",
       "type": "logs",
-      "targets": [{
-        "datasource": { "type": "victoriametrics-logs-datasource", "uid": "${DS_VICTORIALOGS}" },
-        "expr": "(_msg:\"Source done\" OR _msg:\"Source zero\" OR _msg:\"Source failed\") AND service:hunter-engine-worker",
-        "refId": "A"
-      }]
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "(_msg:\"Source done\" OR _msg:\"Source zero\" OR _msg:\"Source failed\") AND service:hunter-engine-worker",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 50
+      },
+      "id": 100,
+      "title": "Source Health & Circuit Breakers",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "victoriametrics-logs-datasource",
+        "uid": "${DS_VICTORIALOGS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "spanNulls": false
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 51
+      },
+      "id": 101,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "title": "Source Events \u2014 Done / Zero / Failed",
+      "description": "Log events per outcome over time. Source health scores and circuit breaker metrics will be added when those features are implemented in the worker.",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source done\" AND service:hunter-engine-worker",
+          "legendFormat": "Done",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source zero\" AND service:hunter-engine-worker",
+          "legendFormat": "Zero (no results)",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "victoriametrics-logs-datasource",
+            "uid": "${DS_VICTORIALOGS}"
+          },
+          "expr": "_msg:\"Source failed\" AND service:hunter-engine-worker",
+          "legendFormat": "Failed",
+          "refId": "C"
+        }
+      ]
     }
-
   ],
   "schemaVersion": 39,
-  "tags": ["hunter", "temporal", "sources", "prefetch"],
-  "templating": { "list": [] },
-  "time": { "from": "now-7d", "to": "now" },
+  "tags": [
+    "hunter",
+    "temporal",
+    "sources",
+    "prefetch"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
   "timepicker": {},
   "timezone": "Europe/Madrid",
-  "title": "Hunter — Sources Monitor",
+  "title": "Hunter \u2014 Sources Monitor",
   "uid": "hunter-sources",
   "version": 1
 }
