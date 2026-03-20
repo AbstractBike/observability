@@ -15,7 +15,8 @@ local config = {
   // Dashboard-level template variable that lets the user pick a VM datasource.
   vmDsVar:
     g.dashboard.variable.datasource.new('datasource', 'victoriametrics-metrics-datasource')
-    + g.dashboard.variable.datasource.generalOptions.withLabel('Metrics'),
+    + g.dashboard.variable.datasource.generalOptions.withLabel('Metrics')
+    + g.dashboard.variable.datasource.withRegex('^VictoriaMetrics$'),
 
   // Dashboard-level template variable for VictoriaLogs datasource.
   vlogsDsVar:
