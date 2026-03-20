@@ -170,7 +170,7 @@ local statusAlertsPanel =
   ])
   + g.panel.stat.options.withColorMode('background')
   + g.panel.stat.options.withGraphMode('none')
-  + g.panel.stat.standardOptions.withLinks([{ title: 'Alerting', url: '/alerting/list', targetBlank: false }]);
+  + g.panel.stat.standardOptions.withLinks([{ title: 'Alerting', url: '/d/alerts-dashboard', targetBlank: false }]);
 
 local statusCpuPanel =
   g.panel.stat.new('Host CPU')

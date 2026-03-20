@@ -102,14 +102,19 @@ local linesAddedStat =
   + g.panel.stat.options.withGraphMode('none');
 
 local apiWaitStat =
-  g.panel.stat.new('API Wait')
+  g.panel.stat.new('API Wait (avg)')
   + c.pos(12, 5, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('max(claude_duration_api_seconds{project=~"$project",model=~"$model"}) * 1000 or vector(0)'),
+    c.vmQ('sum(claude_duration_api_seconds{project=~"$project",model=~"$model"}) / sum(claude_prompt_count{project=~"$project",model=~"$model"}) or vector(0)'),
   ])
-  + g.panel.stat.standardOptions.withUnit('ms')
-  + g.panel.stat.standardOptions.withDecimals(0)
-  + c.latencyThresholds
+  + g.panel.stat.standardOptions.withUnit('s')
+  + g.panel.stat.standardOptions.withDecimals(1)
+  + g.panel.stat.standardOptions.thresholds.withMode('absolute')
+  + g.panel.stat.standardOptions.thresholds.withSteps([
+    { color: 'green', value: null },
+    { color: 'yellow', value: 10 },
+    { color: 'red', value: 30 },
+  ])
   + g.panel.stat.options.withColorMode('background')
   + g.panel.stat.options.withGraphMode('none');
 
@@ -189,16 +194,16 @@ local tokensByModelTs =
 // ── Time series — Performance ───────────────────────────────────────────────
 
 local apiWaitTs =
-  g.panel.timeSeries.new('API Wait Time vs MCP Latency')
+  g.panel.timeSeries.new('API Wait (avg/request) vs MCP Latency')
   + c.pos(0, 27, 12, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('max(claude_duration_api_seconds{project=~"$project",model=~"$model"}) * 1000 or vector(0)', 'API wait (Claude)'),
+    c.vmQ('sum(claude_duration_api_seconds{project=~"$project",model=~"$model"}) / sum(claude_prompt_count{project=~"$project",model=~"$model"}) or vector(0)', 'API wait avg (Claude)'),
     c.swQ(
-      'avg(rate(meter_service_resp_time_sum{service="mcp-vanguard"}[5m]) / rate(meter_service_resp_time_count{service="mcp-vanguard"}[5m])) or vector(0)',
+      'avg(rate(meter_service_resp_time_sum{service="mcp-vanguard"}[5m]) / rate(meter_service_resp_time_count{service="mcp-vanguard"}[5m])) / 1000 or vector(0)',
       'MCP avg latency'
     ),
   ])
-  + g.panel.timeSeries.standardOptions.withUnit('ms')
+  + g.panel.timeSeries.standardOptions.withUnit('s')
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
