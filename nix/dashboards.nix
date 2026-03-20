@@ -77,6 +77,15 @@ pkgs.runCommand "grafana-dashboards" {
     jsonnet $JPATH "$f" > "$out/slo/$name.json"
   done
 
+  # ── Compile home Jsonnet dashboards ─────────────────────────────────────────
+  mkdir -p $out/home
+
+  for f in ${observabilityDashboardsPath}/home/*.jsonnet; do
+    name=$(basename "$f" .jsonnet)
+    echo "Compiling home/$name.jsonnet..."
+    jsonnet $JPATH "$f" > "$out/home/$name.json"
+  done
+
   # ── Compile overview Jsonnet dashboards ─────────────────────────────────────
   for f in ${observabilityDashboardsPath}/overview/*.jsonnet; do
     name=$(basename "$f" .jsonnet)
