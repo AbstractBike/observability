@@ -107,7 +107,7 @@ local svcStat(svc, idx) =
     { color: 'green', value: 1 },
   ])
   + g.panel.stat.options.withColorMode('background')
-  + g.panel.stat.options.withTextMode('name')
+  + g.panel.stat.options.withTextMode('none')
   + g.panel.stat.options.withGraphMode('none')
   + { links: [{ title: svc.name + ' Dashboard', url: '/d/' + svc.uid, targetBlank: false }] };
 
