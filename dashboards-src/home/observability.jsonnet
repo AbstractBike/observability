@@ -417,7 +417,16 @@ local gr_dsLatTs =
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
-local gr_logsPanel = c.serviceLogsPanel('Grafana Logs', 'grafana-start', y=24);
+local gr_logsPanel =
+  g.panel.logs.new('Grafana Logs')
+  + c.logPos(24)
+  + g.panel.logs.queryOptions.withTargets([
+    c.vlogsQ('{host="homelab",service="grafana"}'),
+  ])
+  + g.panel.logs.options.withWrapLogMessage(true)
+  + g.panel.logs.options.withSortOrder('Descending')
+  + g.panel.logs.options.withEnableLogDetails(true)
+  + g.panel.logs.options.withShowTime(true);
 
 local gr_troubleGuide = c.serviceTroubleshootingGuide('grafana', [
   { symptom: 'High HTTP Latency', runbook: 'grafana/latency', check: 'Check "HTTP Latency p99" and handler breakdown' },
