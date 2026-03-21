@@ -100,6 +100,15 @@ local config = {
   tsPos(col, row): self.pos(col * 12, 7 + row * 8, 12, 8), // col 0-1, row 0-1
   logPos(y):     self.pos(0, y, 24, 10),
 
+  // Shift all panels' y-coordinate by offset.
+  // Use when assembling multiple source dashboards into one.
+  // Example: c.withYOffset(gpuPanels, systemHeight)
+  withYOffset(panels, offset)::
+    std.map(function(p)
+      p + { gridPos+: { y+: offset } },
+      panels
+    ),
+
   // Standard logs panel for service dashboards.
   // host defaults to "homelab"; pass host="heater" for developer-machine services.
   serviceLogsPanel(title, service, y=21, host='homelab'):
