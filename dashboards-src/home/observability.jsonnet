@@ -1135,7 +1135,6 @@ local di_stackText =
     | [Observability — Grafana](/d/observability-grafana) | Grafana itself: memory, CPU, request latency, errors | `meta`, `grafana` |
     | [Observability — VMAlert](/d/observability-vmalert) | Alert rule evaluation, alert processing latency | `alerts`, `alerting` |
     | [Observability — Alertmanager](/d/observability-alertmanager) | Alert routing, grouping, notification success rate | `alerts`, `routing` |
-    | [Observability — SkyWalking](/d/observability-skywalking) | Distributed tracing: OAP uptime, heap, GC, trace latency | `traces`, `apm` |
   |||);
 
 local di_tipsText =
@@ -1180,118 +1179,16 @@ local di_height = 14;
 // § 14 — SkyWalking (sw_)
 // ═══════════════════════════════════════════════════════════════════════════
 
-local sw_alertPanel = c.alertCountPanel('skywalking-oap', col=0);
-
-local sw_uptimeStat =
-  g.panel.stat.new('OAP Uptime')
-  + c.pos(6, 1, 4, 3)
-  + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('time() - process_start_time_seconds{job="skywalking-oap"} or vector(0)'),
-  ])
-  + g.panel.stat.standardOptions.withUnit('s')
-  + g.panel.stat.options.withColorMode('value');
-
-local sw_threadsStat =
-  g.panel.stat.new('OAP Threads')
-  + c.pos(10, 1, 4, 3)
-  + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('jvm_threads_current{job="skywalking-oap"} or vector(0)'),
-  ])
-  + g.panel.stat.options.withColorMode('value');
-
-local sw_heapStat =
-  g.panel.stat.new('Heap Used')
-  + c.pos(14, 1, 5, 3)
-  + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('jvm_memory_bytes_used{job="skywalking-oap",area="heap"} or vector(0)'),
-  ])
-  + g.panel.stat.standardOptions.withUnit('bytes')
-  + g.panel.stat.options.withColorMode('value');
-
-local sw_cpuStat =
-  g.panel.stat.new('CPU Usage (%)')
-  + c.pos(19, 1, 5, 3)
-  + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('(rate(process_cpu_seconds_total{job="skywalking-oap"}[5m]) * 100) or vector(0)'),
-  ])
-  + g.panel.stat.standardOptions.withUnit('percent')
-  + g.panel.stat.options.withColorMode('value');
-
-local sw_heapTs =
-  g.panel.timeSeries.new('JVM Heap')
-  + c.tsPos(0, 0)
-  + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('(jvm_memory_bytes_used{job="skywalking-oap",area="heap"}) or vector(0)', 'used'),
-    c.vmQ('(jvm_memory_bytes_max{job="skywalking-oap",area="heap"}) or vector(0)', 'max'),
-  ])
-  + g.panel.timeSeries.standardOptions.withUnit('bytes')
-  + g.panel.timeSeries.options.tooltip.withMode('multi');
-
-local sw_gcTs =
-  g.panel.timeSeries.new('GC Time (ms/s)')
-  + c.tsPos(1, 0)
-  + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('(rate(jvm_gc_collection_seconds_sum{job="skywalking-oap"}[5m]) or vector(0)) * 1000', '{{gc}}'),
-  ])
-  + g.panel.timeSeries.standardOptions.withUnit('ms')
-  + g.panel.timeSeries.options.tooltip.withMode('multi');
-
-local sw_recentTracesPanel =
-  g.panel.table.new('Recent Traces (Last 1h)')
-  + c.pos(0, 14, 12, 6)
-  + g.panel.table.queryOptions.withTargets([
-    c.vmQ('topk(20, trace_in_latency_count{job="skywalking-oap"} or vector(0))', 'Traces'),
-  ])
-  + g.panel.table.standardOptions.withUnit('short')
-  + g.panel.table.options.withSortBy([
-    { displayName: 'Traces', desc: true },
-  ]);
-
-local sw_traceLatencyPanel =
-  g.panel.timeSeries.new('Trace Latency (p50/p95/p99)')
-  + c.pos(12, 14, 12, 6)
-  + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('histogram_quantile(0.5, sum by(le) (rate(trace_in_latency_bucket{job="skywalking-oap"}[5m]))) or vector(0)', 'p50'),
-    c.vmQ('histogram_quantile(0.95, sum by(le) (rate(trace_in_latency_bucket{job="skywalking-oap"}[5m]))) or vector(0)', 'p95'),
-    c.vmQ('histogram_quantile(0.99, sum by(le) (rate(trace_in_latency_bucket{job="skywalking-oap"}[5m]))) or vector(0)', 'p99'),
-  ])
-  + g.panel.timeSeries.standardOptions.withUnit('ms')
-  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
-  + g.panel.timeSeries.options.tooltip.withMode('multi');
-
-local sw_troubleGuide = c.serviceTroubleshootingGuide('skywalking-oap', [
-  { symptom: 'OAP Service Down', runbook: 'skywalking/service-down', check: 'Check "OAP Uptime" stat and logs' },
-  { symptom: 'High Heap Usage', runbook: 'skywalking/memory', check: 'Monitor "Heap Used" and GC time trends' },
-  { symptom: 'Trace Ingestion Latency', runbook: 'skywalking/trace-latency', check: 'Check "Trace Latency" percentiles and trace volume' },
-  { symptom: 'GC Pauses', runbook: 'skywalking/gc', check: 'Monitor "GC Time" spikes in JVM Performance' },
-], y=38);
-
-// sw: max y+h = troubleGuide y=38 h=5 → 43
-local sw_panels = [
-  g.panel.row.new('📡 SkyWalking — Status') + c.pos(0, 0, 24, 1),
-  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
-  c.externalLinksPanel(y=3),
-  sw_alertPanel, sw_uptimeStat, sw_threadsStat, sw_heapStat, sw_cpuStat,
-  g.panel.row.new('⚡ JVM Performance') + c.pos(0, 6, 24, 1),
-  sw_heapTs, sw_gcTs,
-  g.panel.row.new('📡 Traces') + c.pos(0, 14, 24, 1),
-  sw_recentTracesPanel, sw_traceLatencyPanel,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 32, 24, 1),
-  sw_troubleGuide,
-];
-// sw: max y+h = troubleGuide y=38 h=5 → 43
-local sw_height = 26;
-
 // ═══════════════════════════════════════════════════════════════════════════
 // Dashboard Assembly
 // ═══════════════════════════════════════════════════════════════════════════
 
 g.dashboard.new('Observability — Meta')
 + g.dashboard.withUid('home-observability')
-+ g.dashboard.withDescription('Merged observability meta-dashboard: alertmanager, alerts, vmalert, grafana, logs, metrics discovery, health scoring, query performance, performance, dashboard index, skywalking.')
++ g.dashboard.withDescription('Merged observability meta-dashboard: alertmanager, alerts, vmalert, grafana, logs, metrics discovery, health scoring, query performance, performance, dashboard index.')
 + g.dashboard.withTags(['observability', 'meta', 'alerting'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, c.swDsVar, c.vmAdhocVar, c.vlogsAdhocVar])
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, c.vmAdhocVar, c.vlogsAdhocVar])
 + g.dashboard.withPanels(
     c.withYOffset(am_panels, 0)
     + c.withYOffset(al_panels, am_height)
@@ -1303,5 +1200,4 @@ g.dashboard.new('Observability — Meta')
     + c.withYOffset(qp_panels, am_height + al_height + va_height + gr_height + lg_height + md_height + hs_height)
     + c.withYOffset(pf_panels, am_height + al_height + va_height + gr_height + lg_height + md_height + hs_height + qp_height)
     + c.withYOffset(di_panels, am_height + al_height + va_height + gr_height + lg_height + md_height + hs_height + qp_height + pf_height)
-    + c.withYOffset(sw_panels, am_height + al_height + va_height + gr_height + lg_height + md_height + hs_height + qp_height + pf_height + di_height)
   )

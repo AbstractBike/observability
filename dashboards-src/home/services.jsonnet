@@ -1059,86 +1059,6 @@ local mcpVanguardPanels = [
 ];
 local mcpVanguardHeight = 23;
 
-// ── nixos-mcp panels ───────────────────────────────────────────────────────
-
-local nm_alertPanel = c.alertCountPanel('nixos-mcp', col=0);
-
-local nm_totalCallsStat =
-  g.panel.stat.new('Tool Calls (1h)')
-  + c.statPos(1)
-  + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('increase(nixos_mcp_tool_calls_total[1h]) or vector(0)'),
-  ])
-  + g.panel.stat.standardOptions.withUnit('short')
-  + g.panel.stat.options.withColorMode('value')
-  + g.panel.stat.options.withGraphMode('area');
-
-local nm_successRateStat =
-  g.panel.stat.new('Success Rate (15m)')
-  + c.statPos(2)
-  + g.panel.stat.queryOptions.withTargets([
-    c.vmQ(
-      '(sum(rate(nixos_mcp_tool_calls_total{status="success"}[15m])) / sum(rate(nixos_mcp_tool_calls_total[15m]))) or vector(1)',
-    ),
-  ])
-  + g.panel.stat.standardOptions.withUnit('percentunit')
-  + g.panel.stat.standardOptions.thresholds.withMode('absolute')
-  + g.panel.stat.standardOptions.thresholds.withSteps([
-    { color: 'red', value: null },
-    { color: 'yellow', value: 0.9 },
-    { color: 'green', value: 0.99 },
-  ])
-  + g.panel.stat.options.withColorMode('background');
-
-local nm_activeConnectionsStat =
-  g.panel.stat.new('Active Connections')
-  + c.statPos(3)
-  + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('nixos_mcp_active_connections or vector(0)'),
-  ])
-  + g.panel.stat.standardOptions.withUnit('short')
-  + g.panel.stat.options.withColorMode('value')
-  + g.panel.stat.options.withGraphMode('none');
-
-local nm_toolCallsTs =
-  g.panel.timeSeries.new('Tool Calls by Tool and Status')
-  + c.tsPos(0, 0)
-  + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('rate(nixos_mcp_tool_calls_total[5m])', '{{tool}} / {{status}}'),
-  ])
-  + g.panel.timeSeries.standardOptions.withUnit('ops')
-  + g.panel.timeSeries.options.tooltip.withMode('multi');
-
-local nm_durationTs =
-  g.panel.timeSeries.new('Tool Duration p95 (seconds)')
-  + c.tsPos(1, 0)
-  + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ(
-      'histogram_quantile(0.95, sum by(le, tool) (rate(nixos_mcp_tool_duration_seconds_bucket[5m]))) or vector(0)',
-      'p95 {{tool}}'
-    ),
-  ])
-  + g.panel.timeSeries.standardOptions.withUnit('s')
-  + g.panel.timeSeries.options.tooltip.withMode('multi');
-
-local nm_troubleGuide = c.serviceTroubleshootingGuide('nixos-mcp', [
-  { symptom: 'No metrics', runbook: 'nixos-mcp/down', check: 'Dashboard empty = service not running; metrics bind to 127.0.0.1:9122, check VM scrape config' },
-  { symptom: 'Deploy failures', runbook: 'nixos-mcp/deploy-failures', check: '"Tool Calls by Status" — filter tool=nixos_deploy for deploy-specific errors' },
-  { symptom: 'High error rate', runbook: 'nixos-mcp/high-errors', check: '"Success Rate" below 99% — check logs for error messages' },
-  { symptom: 'Slow tool calls', runbook: 'nixos-mcp/performance', check: '"Tool Duration p95" — deploy is expected slow (minutes), other tools should be sub-second' },
-], y=26);
-
-local nixosMcpPanels = [
-  g.panel.row.new('🔧 NixOS MCP') + c.pos(0, 0, 24, 1),
-  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
-  c.externalLinksPanel(y=3),
-  nm_alertPanel, nm_totalCallsStat, nm_successRateStat, nm_activeConnectionsStat,
-  g.panel.row.new('🔧 Tool Activity') + c.pos(0, 6, 24, 1),
-  nm_toolCallsTs, nm_durationTs,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 25, 24, 1),
-  nm_troubleGuide,
-];
-local nixosMcpHeight = 14;
 
 // ── victorialogs-general panels ────────────────────────────────────────────
 
@@ -1494,16 +1414,15 @@ local offset6  = offset5  + sbtcpHeight;
 local offset7  = offset6  + esHeight;
 local offset8  = offset7  + redpandaHeight;
 local offset9  = offset8  + mcpVanguardHeight;
-local offset10 = offset9  + nixosMcpHeight;
-local offset11 = offset10 + victorialogsHeight;
-local offset12 = offset11 + nixosDeployerHeight;
+local offset10 = offset9  + victorialogsHeight;
+local offset11 = offset10 + nixosDeployerHeight;
 
 g.dashboard.new('Services')
 + g.dashboard.withUid('home-services')
-+ g.dashboard.withDescription('All homelab services — Temporal, Redis, PostgreSQL, ClickHouse, Matrix, SBTCP, Elasticsearch, Redpanda, MCP Vanguard, NixOS MCP, VictoriaLogs, NixOS Deployer, and Serena.')
++ g.dashboard.withDescription('All homelab services — Temporal, Redis, PostgreSQL, ClickHouse, Matrix, SBTCP, Elasticsearch, Redpanda, MCP Vanguard, VictoriaLogs, NixOS Deployer, and Serena.')
 + g.dashboard.withTags(['services', 'homelab'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, c.swDsVar, sb_metricsDsVar, sb_logsDsVar, sb_entityIDVar, c.vmAdhocVar, c.vlogsAdhocVar])
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, sb_metricsDsVar, sb_logsDsVar, sb_entityIDVar, c.vmAdhocVar, c.vlogsAdhocVar])
 + g.dashboard.withPanels(
     c.withYOffset(temporalPanels,      offset0)
     + c.withYOffset(redisPanels,       offset1)
@@ -1514,8 +1433,7 @@ g.dashboard.new('Services')
     + c.withYOffset(esPanels,          offset6)
     + c.withYOffset(redpandaPanels,    offset7)
     + c.withYOffset(mcpVanguardPanels, offset8)
-    + c.withYOffset(nixosMcpPanels,    offset9)
-    + c.withYOffset(victorialogsPanels, offset10)
-    + c.withYOffset(nixosDeployerPanels, offset11)
-    + c.withYOffset(serenaPanels,      offset12)
+    + c.withYOffset(victorialogsPanels, offset9)
+    + c.withYOffset(nixosDeployerPanels, offset10)
+    + c.withYOffset(serenaPanels,      offset11)
   )
