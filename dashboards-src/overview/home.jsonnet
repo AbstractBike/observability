@@ -245,9 +245,8 @@ local logsExploreUrl = '/explore?schemaVersion=1&panes=%7B%22qfl%22%3A%7B%22data
 local exploreMetrics   = navCard('Metrics Explore',   'VictoriaMetrics query', metricsExploreUrl)                   + c.pos(0,  26, 4, 3);
 local exploreLogs      = navCard('Logs Explore',      'VictoriaLogs query',    logsExploreUrl)                     + c.pos(4,  26, 4, 3);
 local tracesDrilldown  = navCard('Traces Drilldown',  'Traces explore app',    '/a/grafana-exploretraces-app/explore') + c.pos(8, 26, 4, 3);
-local metricsDrilldown = navCard('Metrics Drilldown', 'Metrics drilldown app', '/a/grafana-metricsdrilldown-app/') + c.pos(12, 26, 4, 3);
-local logsDrilldown    = navCard('Logs Drilldown',    'Logs explore app',      '/a/grafana-lokiexplore-app/')       + c.pos(16, 26, 4, 3);
-local dashboardsNav    = navCard('Dashboards',        'All dashboard folders', '/dashboards')                       + c.pos(20, 26, 4, 3);
+local metricsDrilldown = navCard('Metrics Drilldown', 'Metrics drilldown app', '/a/grafana-metricsdrilldown-app/?var-ds=P4169E866C3094E38') + c.pos(12, 26, 4, 3);
+local dashboardsNav    = navCard('Dashboards',        'All dashboard folders', '/dashboards')                                                + c.pos(16, 26, 4, 3);
 
 // ── Dashboard assembly ──────────────────────────────────────────────────────
 
@@ -279,5 +278,5 @@ g.dashboard.new('Pin SI — Home')
     claudeProxyCard, claudeCodeCard, mcpVanguardCard, sbtcpCard,
     // Grafana Tools
     toolsRow,
-    exploreMetrics, exploreLogs, tracesDrilldown, metricsDrilldown, logsDrilldown, dashboardsNav,
+    exploreMetrics, exploreLogs, tracesDrilldown, metricsDrilldown, dashboardsNav,
   ])
