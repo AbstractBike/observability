@@ -60,7 +60,7 @@ local cc_contextUsedStat =
 
 local cc_totalTokensStat =
   g.panel.stat.new('Tokens')
-  + c.pos(0, 5, 4, 3)
+  + c.pos(0, 5, 6, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(claude_tokens_input_total{project=~"$project",model=~"$model"}) + sum(claude_tokens_output_total{project=~"$project",model=~"$model"}) or vector(0)'),
   ])
@@ -71,7 +71,7 @@ local cc_totalTokensStat =
 
 local cc_cacheTokensStat =
   g.panel.stat.new('Cache Hit')
-  + c.pos(4, 5, 4, 3)
+  + c.pos(6, 5, 6, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(claude_tokens_cache_read{project=~"$project",model=~"$model"}) / (sum(claude_tokens_cache_read{project=~"$project",model=~"$model"}) + sum(claude_tokens_input_total{project=~"$project",model=~"$model"}) + 1) * 100 or vector(0)'),
   ])
@@ -88,7 +88,7 @@ local cc_cacheTokensStat =
 
 local cc_linesAddedStat =
   g.panel.stat.new('Lines +/-')
-  + c.pos(8, 5, 4, 3)
+  + c.pos(12, 5, 6, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(claude_lines_added{project=~"$project",model=~"$model"}) or vector(0)', 'added'),
     c.vmQ('sum(claude_lines_removed{project=~"$project",model=~"$model"}) or vector(0)', 'removed'),
@@ -100,9 +100,9 @@ local cc_linesAddedStat =
 
 local cc_apiWaitStat =
   g.panel.stat.new('API Wait (avg)')
-  + c.pos(12, 5, 4, 3)
+  + c.pos(18, 5, 6, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(claude_duration_api_seconds{project=~"$project",model=~"$model"}) / sum(claude_prompt_count{project=~"$project",model=~"$model"}) or vector(0)'),
+    c.vmQ('increase(claude_duration_api_seconds{project=~"$project",model=~"$model"}[$__range]) / increase(claude_prompt_count{project=~"$project",model=~"$model"}[$__range]) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.withUnit('s')
   + g.panel.stat.standardOptions.withDecimals(1)
@@ -113,32 +113,6 @@ local cc_apiWaitStat =
     { color: 'red', value: 30 },
   ])
   + g.panel.stat.options.withColorMode('background')
-  + g.panel.stat.options.withGraphMode('none');
-
-local cc_mcpLatencyStat =
-  g.panel.stat.new('MCP P95')
-  + c.pos(16, 5, 4, 3)
-  + g.panel.stat.queryOptions.withTargets([
-    c.swQ(
-      'histogram_quantile(0.95, sum by(le) (rate(meter_service_resp_time_bucket{service="mcp-vanguard"}[5m]))) or vector(0)',
-      'p95'
-    ),
-  ])
-  + g.panel.stat.standardOptions.withUnit('ms')
-  + g.panel.stat.standardOptions.withDecimals(0)
-  + c.latencyThresholds
-  + g.panel.stat.options.withColorMode('background')
-  + g.panel.stat.options.withGraphMode('none');
-
-local cc_linesRemovedStat =
-  g.panel.stat.new('Lines Removed')
-  + c.pos(20, 5, 4, 3)
-  + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(claude_lines_removed{project=~"$project",model=~"$model"}) or vector(0)'),
-  ])
-  + g.panel.stat.standardOptions.withUnit('short')
-  + g.panel.stat.standardOptions.withDecimals(0)
-  + g.panel.stat.options.withColorMode('value')
   + g.panel.stat.options.withGraphMode('none');
 
 local cc_tokensTs =
@@ -361,7 +335,7 @@ local claudeCodePanels = [
   cc_alertPanel, cc_sessionCostStat, cc_contextUsedStat,
 
   g.panel.row.new('Details') + c.pos(0, 6, 24, 1),
-  cc_totalTokensStat, cc_cacheTokensStat, cc_linesAddedStat, cc_apiWaitStat, cc_mcpLatencyStat, cc_linesRemovedStat,
+  cc_totalTokensStat, cc_cacheTokensStat, cc_linesAddedStat, cc_apiWaitStat,
 
   g.panel.row.new('Usage Trends') + c.pos(0, 10, 24, 1),
   cc_tokensTs, cc_costTs,
@@ -396,7 +370,7 @@ g.dashboard.new('Claude')
 + g.dashboard.withDescription('Claude Code sessions, token cost, context, logs, and traces. Merged from heater/claude-code and claude/overview.')
 + g.dashboard.withTags(['claude', 'ai', 'heater'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, c.swDsVar, projectVar, modelVar, c.vmAdhocVar, c.vlogsAdhocVar])
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, projectVar, modelVar, c.vmAdhocVar, c.vlogsAdhocVar])
 + g.dashboard.withPanels(
     c.withYOffset(claudeCodePanels, 0)
   )
