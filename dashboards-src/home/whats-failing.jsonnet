@@ -34,7 +34,7 @@ local alertCountStat =
   g.panel.stat.new('🚨 Alerts Firing')
   + c.pos(12, 3, 12, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('count(ALERTS{alertstate="firing"}) or vector(0)'),
+    c.vmQ('count(ALERTS{alertstate="firing"})'),
   ])
   + g.panel.stat.standardOptions.withUnit('short')
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')
@@ -108,9 +108,17 @@ local alertsTable =
 
 // ── Error Logs (y=21) ────────────────────────────────────────────────────────
 
+// Top error sources — quickly identifies which service dominates the error log
+local errorByServiceTable =
+  g.panel.table.new('🔊 Top Error Sources')
+  + c.pos(0, 21, 24, 4)
+  + g.panel.table.queryOptions.withTargets([
+    c.vlogsStatsQ('{host="homelab",level="error"} | stats by (service) count() as errors | sort by (errors) desc | limit 10'),
+  ]);
+
 local logsPanel =
   g.panel.logs.new('Recent Error Logs (homelab — all services)')
-  + c.logPos(21)
+  + c.pos(0, 25, 24, 10)
   + g.panel.logs.queryOptions.withTargets([
     c.vlogsQ('{host="homelab",level=~"(error|warn|critical)"}'),
   ])
@@ -119,9 +127,9 @@ local logsPanel =
   + g.panel.logs.options.withEnableLogDetails(true)
   + g.panel.logs.options.withShowTime(true);
 
-// ── Activity panels (y=33..37) ───────────────────────────────────────────────
+// ── Activity panels (y=37..41) ───────────────────────────────────────────────
 
-local activityRowY = 33;
+local activityRowY = 37;
 
 local gpuActivityStat =
   g.panel.stat.new('GPU Present')
@@ -390,7 +398,7 @@ local deployHeight = 9;
 
 // ── Dashboard heights for stacking ───────────────────────────────────────────
 
-local whatDownHeight = 32;
+local whatDownHeight = 36;
 
 // ── Dashboard assembly ────────────────────────────────────────────────────────
 
@@ -413,6 +421,7 @@ g.dashboard.new("What's Failing")
       g.panel.row.new('🚨 Alerts') + c.pos(0, 11, 24, 1),
       alertsTable,
       g.panel.row.new('📝 Logs') + c.pos(0, 20, 24, 1),
+      errorByServiceTable,
       logsPanel,
       // Activity row
       g.panel.row.new('⚡ Activity') + c.pos(0, activityRowY, 24, 1),
