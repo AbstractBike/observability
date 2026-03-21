@@ -20,7 +20,7 @@ local c = import 'lib/common.libsonnet';
 // All monitored job names (up{} metric)
 local ALL_JOBS = 'alertmanager|clickhouse|elasticsearch-exporter|grafana|postgres-exporter|redis-exporter|redpanda|skywalking-oap|temporal|victoriametrics-self|victorialogs|vmalert';
 
-// ── Summary Stats (y=1, statPos = 6 wide × 3 tall) ──────────────────────────
+// ── Summary Stats (y=3, statPos = 6 wide × 3 tall) ──────────────────────────
 
 // Fix: count ALL firing alerts, not just service="observability" (that label does not exist)
 local alertStat =
@@ -89,8 +89,8 @@ local vmReqRateStat =
   + g.panel.stat.options.withColorMode('value')
   + g.panel.stat.options.withGraphMode('area');
 
-// ── Service Status Grid (y=5) ────────────────────────────────────────────────
-// 12 services × 4 wide = 6 per row × 2 rows. Grid ends at y=11.
+// ── Service Status Grid (y=7) ────────────────────────────────────────────────
+// 12 services × 4 wide = 6 per row × 2 rows. Grid ends at y=13.
 
 local servicesList = [
   { job: 'postgres-exporter',    name: 'PostgreSQL',      uid: 'services-postgresql' },
@@ -127,7 +127,7 @@ local serviceStat(svc, idx) =
 
 local servicesGrid = std.mapWithIndex(function(idx, svc) serviceStat(svc, idx), servicesList);
 
-// ── Availability Trends (y=12) ───────────────────────────────────────────────
+// ── Availability Trends (y=14) ───────────────────────────────────────────────
 // Fix: replace broken http_requests_total time series with real up{} trends.
 
 local availabilityTs =
@@ -147,11 +147,11 @@ local availabilityTs =
     { color: 'green', value: 1 },
   ]);
 
-// ── Error Logs (y=21) ────────────────────────────────────────────────────────
+// ── Error Logs (y=23) ────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('Error Logs (homelab — all services)', 'homelab', y=21, host='homelab');
+local logsPanel = c.serviceLogsPanel('Error Logs (homelab — all services)', 'homelab', y=23, host='homelab');
 
-// ── Quick Navigation (y=32) ─────────────────────────────────────────────────
+// ── Quick Navigation (y=34) ─────────────────────────────────────────────────
 
 local navPanel =
   g.panel.text.new('🔗 Service Dashboards')
@@ -178,19 +178,22 @@ g.dashboard.new('Overview — Services Health')
 + g.dashboard.withPanels(
   [
     g.panel.row.new('📊 Summary') + c.pos(0, 0, 24, 1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
     alertStat, healthyStat, downStat, vmReqRateStat,
 
-    g.panel.row.new('⚡ Service Status') + c.pos(0, 4, 24, 1),
+    g.panel.row.new('⚡ Service Status') + c.pos(0, 6, 24, 1),
   ]
   + servicesGrid
   + [
-    g.panel.row.new('📈 Availability Trends') + c.pos(0, 11, 24, 1),
+    g.panel.row.new('📈 Availability Trends') + c.pos(0, 13, 24, 1),
     availabilityTs,
 
-    g.panel.row.new('📝 Error Logs') + c.pos(0, 20, 24, 1),
+    g.panel.row.new('📝 Error Logs') + c.pos(0, 22, 24, 1),
     logsPanel,
 
-    g.panel.row.new('🔗 Navigation') + c.pos(0, 31, 24, 1),
+    g.panel.row.new('🔗 Navigation') + c.pos(0, 33, 24, 1),
     navPanel,
   ]
 )

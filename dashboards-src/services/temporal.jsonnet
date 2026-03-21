@@ -86,7 +86,7 @@ local latTs =
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
-local logsPanel = c.serviceLogsPanel('Temporal Logs', 'temporal', y=13);
+local logsPanel = c.serviceLogsPanel('Temporal Logs', 'temporal', y=15);
 
 local troubleGuide = c.serviceTroubleshootingGuide('temporal', [
   { symptom: 'Service Down', runbook: 'temporal/service-down', check: '"Temporal Up" = 0 — check service status and logs' },
@@ -94,7 +94,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('temporal', [
   { symptom: 'High Latency', runbook: 'temporal/latency', check: '"Request Latency p99" — slow operations or resource contention' },
   { symptom: 'Service Errors', runbook: 'temporal/errors', check: '"Service Errors/sec" — check logs for error type breakdown' },
   { symptom: 'Workflow Stuck', runbook: 'temporal/workflow-stuck', check: 'Backlog high + completions low = worker crashed or activity timeout' },
-], y=24);
+], y=26);
 
 g.dashboard.new('Services — Temporal')
 + g.dashboard.withUid('services-temporal')
@@ -103,12 +103,15 @@ g.dashboard.new('Services — Temporal')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, upStat, workflowStartStat, taskQueueStat, schedLatStat, errorStat,
-  g.panel.row.new('⚡ Workflows & Latency') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚡ Workflows & Latency') + c.pos(0, 6, 24, 1),
   workflowTs, latTs,
-  g.panel.row.new('📝 Logs') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 14, 24, 1),
   logsPanel,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 23, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 25, 24, 1),
   troubleGuide,
 ])

@@ -105,7 +105,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('mcp-vanguard', [
   { symptom: 'High latency / timeouts', runbook: 'mcp-vanguard/latency', check: '"Request Latency p95/p99" — default timeout is 30s' },
   { symptom: 'High error rate', runbook: 'mcp-vanguard/errors', check: '"Error Rate %" above 1% — check logs for error type' },
   { symptom: 'Rate limit errors (429)', runbook: 'mcp-vanguard/rate-limits', check: 'Reduce request frequency or upgrade Anthropic plan' },
-], y=33);
+], y=35);
 
 g.dashboard.new('Services — mcp_vanguard')
 + g.dashboard.withUid('services-mcp-vanguard')
@@ -114,14 +114,17 @@ g.dashboard.new('Services — mcp_vanguard')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, totalCallsStat, successRateStat, totalTokensStat,
-  g.panel.row.new('⚡ Request Activity') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚡ Request Activity') + c.pos(0, 6, 24, 1),
   requestRateTs, latencyTs,
-  g.panel.row.new('🤖 Anthropic API') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('🤖 Anthropic API') + c.pos(0, 14, 24, 1),
   tokensTs, errorRateTs,
-  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 23, 24, 1),
   logsPanel,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 32, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 34, 24, 1),
   troubleGuide,
 ])

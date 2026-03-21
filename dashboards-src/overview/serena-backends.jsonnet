@@ -151,7 +151,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('serena-backends', [
   { symptom: 'Serena Error Rate Up', runbook: 'serena/error-investigation', check: 'Review Error Rate stat and check error logs for stack traces' },
   { symptom: 'Backend Service Down', runbook: 'serena/backend-outage', check: 'Check Backend Services grid for red status indicators' },
   { symptom: 'MCP Connection Lost', runbook: 'serena/mcp-reconnect', check: 'Verify Serena MCP process running and check SLA metric' },
-], y=52);
+], y=54);
 
 // ── Row 4: Error logs ─────────────────────────────────────────────────────
 
@@ -178,20 +178,23 @@ g.dashboard.new('Overview — Serena & Backends')
 
   // Row 0: Serena RED stats
   g.panel.row.new('📊 Serena MCP — RED Metrics') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, cpmStat, respTimeStat, slaStat, errorRateStat,
 
   // Row 1: Serena time series
-  g.panel.row.new('📈 Serena MCP — Trends') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('📈 Serena MCP — Trends') + c.pos(0, 6, 24, 1),
   cpmTs, latencyTs,
   errorRateTs, toolCpmTs,
 
   // Row 2: Per-tool breakdown
-  g.panel.row.new('🔧 Serena — Per-Tool Breakdown') + c.pos(0, 20, 24, 1),
+  g.panel.row.new('🔧 Serena — Per-Tool Breakdown') + c.pos(0, 22, 24, 1),
   toolLatencyTs,
 
   // Row 3: Backend health grid
-  g.panel.row.new('⚡ Backend Services — Health') + c.pos(0, 28, 24, 1),
+  g.panel.row.new('⚡ Backend Services — Health') + c.pos(0, 30, 24, 1),
   upPanel('Serena MCP',         'serena-mcp',           0, 0),
   upPanel('Arbitraje',          'arbitraje',            1, 0),
   upPanel('PostgreSQL',         'postgres-exporter',    2, 0),
@@ -205,10 +208,10 @@ g.dashboard.new('Overview — Serena & Backends')
   upPanel('VMAlert',            'vmalert',              2, 2),
 
   // Row 4: Error logs
-  g.panel.row.new('❌ Error Logs') + c.pos(0, 40, 24, 1),
+  g.panel.row.new('❌ Error Logs') + c.pos(0, 42, 24, 1),
   errorLogs,
 
   // Row 5: Troubleshooting
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 51, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 53, 24, 1),
   troubleGuide,
 ])

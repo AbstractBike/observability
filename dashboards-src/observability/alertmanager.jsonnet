@@ -64,14 +64,14 @@ local alertsTs =
   ])
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
-local logsPanel = c.serviceLogsPanel('Alertmanager Logs', 'alertmanager', y=13);
+local logsPanel = c.serviceLogsPanel('Alertmanager Logs', 'alertmanager', y=15);
 
 local troubleGuide = c.serviceTroubleshootingGuide('alertmanager', [
   { symptom: 'Notification Failures', runbook: 'alertmanager/notification-failures', check: '"Failed Notifications/sec" > 0 — check receiver config (email, webhook)' },
   { symptom: 'Alert Pipeline Backlog', runbook: 'alertmanager/alert-backlog', check: '"Alerts in Pipeline" — high suppressed count = silences or inhibit rules' },
   { symptom: 'High Alert Volume', runbook: 'alertmanager/volume', check: '"Alerts Received/sec" high — check VMAlert rules for over-sensitive thresholds' },
   { symptom: 'Silences Not Working', runbook: 'alertmanager/silences', check: '"Active Silences" = 0 but alerts still suppressed? Check expiry dates' },
-], y=24);
+], y=26);
 
 g.dashboard.new('Observability — Alertmanager')
 + g.dashboard.withUid('observability-alertmanager')
@@ -80,12 +80,15 @@ g.dashboard.new('Observability — Alertmanager')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, receivedStat, firedStat, failedStat, silencesStat,
-  g.panel.row.new('⚠️ Alert Routing') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚠️ Alert Routing') + c.pos(0, 6, 24, 1),
   notifTs, alertsTs,
-  g.panel.row.new('📝 Logs') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 14, 24, 1),
   logsPanel,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 23, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 25, 24, 1),
   troubleGuide,
 ])

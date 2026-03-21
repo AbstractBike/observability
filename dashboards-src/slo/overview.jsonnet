@@ -66,7 +66,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('slo', [
   { symptom: 'Budget Exhausted', runbook: 'slo/budget-exhausted', check: 'Check "Error Budget Remaining" charts for affected service' },
   { symptom: 'Unexpected Spike', runbook: 'slo/spike-investigation', check: 'Correlate error budget drop with specific timestamp in logs' },
   { symptom: 'SLO Target Change', runbook: 'slo/target-update', check: 'Verify new target percentage is correctly configured' },
-], y=26);
+], y=28);
 
 g.dashboard.new('SLO — Overview')
 + g.dashboard.withUid('slo-overview')
@@ -75,22 +75,25 @@ g.dashboard.new('SLO — Overview')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('📊 30-day Compliance') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel,
   sloStatPanel('Host Uptime (99.5%)', 'slo:host_uptime:error_ratio_30d', 99.5, 0),
   sloStatPanel('PostgreSQL (99.9%)', 'slo:postgresql:error_ratio_30d', 99.9, 1),
   sloStatPanel('Redis (99.9%)', 'slo:redis:error_ratio_30d', 99.9, 2),
   sloStatPanel('Grafana (99%)', 'slo:grafana:error_ratio_30d', 99.0, 3),
 
-  g.panel.row.new('💯 Error Budget Remaining (30d)') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('💯 Error Budget Remaining (30d)') + c.pos(0, 6, 24, 1),
   budgetTs('PostgreSQL Error Budget', 'slo:postgresql:error_ratio_30d', 0.001, 0, 0),
   budgetTs('Redis Error Budget', 'slo:redis:error_ratio_30d', 0.001, 1, 0),
   budgetTs('Host Error Budget', 'slo:host_uptime:error_ratio_30d', 0.005, 0, 1),
   budgetTs('Grafana Error Budget', 'slo:grafana:error_ratio_30d', 0.01, 1, 1),
 
-  g.panel.row.new('💡 Guidance') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('💡 Guidance') + c.pos(0, 23, 24, 1),
   guidancePanel,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 25, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 27, 24, 1),
   troubleGuide,
 ])

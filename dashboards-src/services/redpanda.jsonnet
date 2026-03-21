@@ -82,7 +82,7 @@ local lagTs =
 
 // ── Row 2: Logs ───────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('Redpanda Logs', 'redpanda', y=13);
+local logsPanel = c.serviceLogsPanel('Redpanda Logs', 'redpanda', y=15);
 
 // ── Row 3: Troubleshooting ────────────────────────────────────────────────────
 
@@ -92,7 +92,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('redpanda', [
   { symptom: 'Low Throughput', runbook: 'redpanda/throughput', check: '"Throughput" chart dropping — check producers, network, or disk' },
   { symptom: 'Produce Errors', runbook: 'redpanda/produce-errors', check: 'Check logs for kafka protocol errors' },
   { symptom: 'Partition Offline', runbook: 'redpanda/partitions', check: 'Check "Redpanda Up" and broker logs for partition election errors' },
-], y=24);
+], y=26);
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
@@ -103,15 +103,18 @@ g.dashboard.new('Services — Redpanda')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, upStat, uptimeStat, throughputInStat, throughputOutStat,
 
-  g.panel.row.new('📤 Throughput & Lag') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('📤 Throughput & Lag') + c.pos(0, 6, 24, 1),
   throughputTs, lagTs,
 
-  g.panel.row.new('📝 Logs') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 14, 24, 1),
   logsPanel,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 23, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 25, 24, 1),
   troubleGuide,
 ])

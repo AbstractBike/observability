@@ -124,11 +124,11 @@ local troubleGuide = c.serviceTroubleshootingGuide('observability', [
   { symptom: 'High CPU Cost', runbook: 'cost/cpu-optimization', check: 'Review top CPU consumers in "Cost by Service" table' },
   { symptom: 'Memory Leak Detected', runbook: 'cost/memory-leak', check: 'Correlate with "Memory Cost" trend and service restarts' },
   { symptom: 'Storage Growing', runbook: 'cost/storage-cleanup', check: 'Use "Metrics Discovery" dashboard to identify high-cardinality metrics' },
-], y=38);
+], y=40);
 
 // ── Logs panel ──────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('Cost Tracking Logs', 'observability', y=27);
+local logsPanel = c.serviceLogsPanel('Cost Tracking Logs', 'observability', y=29);
 
 // ── Dashboard ───────────────────────────────────────────────────────────────
 
@@ -139,21 +139,24 @@ g.dashboard.new('Observability — Cost Tracking')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('💰 Cost Summary') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, totalCostStat, cpuCostStat, memoryCostStat, storageCostStat,
 
-  g.panel.row.new('📈 Cost Trends') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('📈 Cost Trends') + c.pos(0, 6, 24, 1),
   costTrendTs, cpuVsMemoryTs,
 
-  g.panel.row.new('📊 Service Breakdown') + c.pos(0, 13, 24, 1),
+  g.panel.row.new('📊 Service Breakdown') + c.pos(0, 15, 24, 1),
   serviceCostTable,
 
-  g.panel.row.new('🎯 Optimization Guide') + c.pos(0, 22, 24, 1),
+  g.panel.row.new('🎯 Optimization Guide') + c.pos(0, 24, 24, 1),
   infoPanel,
 
-  g.panel.row.new('📝 Logs') + c.pos(0, 26, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 28, 24, 1),
   logsPanel,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 37, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 39, 24, 1),
   troubleGuide,
 ])

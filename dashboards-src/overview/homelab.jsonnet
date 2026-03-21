@@ -13,7 +13,7 @@ local c = import 'lib/common.libsonnet';
 
 local alertPanel = c.alertCountPanel('homelab', col=0);
 
-// ── Host vitals (y=1) ────────────────────────────────────────────────────────
+// ── Host vitals (y=3) ────────────────────────────────────────────────────────
 
 local cpuStat =
   g.panel.stat.new('CPU')
@@ -66,7 +66,7 @@ local uptimeStat =
   + g.panel.stat.options.withGraphMode('none');
 
 // ── Service status helper ─────────────────────────────────────────────────────
-// Services grid starts at y=5 (after row separator at y=4).
+// Services grid starts at y=7 (after row separator at y=6).
 // Layout: 4 cols x 3 rows, each panel 6w x 3h.
 
 local svcStat(title, upExpr, col, row) =
@@ -84,29 +84,29 @@ local svcStat(title, upExpr, col, row) =
   + g.panel.stat.options.withGraphMode('none')
   + g.panel.stat.options.withTextMode('name');
 
-// ── Services (y=5..13) ────────────────────────────────────────────────────────
+// ── Services (y=7..13) ────────────────────────────────────────────────────────
 
 local services = [
-  // row 0 (y=5)
+  // row 0 (y=7)
   svcStat('PostgreSQL',      'up{job="postgres-exporter"}',                                                           0, 0),
   svcStat('Redis',           'up{job="redis-exporter"}',                                                              1, 0),
   svcStat('Elasticsearch',   'up{job="elasticsearch-exporter"}',                                                      2, 0),
   svcStat('ClickHouse',      'up{job="clickhouse"}',                                                                  3, 0),
-  // row 1 (y=8)
+  // row 1 (y=10)
   svcStat('Redpanda',        'up{job="redpanda"}',                                                                    0, 1),
   svcStat('Temporal',        'up{job="temporal"}',                                                                    1, 1),
   svcStat('VictoriaMetrics', 'up{job="victoriametrics-self"}',                                                        2, 1),
   svcStat('VictoriaLogs',    'up{job="victorialogs"}',                                                                3, 1),
-  // row 2 (y=11)
+  // row 2 (y=13)
   svcStat('Grafana',         'up{job="grafana"}',                                                                     0, 2),
   svcStat('Alertmanager',    'up{job="alertmanager"}',                                                                1, 2),
   svcStat('VMAlert',         'up{job="vmalert"}',                                                                     2, 2),
   svcStat('Vector',          'clamp_max(clamp_min(min_over_time(vector_uptime_seconds{host="homelab"}[2m]),0),1)',     3, 2),
-  // row 3 (y=14)
+  // row 3 (y=16)
   svcStat('SkyWalking OAP',  'up{job="skywalking-oap"}',                                                              0, 3),
 ];
 
-// ── Logs panel (y=22) ─────────────────────────────────────────────────────────
+// ── Logs panel (y=24) ─────────────────────────────────────────────────────────
 
 local systemLogsPanel =
   g.panel.logs.new('System Logs')
@@ -118,7 +118,7 @@ local systemLogsPanel =
   + g.panel.logs.options.withSortOrder('Descending')
   + g.panel.logs.options.withShowTime(true);
 
-// ── SLO panels (y=15) ─────────────────────────────────────────────────────────
+// ── SLO panels (y=17) ─────────────────────────────────────────────────────────
 
 local sloStat(title, expr, targetPct, col) =
   g.panel.stat.new(title)
@@ -143,7 +143,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('homelab', [
   { symptom: 'Memory Pressure', runbook: 'host/memory-pressure', check: 'Review RAM usage and service memory consumption' },
   { symptom: 'Disk Space Low', runbook: 'host/disk-cleanup', check: 'Check Disk / percentage and identify large files' },
   { symptom: 'Service Outage', runbook: 'host/service-recovery', check: 'Review "Services" grid and SLO compliance stats' },
-], y=34);
+], y=36);
 
 // ── Dashboard assembly ────────────────────────────────────────────────────────
 
@@ -155,25 +155,28 @@ g.dashboard.new('Homelab \u2014 Overview')
 + g.dashboard.withPanels(
   [
     g.panel.row.new('🏠 Homelab — Host') + c.pos(0, 0, 24, 1),
-    c.externalLinksPanel(y=1, x=18),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+    c.externalLinksPanel(y=3, x=18),
     alertPanel,
     cpuStat,
     ramStat,
     diskStat,
     uptimeStat,
 
-    g.panel.row.new('⚡ Services') + c.pos(0, 4, 24, 1),
+    g.panel.row.new('⚡ Services') + c.pos(0, 6, 24, 1),
   ]
   + services
   + [
-    g.panel.row.new('💯 SLO Compliance') + c.pos(0, 18, 24, 1),
+    g.panel.row.new('💯 SLO Compliance') + c.pos(0, 20, 24, 1),
     sloStat('SLO: Host Uptime',  '(1 - slo:host_uptime:error_ratio_30d) * 100',  99.5, 0),
     sloStat('SLO: PostgreSQL',   '(1 - slo:postgresql:error_ratio_30d) * 100',   99.9, 1),
     sloStat('SLO: Redis',        '(1 - slo:redis:error_ratio_30d) * 100',        99.9, 2),
     sloStat('SLO: Grafana',      '(1 - slo:grafana:error_ratio_30d) * 100',      99.0, 3),
-    g.panel.row.new('📝 Logs') + c.pos(0, 22, 24, 1),
+    g.panel.row.new('📝 Logs') + c.pos(0, 24, 24, 1),
     systemLogsPanel,
-    g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 33, 24, 1),
+    g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 35, 24, 1),
     troubleGuide,
   ]
 )

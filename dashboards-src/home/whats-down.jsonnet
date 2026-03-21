@@ -15,7 +15,7 @@ local c = import 'lib/common.libsonnet';
 
 local ALL_JOBS = 'alertmanager|clickhouse|elasticsearch-exporter|grafana|postgres-exporter|redis-exporter|redpanda|skywalking-oap|temporal|victoriametrics-self|victorialogs|vmalert';
 
-// ── Top Stats (y=1) ──────────────────────────────────────────────────────────
+// ── Top Stats (y=3) ──────────────────────────────────────────────────────────
 
 local downCountStat =
   g.panel.stat.new('❌ Services Down')
@@ -79,7 +79,7 @@ local totalServicesStat =
   + g.panel.stat.options.withColorMode('value')
   + g.panel.stat.options.withGraphMode('none');
 
-// ── Service Status Grid (y=5) ────────────────────────────────────────────────
+// ── Service Status Grid (y=7) ────────────────────────────────────────────────
 // Same 12-service grid as services-health. Red = investigate.
 
 local servicesList = [
@@ -117,7 +117,7 @@ local svcStat(svc, idx) =
 
 local servicesGrid = std.mapWithIndex(function(idx, svc) svcStat(svc, idx), servicesList);
 
-// ── Availability Timeline (y=12) ─────────────────────────────────────────────
+// ── Availability Timeline (y=14) ─────────────────────────────────────────────
 // Last 15 minutes — highlights exactly when something went down.
 
 local availabilityTs =
@@ -137,7 +137,7 @@ local availabilityTs =
     { color: 'green', value: 1 },
   ]);
 
-// ── Firing Alerts Table (y=19) ───────────────────────────────────────────────
+// ── Firing Alerts Table (y=21) ───────────────────────────────────────────────
 
 local alertsTable =
   g.panel.table.new('🚨 Firing Alerts')
@@ -147,11 +147,11 @@ local alertsTable =
   ])
   + g.panel.table.options.withSortBy([{ displayName: 'alertname', desc: false }]);
 
-// ── Error Logs (y=26) ────────────────────────────────────────────────────────
+// ── Error Logs (y=28) ────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('Recent Error Logs (homelab)', 'homelab', y=26, host='homelab');
+local logsPanel = c.serviceLogsPanel('Recent Error Logs (homelab)', 'homelab', y=28, host='homelab');
 
-// ── Back Link (y=37) ─────────────────────────────────────────────────────────
+// ── Back Link (y=39) ─────────────────────────────────────────────────────────
 
 local backPanel =
   g.panel.text.new('🔗 Navigation')
@@ -175,16 +175,19 @@ g.dashboard.new("What's Down?")
 + g.dashboard.withPanels(
   [
     g.panel.row.new('🔴 Status') + c.pos(0, 0, 24, 1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
     downCountStat, alertCountStat, healthyCountStat, totalServicesStat,
-    g.panel.row.new('⚡ Service Grid') + c.pos(0, 4, 24, 1),
+    g.panel.row.new('⚡ Service Grid') + c.pos(0, 6, 24, 1),
   ]
   + servicesGrid
   + [
-    g.panel.row.new('📈 Timeline') + c.pos(0, 11, 24, 1),
+    g.panel.row.new('📈 Timeline') + c.pos(0, 13, 24, 1),
     availabilityTs,
-    g.panel.row.new('🚨 Alerts') + c.pos(0, 18, 24, 1),
+    g.panel.row.new('🚨 Alerts') + c.pos(0, 20, 24, 1),
     alertsTable,
-    g.panel.row.new('📝 Logs') + c.pos(0, 25, 24, 1),
+    g.panel.row.new('📝 Logs') + c.pos(0, 27, 24, 1),
     logsPanel,
     backPanel,
   ]

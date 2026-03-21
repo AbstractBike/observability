@@ -233,7 +233,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('pin-traces', [
   { symptom: 'Error Rate Spike', runbook: 'apm/error-root-cause', check: 'Monitor Error % stat and expand Error Logs row for stack traces' },
   { symptom: 'Throughput Drop', runbook: 'apm/capacity-check', check: 'Check throughput sparkline trend and correlate with service health' },
   { symptom: 'New Service Down', runbook: 'apm/service-onboard', check: 'Verify service count and check instrumentation in SkyWalking UI' },
-], y=36);
+], y=38);
 
 local errorLogsPanel =
   g.panel.logs.new('Service Error Logs')
@@ -258,18 +258,21 @@ g.dashboard.new('Pin Traces — APM Overview')
 + g.dashboard.withPanels([
     // Always-visible: overview stats + throughput sparkline
     g.panel.row.new('Service Health') + c.pos(0, 0, 24, 1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
     c.externalLinksPanel(y=0, x=18),
     alertPanel, reqRate, errorRate, p99, serviceCount,
     throughputSparkline,
 
     // Collapsed: detailed debugging
-    (g.panel.row.new('Service Details') + c.pos(0, 11, 24, 1) + { collapsed: true, panels: [
+    (g.panel.row.new('Service Details') + c.pos(0, 13, 24, 1) + { collapsed: true, panels: [
       serviceHealthTable, throughputByService, errorByService,
     ] }),
 
     // Collapsed: troubleshooting
-    (g.panel.row.new('Troubleshooting') + c.pos(0, 12, 24, 1) + { collapsed: true, panels: [troubleGuide] }),
+    (g.panel.row.new('Troubleshooting') + c.pos(0, 14, 24, 1) + { collapsed: true, panels: [troubleGuide] }),
 
     // Collapsed: error logs
-    (g.panel.row.new('Error Logs') + c.pos(0, 13, 24, 1) + { collapsed: true, panels: [errorLogsPanel] }),
+    (g.panel.row.new('Error Logs') + c.pos(0, 15, 24, 1) + { collapsed: true, panels: [errorLogsPanel] }),
   ])

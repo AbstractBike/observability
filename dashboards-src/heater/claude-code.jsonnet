@@ -296,34 +296,37 @@ g.dashboard.new('Heater — Claude Code')
 + g.dashboard.withPanels([
   // Hero row — Cost & Context as primary KPIs
   g.panel.row.new('Session Overview') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, sessionCostStat, contextUsedStat,
 
   // Secondary stats — compact row
-  g.panel.row.new('Details') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('Details') + c.pos(0, 6, 24, 1),
   totalTokensStat, cacheTokensStat, linesAddedStat, apiWaitStat, mcpLatencyStat, linesRemovedStat,
 
   // Usage trends
-  g.panel.row.new('Usage Trends') + c.pos(0, 8, 24, 1),
+  g.panel.row.new('Usage Trends') + c.pos(0, 10, 24, 1),
   tokensTs, costTs,
 
   // Cache & Model breakdown
-  g.panel.row.new('Cache & Models') + c.pos(0, 17, 24, 1),
+  g.panel.row.new('Cache & Models') + c.pos(0, 19, 24, 1),
   cacheTs, tokensByModelTs,
 
   // Performance
-  g.panel.row.new('Performance') + c.pos(0, 26, 24, 1),
+  g.panel.row.new('Performance') + c.pos(0, 28, 24, 1),
   apiWaitTs, contextTs,
 
   // Code changes & log volume
-  g.panel.row.new('Activity') + c.pos(0, 35, 24, 1),
+  g.panel.row.new('Activity') + c.pos(0, 37, 24, 1),
   linesTs, logVolumeTs,
 
   // Logs — collapsed rows
-  (g.panel.row.new('Session Logs') + c.pos(0, 44, 24, 1) + { collapsed: true, panels: [sessionLogsPanel] }),
-  (g.panel.row.new('Debug Logs') + c.pos(0, 45, 24, 1) + { collapsed: true, panels: [debugLogsPanel] }),
-  (g.panel.row.new('HTTP Traffic') + c.pos(0, 46, 24, 1) + { collapsed: true, panels: [trafficLogsPanel] }),
+  (g.panel.row.new('Session Logs') + c.pos(0, 46, 24, 1) + { collapsed: true, panels: [sessionLogsPanel] }),
+  (g.panel.row.new('Debug Logs') + c.pos(0, 47, 24, 1) + { collapsed: true, panels: [debugLogsPanel] }),
+  (g.panel.row.new('HTTP Traffic') + c.pos(0, 48, 24, 1) + { collapsed: true, panels: [trafficLogsPanel] }),
 
   // Troubleshooting — collapsed
-  (g.panel.row.new('Troubleshooting') + c.pos(0, 47, 24, 1) + { collapsed: true, panels: [troubleGuide] }),
+  (g.panel.row.new('Troubleshooting') + c.pos(0, 49, 24, 1) + { collapsed: true, panels: [troubleGuide] }),
 ])

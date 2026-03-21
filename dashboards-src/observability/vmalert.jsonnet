@@ -68,14 +68,14 @@ local evalTs =
   + g.panel.timeSeries.standardOptions.withUnit('ms')
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
-local logsPanel = c.serviceLogsPanel('VMAlert Logs', 'vmalert', y=13);
+local logsPanel = c.serviceLogsPanel('VMAlert Logs', 'vmalert', y=15);
 
 local troubleGuide = c.serviceTroubleshootingGuide('vmalert', [
   { symptom: 'Evaluation Errors', runbook: 'vmalert/eval-errors', check: '"Eval Errors/sec" > 0 — check logs for parse errors or invalid metric names' },
   { symptom: 'High Rule Evaluation Latency', runbook: 'vmalert/latency', check: '"Evaluation Duration" p99 rising — check VM query load' },
   { symptom: 'Rules Not Loading', runbook: 'vmalert/rule-loading', check: '"Rules Loaded" = 0 — check vmalert config file and rule file syntax' },
   { symptom: 'Alert Spam', runbook: 'vmalert/alert-spam', check: '"Firing Alerts Over Time" — many firing = bad thresholds or real incident' },
-], y=24);
+], y=26);
 
 g.dashboard.new('Observability — vmalert')
 + g.dashboard.withUid('observability-vmalert')
@@ -84,12 +84,15 @@ g.dashboard.new('Observability — vmalert')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, firingCountStat, rulesStat, evalDurStat, errorStat,
-  g.panel.row.new('⚙️ Evaluation') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚙️ Evaluation') + c.pos(0, 6, 24, 1),
   firingTs, evalTs,
-  g.panel.row.new('📝 Logs') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 14, 24, 1),
   logsPanel,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 23, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 25, 24, 1),
   troubleGuide,
 ])

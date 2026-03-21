@@ -82,8 +82,11 @@ g.dashboard.new('Hunter \u2014 Namespace Health')
 + g.dashboard.withVariables([envVar, hunterMetricsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Worker Status \u2014 hunter-prod') + c.pos(0, 0, 24, 1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
   workerStatusStat,
 
-  g.panel.row.new('History') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('History') + c.pos(0, 6, 24, 1),
   workerHistoryTs,
 ])

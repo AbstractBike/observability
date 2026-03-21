@@ -144,11 +144,11 @@ local troubleGuide = c.serviceTroubleshootingGuide('victoriametrics', [
   { symptom: 'High Cardinality Alert', runbook: 'metrics/cardinality', check: 'Inspect "Top 20 Metrics" for high-cardinality offenders' },
   { symptom: 'Ingestion Rate Drop', runbook: 'metrics/ingest-drop', check: 'Compare current rate vs baseline in "Ingestion Rate" stat' },
   { symptom: 'Storage Growing Fast', runbook: 'metrics/retention', check: 'Review metric discovery dashboard and reduce retention or cardinality' },
-], y=37);
+], y=39);
 
 // ── Logs panel ────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('VictoriaMetrics Logs', 'victoriametrics', y=26);
+local logsPanel = c.serviceLogsPanel('VictoriaMetrics Logs', 'victoriametrics', y=28);
 
 // ── Dashboard ──────────────────────────────────────────────────────────────
 
@@ -159,18 +159,21 @@ g.dashboard.new('Observability — Metric Discovery')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, totalSeriesStat, uniqueMetricsStat, jobCountStat, ingestionRateStat,
 
-  g.panel.row.new('📈 Metrics Overview') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('📈 Metrics Overview') + c.pos(0, 6, 24, 1),
   topMetricsTs, metricsByJobTs,
 
-  g.panel.row.new('ℹ️ Jobs & Info') + c.pos(0, 13, 24, 1),
+  g.panel.row.new('ℹ️ Jobs & Info') + c.pos(0, 15, 24, 1),
   topJobsTable, infoPanel,
 
-  g.panel.row.new('📝 Logs') + c.pos(0, 25, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 27, 24, 1),
   logsPanel,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 36, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 38, 24, 1),
   troubleGuide,
 ])

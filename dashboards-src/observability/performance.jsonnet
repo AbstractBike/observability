@@ -173,14 +173,14 @@ local insightsPanel =
 
 // ── Logs panel ────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('Performance & Error Logs', 'victoriametrics', y=26);
+local logsPanel = c.serviceLogsPanel('Performance & Error Logs', 'victoriametrics', y=28);
 
 local troubleGuide = c.serviceTroubleshootingGuide('observability', [
   { symptom: 'High Query Latency', runbook: 'performance/query-latency', check: 'Check p50/p99 latency stats and trends' },
   { symptom: 'Cardinality Explosion', runbook: 'performance/cardinality', check: 'Monitor "Total Metrics" and series growth' },
   { symptom: 'Storage Growth Out of Control', runbook: 'performance/storage', check: 'Check storage growth rate and retention policy' },
   { symptom: 'High CPU Utilization', runbook: 'performance/cpu', check: 'Correlate with query latency and cardinality' },
-], y=37);
+], y=39);
 
 // ── Dashboard ──────────────────────────────────────────────────────────────
 
@@ -191,19 +191,22 @@ g.dashboard.new('Observability — Performance & Optimization')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('⚡ Performance Stats') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, avgQueryLatencyStat, p99QueryLatencyStat, totalMetricsStat, storageUsedStat,
 
-  g.panel.row.new('📈 Trends & Growth') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('📈 Trends & Growth') + c.pos(0, 6, 24, 1),
   queryLatencyTs, storageGrowthTs,
   cardinalityTs, cpuByServiceTs,
 
-  g.panel.row.new('🎯 Optimization Guide') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('🎯 Optimization Guide') + c.pos(0, 23, 24, 1),
   insightsPanel,
 
-  g.panel.row.new('📝 Logs') + c.pos(0, 25, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 27, 24, 1),
   logsPanel,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 36, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 38, 24, 1),
   troubleGuide,
 ])

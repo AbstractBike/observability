@@ -204,7 +204,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('grafana', [
   { symptom: 'Dashboard Not Loading', runbook: 'grafana/dashboard-error', check: 'Check data source status - click external links (top-right) to verify connectivity' },
   { symptom: 'Slow Dashboard', runbook: 'grafana/performance', check: 'Review "Query Performance" dashboard for slow datasources' },
   { symptom: 'Navigation Help Needed', runbook: 'grafana/navigation', check: 'Follow tips in "Tips & Quick Links" section or use dashboard search' },
-], y=12);
+], y=14);
 
 // ── Dashboard ──────────────────────────────────────────────────────────────────
 
@@ -233,40 +233,43 @@ g.dashboard.new('Observability — Dashboard Index')
 ])
 + g.dashboard.withPanels([
   g.panel.row.new('📋 Dashboard Navigator') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel,
   overviewText,
 
-  g.panel.row.new('🎯 Core Observability') + c.pos(0, 2, 24, 1),
+  g.panel.row.new('🎯 Core Observability') + c.pos(0, 4, 24, 1),
   coreObsText,
 
-  g.panel.row.new('⚡ Performance & Optimization') + c.pos(0, 3, 24, 1),
+  g.panel.row.new('⚡ Performance & Optimization') + c.pos(0, 5, 24, 1),
   perfText,
 
-  g.panel.row.new('🏗️ Infrastructure & Databases') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('🏗️ Infrastructure & Databases') + c.pos(0, 6, 24, 1),
   infraText,
 
-  g.panel.row.new('🔧 Observability Stack Components') + c.pos(0, 5, 24, 1),
+  g.panel.row.new('🔧 Observability Stack Components') + c.pos(0, 7, 24, 1),
   stackText,
 
-  g.panel.row.new('📡 Application Tracing & APM') + c.pos(0, 6, 24, 1),
+  g.panel.row.new('📡 Application Tracing & APM') + c.pos(0, 8, 24, 1),
   tracingText,
 
-  g.panel.row.new('📈 SLOs & Health Scoring') + c.pos(0, 7, 24, 1),
+  g.panel.row.new('📈 SLOs & Health Scoring') + c.pos(0, 9, 24, 1),
   sloText,
 
-  g.panel.row.new('🔄 Data Pipelines & Processing') + c.pos(0, 8, 24, 1),
+  g.panel.row.new('🔄 Data Pipelines & Processing') + c.pos(0, 10, 24, 1),
   pipelineText,
 
-  g.panel.row.new('🖥️ Host-Specific Dashboards') + c.pos(0, 9, 24, 1),
+  g.panel.row.new('🖥️ Host-Specific Dashboards') + c.pos(0, 11, 24, 1),
   hostText,
 
-  g.panel.row.new('🔬 Internal/Meta Observability') + c.pos(0, 10, 24, 1),
+  g.panel.row.new('🔬 Internal/Meta Observability') + c.pos(0, 12, 24, 1),
   metaText,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 11, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 13, 24, 1),
   troubleGuide,
 
-  g.panel.row.new('💡 Tips & Quick Links') + c.pos(0, 19, 24, 1),
+  g.panel.row.new('💡 Tips & Quick Links') + c.pos(0, 21, 24, 1),
   tipsText,
 ])

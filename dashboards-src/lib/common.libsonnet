@@ -93,11 +93,11 @@ local config = {
     { gridPos: { x: x, y: y, w: w, h: h } },
 
   // Standard grid positions used across dashboards.
-  //   Stats row:     4 panels × 6 wide × 3 tall at y=1
-  //   Metrics row:   2×2 panels × 12 wide × 8 tall starting y=5
-  //   Logs row:      1 panel full width at y=21
-  statPos(col):  self.pos(col * 6, 1, 6, 3),   // col 0-3
-  tsPos(col, row): self.pos(col * 12, 5 + row * 8, 12, 8), // col 0-1, row 0-1
+  //   Stats row:     4 panels × 6 wide × 3 tall at y=3 (y=1,2 reserved for spacer below sticky bar)
+  //   Metrics row:   2×2 panels × 12 wide × 8 tall starting y=7
+  //   Logs row:      1 panel full width at y=23
+  statPos(col):  self.pos(col * 6, 3, 6, 3),   // col 0-3
+  tsPos(col, row): self.pos(col * 12, 7 + row * 8, 12, 8), // col 0-1, row 0-1
   logPos(y):     self.pos(0, y, 24, 10),
 
   // Standard logs panel for service dashboards.

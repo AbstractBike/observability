@@ -139,11 +139,11 @@ local troubleGuide = c.serviceTroubleshootingGuide('alertmanager', [
   { symptom: 'Alert Spam', runbook: 'alertmanager/alert-spam', check: 'Check grouping rules and adjust thresholds in VMAlert rules' },
   { symptom: 'Notifications Not Sent', runbook: 'alertmanager/notification-failure', check: 'Monitor notification channel status and retry logs' },
   { symptom: 'Alert Rules Not Evaluating', runbook: 'alertmanager/rule-eval', check: 'Check VMAlert health and rule syntax in "Trends" panel' },
-], y=30);
+], y=32);
 
 // ── Logs panel ────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('Alert Logs', 'alertmanager', y=19);
+local logsPanel = c.serviceLogsPanel('Alert Logs', 'alertmanager', y=21);
 
 // ── Dashboard ──────────────────────────────────────────────────────────────
 
@@ -154,18 +154,21 @@ g.dashboard.new('Observability — Alerts')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('🚨 Status') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, activeAlertsStat, firedAlertsStat, alertmanagerUpStat, vmAlertUpStat,
 
-  g.panel.row.new('📈 Trends') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('📈 Trends') + c.pos(0, 6, 24, 1),
   alertRateTs, alertmanagerStatusTs,
 
-  g.panel.row.new('ℹ️ Info') + c.pos(0, 13, 24, 1),
+  g.panel.row.new('ℹ️ Info') + c.pos(0, 15, 24, 1),
   infoPanel,
 
-  g.panel.row.new('📝 Logs') + c.pos(0, 18, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 20, 24, 1),
   logsPanel,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 29, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 31, 24, 1),
   troubleGuide,
 ])

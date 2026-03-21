@@ -84,7 +84,7 @@ local sizeTs =
 
 // ── Row 3: Logs ───────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('PostgreSQL Logs', 'postgres', y=22);
+local logsPanel = c.serviceLogsPanel('PostgreSQL Logs', 'postgres', y=24);
 
 // ── Row 4: Troubleshooting ────────────────────────────────────────────────────
 
@@ -94,7 +94,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('postgresql', [
   { symptom: 'Cache Hit Rate Low', runbook: 'postgresql/cache', check: '"Cache Hit Rate" below 95% = disk I/O pressure, review shared_buffers' },
   { symptom: 'Lock Contention', runbook: 'postgresql/locks', check: '"Locks by Mode" — shareLock + ExclusiveLock spikes = contention' },
   { symptom: 'DB Size Growing Fast', runbook: 'postgresql/bloat', check: '"Database Size" chart — check VACUUM schedule' },
-], y=34);
+], y=36);
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
@@ -105,18 +105,21 @@ g.dashboard.new('Services — PostgreSQL')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, upStat, connStat, cacheHitStat,
 
-  g.panel.row.new('⚡ Activity') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚡ Activity') + c.pos(0, 6, 24, 1),
   connTs, txnTs,
 
-  g.panel.row.new('🔒 Locks & Size') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('🔒 Locks & Size') + c.pos(0, 14, 24, 1),
   locksTs, sizeTs,
 
-  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 23, 24, 1),
   logsPanel,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 33, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 35, 24, 1),
   troubleGuide,
 ])

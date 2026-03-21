@@ -171,7 +171,7 @@ local guidancePanel =
 
 // ── Logs panel ────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('API Gateway Logs', 'api-gateway', y=35);
+local logsPanel = c.serviceLogsPanel('API Gateway Logs', 'api-gateway', y=37);
 
 // ── Troubleshooting guide ──────────────────────────────────────────────────
 
@@ -180,7 +180,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('api-gateway', [
   { symptom: 'Error Rate Spike', runbook: 'api-gateway/errors', check: 'Monitor "Error Rate" stat and check "Trace Volume"' },
   { symptom: 'Slow Operations', runbook: 'api-gateway/slow-operations', check: 'Check "Operations by Avg Latency" table' },
   { symptom: 'High Trace Volume', runbook: 'api-gateway/volume', check: 'Monitor "Trace Volume (Success/Error)"' },
-], y=46);
+], y=48);
 
 // ── Dashboard ──────────────────────────────────────────────────────────────
 
@@ -192,22 +192,25 @@ g.dashboard.new('api-gateway — Distributed Tracing')
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Overview') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   tracesPerMinStat, errorRateStat, avgLatencyStat, p99LatencyStat,
 
-  g.panel.row.new('⚡ Trace Distribution & Performance') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚡ Trace Distribution & Performance') + c.pos(0, 6, 24, 1),
   traceVolumeTs, latencyDistributionTs,
   operationCountTs, operationErrorsTs,
 
-  g.panel.row.new('🔍 Operation Analysis') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('🔍 Operation Analysis') + c.pos(0, 23, 24, 1),
   spanLatencyTable,
 
-  g.panel.row.new('📊 Correlation Guide') + c.pos(0, 30, 24, 1),
+  g.panel.row.new('📊 Correlation Guide') + c.pos(0, 32, 24, 1),
   guidancePanel,
 
-  g.panel.row.new('📝 Logs') + c.pos(0, 34, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 36, 24, 1),
   logsPanel,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 45, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 47, 24, 1),
   troubleGuide,
 ])

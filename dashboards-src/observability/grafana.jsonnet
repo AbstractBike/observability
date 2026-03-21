@@ -112,14 +112,14 @@ local dsLatTs =
 
 // ── Logs ─────────────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('Grafana Logs', 'grafana-start', y=22);
+local logsPanel = c.serviceLogsPanel('Grafana Logs', 'grafana-start', y=24);
 
 local troubleGuide = c.serviceTroubleshootingGuide('grafana', [
   { symptom: 'High HTTP Latency', runbook: 'grafana/latency', check: 'Check "HTTP Latency p99" and handler breakdown' },
   { symptom: 'Datasource Errors', runbook: 'grafana/datasource', check: 'Monitor "Datasource Request Latency" and logs' },
   { symptom: 'High Memory Usage', runbook: 'grafana/memory', check: 'Check "DB Connections" and dashboard count' },
   { symptom: 'Alert System Issues', runbook: 'grafana/alerting', check: 'Verify "Active Alerts" in Grafana UI' },
-], y=33);
+], y=35);
 
 // ── Dashboard ────────────────────────────────────────────────────────────────
 
@@ -130,14 +130,17 @@ g.dashboard.new('Observability — Grafana')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, httpRateStat, activeAlertsStat, dashboardsStat, dbConnStat,
-  g.panel.row.new('⚡ HTTP Traffic') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚡ HTTP Traffic') + c.pos(0, 6, 24, 1),
   httpRateTs, httpLatTs,
-  g.panel.row.new('🔧 Datasources') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('🔧 Datasources') + c.pos(0, 14, 24, 1),
   dsRateTs, dsLatTs,
-  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 23, 24, 1),
   logsPanel,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 32, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 34, 24, 1),
   troubleGuide,
 ])

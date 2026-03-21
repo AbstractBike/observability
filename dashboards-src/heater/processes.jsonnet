@@ -120,7 +120,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('processes', [
   { symptom: 'Process Count High', runbook: 'processes/fork-bomb', check: 'Monitor Total Processes stat and review historical data' },
   { symptom: 'OOM Killer Active', runbook: 'processes/oom-response', check: 'Check Process Events logs for killed processes' },
   { symptom: 'Zombie Processes', runbook: 'processes/zombie-cleanup', check: 'Review process logs for segfaults or unreaped children' },
-], y=33);
+], y=35);
 
 g.dashboard.new('Heater — Processes')
 + g.dashboard.withUid('heater-processes')
@@ -129,13 +129,16 @@ g.dashboard.new('Heater — Processes')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, totalProcs, totalThreads, topCpuStat, topMemStat,
-  g.panel.row.new('⚡ Top Processes') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚡ Top Processes') + c.pos(0, 6, 24, 1),
   cpuByProcessTs, memByProcessTs,
   cpuTable, memTable,
-  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 23, 24, 1),
   logsPanel,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 32, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 34, 24, 1),
   troubleGuide,
 ])

@@ -95,7 +95,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('postgres-server', [
   { symptom: 'Query Latency Spike', runbook: 'postgres/latency', check: 'Monitor "Query Latency Distribution" percentiles' },
   { symptom: 'High Query Volume', runbook: 'postgres/volume', check: 'Check "Queries/sec" and correlate with app traces' },
   { symptom: 'Connection Pool Exhausted', runbook: 'postgres/connections', check: 'Check PostgreSQL dashboard for active connections' },
-], y=14);
+], y=16);
 
 g.dashboard.new('PostgreSQL — Query Tracing & Performance')
 + g.dashboard.withUid('tracing-postgresql')
@@ -104,12 +104,15 @@ g.dashboard.new('PostgreSQL — Query Tracing & Performance')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Query Performance') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, queryRateStat, avgQueryLatencyStat, p95QueryLatencyStat, slowQueryCountStat,
 
-  g.panel.row.new('🔍 Analysis') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('🔍 Analysis') + c.pos(0, 6, 24, 1),
   queryLatencyTs, slowQueryVolumeTs,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 13, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 15, 24, 1),
   troubleGuide,
 ])

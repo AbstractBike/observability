@@ -101,7 +101,7 @@ local roomsTs =
 // ── Row 3: Logs ───────────────────────────────────────────────────────────────
 
 local logsPanel =
-  c.serviceLogsPanel('Matrix Logs', 'matrix-exporter', y=21);
+  c.serviceLogsPanel('Matrix Logs', 'matrix-exporter', y=23);
 
 local webhookLogsPanel =
   g.panel.logs.new('Alertmanager Webhook Logs')
@@ -121,7 +121,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('continuwuity', [
   { symptom: 'High RTT',           runbook: 'matrix/high-rtt',    check: '"Message Round-Trip Time" above 1s — check server load and disk I/O' },
   { symptom: 'Probe Errors',       runbook: 'matrix/probe-error', check: '"Probe Errors" > 0 — check matrix-exporter logs and credentials' },
   { symptom: 'Webhook 500 errors', runbook: 'matrix/webhook',     check: 'Check "Alertmanager Webhook Logs" for 401/500 — bot token may have expired' },
-], y=43);
+], y=45);
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
@@ -132,19 +132,22 @@ g.dashboard.new('Services — Matrix')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status')             + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, upStat, usersStat, roomsStat,
 
-  g.panel.row.new('🔁 Probe — RTT & Errors') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('🔁 Probe — RTT & Errors') + c.pos(0, 6, 24, 1),
   rttTs, errorsTs,
 
-  g.panel.row.new('👥 Growth')             + c.pos(0, 13, 24, 1),
+  g.panel.row.new('👥 Growth')             + c.pos(0, 15, 24, 1),
   usersTs, roomsTs,
 
-  g.panel.row.new('📝 Logs')               + c.pos(0, 21, 24, 1),
+  g.panel.row.new('📝 Logs')               + c.pos(0, 23, 24, 1),
   logsPanel,
   webhookLogsPanel,
 
-  g.panel.row.new('🔧 Troubleshooting')    + c.pos(0, 42, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting')    + c.pos(0, 44, 24, 1),
   troubleGuide,
 ])

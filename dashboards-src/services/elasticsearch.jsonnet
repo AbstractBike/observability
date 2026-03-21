@@ -95,7 +95,7 @@ local diskTs =
   + g.panel.timeSeries.standardOptions.withUnit('bytes')
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(8);
 
-local logsPanel = c.serviceLogsPanel('Elasticsearch Logs', 'elasticsearch', y=22);
+local logsPanel = c.serviceLogsPanel('Elasticsearch Logs', 'elasticsearch', y=24);
 
 local troubleGuide = c.serviceTroubleshootingGuide('elasticsearch', [
   { symptom: 'Cluster Not Green', runbook: 'elasticsearch/cluster-health', check: '"Cluster Health" = 0 (not green) — check shard allocation and logs' },
@@ -103,7 +103,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('elasticsearch', [
   { symptom: 'Slow Searches', runbook: 'elasticsearch/search-perf', check: '"Search Latency" high — check slow search log, query patterns, shard count' },
   { symptom: 'Disk Space Low', runbook: 'elasticsearch/disk-management', check: '"Disk Store Size" growing fast — check index retention policies' },
   { symptom: 'Index Failures', runbook: 'elasticsearch/indexing', check: '"Indexing Rate" dropped — check bulk API errors in logs' },
-], y=33);
+], y=35);
 
 g.dashboard.new('Services — Elasticsearch')
 + g.dashboard.withUid('services-elasticsearch')
@@ -112,14 +112,17 @@ g.dashboard.new('Services — Elasticsearch')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, upStat, healthStat, nodesStat, indexRateStat, searchLatStat,
-  g.panel.row.new('🔍 Indexing & Search') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('🔍 Indexing & Search') + c.pos(0, 6, 24, 1),
   indexTs, searchTs,
-  g.panel.row.new('🏗️ JVM & Disk') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('🏗️ JVM & Disk') + c.pos(0, 14, 24, 1),
   jvmTs, diskTs,
-  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 23, 24, 1),
   logsPanel,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 32, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 34, 24, 1),
   troubleGuide,
 ])

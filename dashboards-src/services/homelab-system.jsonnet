@@ -5,7 +5,7 @@ local c = import 'lib/common.libsonnet';
 // Metric prefix: host_* (not node_* — homelab uses Vector, not node_exporter).
 // Labels always include host="homelab".
 
-// ── Stat panels (y=1) ────────────────────────────────────────────────────────
+// ── Stat panels (y=3) ────────────────────────────────────────────────────────
 
 local alertPanel = c.alertCountPanel('homelab', col=0);
 
@@ -59,7 +59,7 @@ local loadStat =
   + g.panel.stat.options.withColorMode('value')
   + g.panel.stat.options.withGraphMode('area');
 
-// ── Time series (y=5) ────────────────────────────────────────────────────────
+// ── Time series (y=7) ────────────────────────────────────────────────────────
 
 local cpuTs =
   g.panel.timeSeries.new('CPU Usage by Mode')
@@ -137,7 +137,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('homelab', [
   { symptom: 'Memory Pressure', runbook: 'homelab/memory', check: 'Check "Memory Breakdown" and "Memory Used" stat' },
   { symptom: 'Disk I/O Bottleneck', runbook: 'homelab/disk-io', check: 'Look at "Disk I/O" chart' },
   { symptom: 'Network Issues', runbook: 'homelab/networking', check: 'Monitor "Network I/O" graph' },
-], y=33);
+], y=35);
 
 g.dashboard.new('Services — Homelab System')
 + g.dashboard.withUid('services-homelab-system')
@@ -146,14 +146,17 @@ g.dashboard.new('Services — Homelab System')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, cpuStat, memStat, diskStat, loadStat,
-  g.panel.row.new('⚡ Performance') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚡ Performance') + c.pos(0, 6, 24, 1),
   cpuTs, memTs,
-  g.panel.row.new('🏗️ Storage & Networking') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('🏗️ Storage & Networking') + c.pos(0, 14, 24, 1),
   diskIoTs, netIoTs,
-  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 23, 24, 1),
   logsPanel,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 32, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 34, 24, 1),
   troubleGuide,
 ])

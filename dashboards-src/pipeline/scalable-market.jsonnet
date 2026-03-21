@@ -347,7 +347,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('scalable-market', [
   { symptom: 'Kafka Lag', runbook: 'scalable-market/kafka-lag', check: 'Check Kafka Operations Duration and consumer lag' },
   { symptom: 'Execution Failures', runbook: 'scalable-market/execution-errors', check: 'Check Execution Workflow panel and abort reasons' },
   { symptom: 'Slippage Detected', runbook: 'scalable-market/slippage-alert', check: 'Check Slippage Detection panel and instrument liquidity' },
-], y=91);
+], y=93);
 
 // ── Row 10: Logs (Multi-Service) ──────────────────────────────────────────────
 
@@ -405,48 +405,51 @@ g.dashboard.new('Scalable Market — All Services')
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, instanceVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, scanRateStat, pathsRateStat, maxProfitStat, circuitBreakerStat,
 
-  g.panel.row.new('⚙️ Arbitrage Engine') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚙️ Arbitrage Engine') + c.pos(0, 6, 24, 1),
   scanDurationTs, opportunitiesTs,
 
-  g.panel.row.new('📦 Data Persistence') + c.pos(0, 13, 24, 1),
+  g.panel.row.new('📦 Data Persistence') + c.pos(0, 15, 24, 1),
   persistenceQueueTs, persistenceRatesTs,
 
-  g.panel.row.new('📦 Data Persistence (cont.)') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('📦 Data Persistence (cont.)') + c.pos(0, 23, 24, 1),
   persistenceErrorsTs, persistenceLatencyTs,
 
-  g.panel.row.new('🎯 Execution') + c.pos(0, 29, 24, 1),
+  g.panel.row.new('🎯 Execution') + c.pos(0, 31, 24, 1),
   executionDurationTs, executionWorkflowTs,
 
-  g.panel.row.new('🎯 Execution (cont.)') + c.pos(0, 37, 24, 1),
+  g.panel.row.new('🎯 Execution (cont.)') + c.pos(0, 39, 24, 1),
   profitDeviationTs, slippageTs,
 
-  g.panel.row.new('🔍 Smoke Checks & Kafka') + c.pos(0, 45, 24, 1),
+  g.panel.row.new('🔍 Smoke Checks & Kafka') + c.pos(0, 47, 24, 1),
   smokeCheckTs, kafkaTs,
 
-  g.panel.row.new('🧭 Explorer') + c.pos(0, 53, 24, 1),
+  g.panel.row.new('🧭 Explorer') + c.pos(0, 55, 24, 1),
   explorerTs, explorerDistributionTs,
 
-  g.panel.row.new('🧭 Explorer (cont.)') + c.pos(0, 61, 24, 1),
+  g.panel.row.new('🧭 Explorer (cont.)') + c.pos(0, 63, 24, 1),
   explorerScoresTs, explorerTimingTs,
 
-  g.panel.row.new('📈 Binance Job') + c.pos(0, 69, 24, 1),
+  g.panel.row.new('📈 Binance Job') + c.pos(0, 71, 24, 1),
   binanceJobTs,
 
-  g.panel.row.new('🌐 Binance API & HTTP') + c.pos(0, 77, 24, 1),
+  g.panel.row.new('🌐 Binance API & HTTP') + c.pos(0, 79, 24, 1),
   binanceApiTs, httpRequestsTs,
 
-  g.panel.row.new('⚡ JVM') + c.pos(0, 85, 24, 1),
+  g.panel.row.new('⚡ JVM') + c.pos(0, 87, 24, 1),
   jvmHeapTs, cpuAndGcTs,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 91, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 93, 24, 1),
   troubleGuide,
 
-  g.panel.row.new('📝 Logs — Arbitraje & Explorer') + c.pos(0, 96, 24, 1),
+  g.panel.row.new('📝 Logs — Arbitraje & Explorer') + c.pos(0, 98, 24, 1),
   logsPanelArbitraje, logsPanelExplorer,
 
-  g.panel.row.new('📝 Logs — Binance Job & Vault') + c.pos(0, 104, 24, 1),
+  g.panel.row.new('📝 Logs — Binance Job & Vault') + c.pos(0, 106, 24, 1),
   logsPanelBinanceJob, logsPanelOther,
 ])

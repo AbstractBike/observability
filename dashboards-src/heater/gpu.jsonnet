@@ -127,7 +127,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('gpu', [
   { symptom: 'VRAM Exhausted', runbook: 'gpu/memory-pressure', check: 'Review VRAM Used gauge and clear GPU memory cache if needed' },
   { symptom: 'Temperature High', runbook: 'gpu/thermal-throttle', check: 'Check Temperature & Fan trend panel and improve cooling' },
   { symptom: 'Power Spike', runbook: 'gpu/power-anomaly', check: 'Review Power Draw trends and adjust workloads' },
-], y=33);
+], y=35);
 
 g.dashboard.new('Heater — GPU')
 + g.dashboard.withUid('heater-gpu')
@@ -136,12 +136,15 @@ g.dashboard.new('Heater — GPU')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, gpuUtil, vramUtil, tempStat, powerStat,
-  g.panel.row.new('⚡ Metrics') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚡ Metrics') + c.pos(0, 6, 24, 1),
   gpuUtilTs, vramTs, tempTs, powerTs,
-  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 23, 24, 1),
   logsPanel,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 32, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 34, 24, 1),
   troubleGuide,
 ])

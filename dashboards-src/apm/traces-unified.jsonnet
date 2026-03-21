@@ -233,20 +233,23 @@ g.dashboard.new('APM — Traces & Services')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, oapUptimeStat, traceIngestRate, reqRate,
 
-  g.panel.row.new('📈 Service Metrics') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('📈 Service Metrics') + c.pos(0, 6, 24, 1),
   errorRateStat, p99Stat, oapHeapStat,
   throughputSparkline, traceIngestLatencyTs,
 
-  g.panel.row.new('🔍 SkyWalking UI') + c.pos(0, 14, 24, 1),
+  g.panel.row.new('🔍 SkyWalking UI') + c.pos(0, 16, 24, 1),
   swLinksPanel,
 
-  g.panel.row.new('🔗 Trace Correlation') + c.pos(0, 19, 24, 1),
+  g.panel.row.new('🔗 Trace Correlation') + c.pos(0, 21, 24, 1),
   correlationPanel,
 
-  (g.panel.row.new('📝 Error Logs') + c.pos(0, 25, 24, 1) + { collapsed: true, panels: [
+  (g.panel.row.new('📝 Error Logs') + c.pos(0, 27, 24, 1) + { collapsed: true, panels: [
     errorLogsPanel,
   ] }),
 ])

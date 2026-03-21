@@ -146,7 +146,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('victorialogs', [
   { symptom: 'High Error Rate', runbook: 'logs/error-spike', check: 'Filter by "error" level and correlate with alert timestamps' },
   { symptom: 'Logs Delayed', runbook: 'logs/latency', check: 'Check Vector pipeline health and VictoriaLogs ingestion rate' },
   { symptom: 'Storage Growing Fast', runbook: 'logs/storage', check: 'Review log retention policy and reduce verbose services' },
-], y=31);
+], y=33);
 
 // ── Dashboard ───────────────────────────────────────────────────────────────
 
@@ -161,15 +161,18 @@ g.dashboard.new('Observability — Logs')
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, hostVar, serviceVar, levelVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Analysis') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, logVolumePanel, errorRatePanel,
 
-  g.panel.row.new('📝 Logs') + c.pos(0, 10, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 12, 24, 1),
   liveLogsPanel,
 
-  g.panel.row.new('⚠️ Error Analysis') + c.pos(0, 27, 24, 1),
+  g.panel.row.new('⚠️ Error Analysis') + c.pos(0, 29, 24, 1),
   errorAnalysisPanel,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 30, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 32, 24, 1),
   troubleGuide,
 ])

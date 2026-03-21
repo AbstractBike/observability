@@ -103,7 +103,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('job-hunter', [
   { symptom: 'Email failures', runbook: 'job-hunter/email', check: '"Email Delivery Status" shows errors — check SMTP config' },
   { symptom: 'High error count', runbook: 'job-hunter/errors', check: '"Errors by Phase" rising — inspect logs for stack traces' },
   { symptom: 'Slow searches', runbook: 'job-hunter/latency', check: '"Search Duration" above 60s — check source availability' },
-], y=33);
+], y=35);
 
 // ── Dashboard ───────────────────────────────────────────────────────────────
 
@@ -114,14 +114,17 @@ g.dashboard.new('Services — job_hunter')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, totalOffersTodayStat, avgScoreStat, errorsStat,
-  g.panel.row.new('Search Activity') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('Search Activity') + c.pos(0, 6, 24, 1),
   jobsFoundTs, searchDurationTs,
-  g.panel.row.new('Delivery & Errors') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('Delivery & Errors') + c.pos(0, 14, 24, 1),
   emailStatusTs, errorsTs,
-  g.panel.row.new('Logs') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('Logs') + c.pos(0, 23, 24, 1),
   logsPanel,
-  g.panel.row.new('Troubleshooting') + c.pos(0, 32, 24, 1),
+  g.panel.row.new('Troubleshooting') + c.pos(0, 34, 24, 1),
   troubleGuide,
 ])

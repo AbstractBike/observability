@@ -89,7 +89,7 @@ local hitsTs =
 
 // ── Row 3: Logs ───────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('Redis Logs', 'redis', y=22);
+local logsPanel = c.serviceLogsPanel('Redis Logs', 'redis', y=24);
 
 // ── Row 4: Troubleshooting ────────────────────────────────────────────────────
 
@@ -99,7 +99,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('redis', [
   { symptom: 'Low Hit Rate', runbook: 'redis/cache-opt', check: '"Keyspace Hit Rate" below 90% = cache miss problem or cold cache' },
   { symptom: 'Spike in Operations', runbook: 'redis/performance', check: '"Operations/sec by Command" — look for unexpected command patterns' },
   { symptom: 'Redis Down', runbook: 'redis/down', check: '"Redis Up" = 0 — check service status and logs' },
-], y=34);
+], y=36);
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
@@ -110,18 +110,21 @@ g.dashboard.new('Services — Redis')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, upStat, memStat, hitRateStat,
 
-  g.panel.row.new('⚡ Operations') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚡ Operations') + c.pos(0, 6, 24, 1),
   opsTs, memTs,
 
-  g.panel.row.new('💾 Evictions & Keyspace') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('💾 Evictions & Keyspace') + c.pos(0, 14, 24, 1),
   evictTs, hitsTs,
 
-  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 23, 24, 1),
   logsPanel,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 33, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 35, 24, 1),
   troubleGuide,
 ])

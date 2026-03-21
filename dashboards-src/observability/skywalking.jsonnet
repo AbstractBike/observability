@@ -89,14 +89,14 @@ local swUiLink =
     </div>
   |||);
 
-local oapLogsPanel = c.serviceLogsPanel('OAP Logs', 'skywalking-oap', y=25);
+local oapLogsPanel = c.serviceLogsPanel('OAP Logs', 'skywalking-oap', y=27);
 
 local troubleGuide = c.serviceTroubleshootingGuide('skywalking-oap', [
   { symptom: 'OAP Service Down', runbook: 'skywalking/service-down', check: 'Check "OAP Uptime" stat and logs' },
   { symptom: 'High Heap Usage', runbook: 'skywalking/memory', check: 'Monitor "Heap Used" and GC time trends' },
   { symptom: 'Trace Ingestion Latency', runbook: 'skywalking/trace-latency', check: 'Check "Trace Latency" percentiles and trace volume' },
   { symptom: 'GC Pauses', runbook: 'skywalking/gc', check: 'Monitor "GC Time" spikes in JVM Performance' },
-], y=36);
+], y=38);
 
 // ── Recent Traces Panel ────────────────────────────────────────────────────
 local recentTracesPanel =
@@ -142,16 +142,19 @@ g.dashboard.new('Observability — SkyWalking')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, uptimeStat, threadsStat, heapStat, cpuStat,
-  g.panel.row.new('⚡ JVM Performance') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚡ JVM Performance') + c.pos(0, 6, 24, 1),
   heapTs, gcTs,
-  g.panel.row.new('📡 Traces') + c.pos(0, 13, 24, 1),
+  g.panel.row.new('📡 Traces') + c.pos(0, 15, 24, 1),
   recentTracesPanel, traceLatencyPanel,
-  g.panel.row.new('🔗 SkyWalking UI') + c.pos(0, 20, 24, 1),
+  g.panel.row.new('🔗 SkyWalking UI') + c.pos(0, 22, 24, 1),
   swUiLink,
-  g.panel.row.new('📝 Logs') + c.pos(0, 24, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 26, 24, 1),
   oapLogsPanel,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 35, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 37, 24, 1),
   troubleGuide,
 ])

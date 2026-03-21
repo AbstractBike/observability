@@ -239,23 +239,26 @@ g.dashboard.new('Hunter Sources')
 + g.dashboard.withVariables([hunterLogsDsVar, slugVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Overview') + c.pos(0, 0, 24, 1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
   totalExtractedStat, totalRankedStat, uniqueSourcesStat, tier1Stat,
 
-  g.panel.row.new('📡 Volume per Source') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('📡 Volume per Source') + c.pos(0, 6, 24, 1),
   jobsPerSourceTs, jobsPerSourcePie,
 
-  g.panel.row.new('🎯 Quality per Source') + c.pos(0, 13, 24, 1),
+  g.panel.row.new('🎯 Quality per Source') + c.pos(0, 15, 24, 1),
   rankedPerSourceTs, avgScorePerSourceTs,
 
-  g.panel.row.new('🏆 Tier Distribution per Source') + c.pos(0, 22, 24, 1),
+  g.panel.row.new('🏆 Tier Distribution per Source') + c.pos(0, 24, 24, 1),
   tier1PerSourceTs, tier2PerSourceTs, tier3PerSourceTs,
 
-  g.panel.row.new('📋 Scorecard') + c.pos(0, 31, 24, 1),
+  g.panel.row.new('📋 Scorecard') + c.pos(0, 33, 24, 1),
   sourceScorecard,
 
-  g.panel.row.new('👥 Per Candidate') + c.pos(0, 40, 24, 1),
+  g.panel.row.new('👥 Per Candidate') + c.pos(0, 42, 24, 1),
   perCandidateTs,
 
-  g.panel.row.new('📝 Raw Logs') + c.pos(0, 49, 24, 1),
+  g.panel.row.new('📝 Raw Logs') + c.pos(0, 51, 24, 1),
   logsExtracted,
 ])

@@ -120,7 +120,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('jvm', [
   { symptom: 'GC Pauses', runbook: 'jvm/gc-tuning', check: 'Monitor GC Collections/min stat and GC Pause Time trends' },
   { symptom: 'Thread Leaks', runbook: 'jvm/thread-exhaustion', check: 'Review Live Threads stat and Threads panel for deadlocks' },
   { symptom: 'OutOfMemoryError', runbook: 'jvm/oom-recovery', check: 'Check Heap Max boundary and review exception logs' },
-], y=33);
+], y=35);
 
 g.dashboard.new('Heater — JVM / IntelliJ')
 + g.dashboard.withUid('heater-jvm')
@@ -129,14 +129,17 @@ g.dashboard.new('Heater — JVM / IntelliJ')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, heapUsedPct, heapUsedBytes, gcRate, threadCount,
-  g.panel.row.new('💾 Memory') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('💾 Memory') + c.pos(0, 6, 24, 1),
   heapTs, nonHeapTs,
-  g.panel.row.new('♻️ GC & Threads') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('♻️ GC & Threads') + c.pos(0, 14, 24, 1),
   gcPauseTs, threadsTs,
-  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 23, 24, 1),
   logsPanel,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 32, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 34, 24, 1),
   troubleGuide,
 ])

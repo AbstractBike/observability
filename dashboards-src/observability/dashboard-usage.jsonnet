@@ -130,11 +130,11 @@ local troubleGuide = c.serviceTroubleshootingGuide('grafana', [
   { symptom: 'Missing Usage Data', runbook: 'grafana/metrics-missing', check: 'Verify Grafana is sending metrics to VictoriaMetrics (check targets)' },
   { symptom: 'High View Count Anomaly', runbook: 'grafana/usage-spike', check: 'Correlate with "Daily Views Trend" and check for bots/automation' },
   { symptom: 'Unexpected Dashboard Underutilization', runbook: 'grafana/discovery', check: 'Add links to underutilized dashboards in "Dashboard Index"' },
-], y=38);
+], y=40);
 
 // ── Logs panel ──────────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('Analytics Logs', 'grafana', y=27);
+local logsPanel = c.serviceLogsPanel('Analytics Logs', 'grafana', y=29);
 
 // ── Dashboard ───────────────────────────────────────────────────────────────
 
@@ -145,21 +145,24 @@ g.dashboard.new('Observability — Dashboard Usage Analytics')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Usage Summary') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, totalViewsStat, activeUsersStat, avgEngagementStat, topDashboardsStat,
 
-  g.panel.row.new('📈 Usage Trends') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('📈 Usage Trends') + c.pos(0, 6, 24, 1),
   usageTrendTs, engagementTs,
 
-  g.panel.row.new('⚡ Dashboard Performance') + c.pos(0, 13, 24, 1),
+  g.panel.row.new('⚡ Dashboard Performance') + c.pos(0, 15, 24, 1),
   topDashboardsTable, underutilizedTable,
 
-  g.panel.row.new('🎯 Analytics Guide') + c.pos(0, 22, 24, 1),
+  g.panel.row.new('🎯 Analytics Guide') + c.pos(0, 24, 24, 1),
   guidePanel,
 
-  g.panel.row.new('📝 Logs') + c.pos(0, 26, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 28, 24, 1),
   logsPanel,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 37, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 39, 24, 1),
   troubleGuide,
 ])

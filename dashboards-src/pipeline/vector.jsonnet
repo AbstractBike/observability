@@ -133,7 +133,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('vector', [
   { symptom: 'Events Backlog', runbook: 'vector/backpressure', check: 'Compare Events In/sec vs Out/sec - check for buffering' },
   { symptom: 'High Error Rate', runbook: 'vector/errors', check: 'Review Error Rate stat and "Errors & Bytes" trends' },
   { symptom: 'Data Loss', runbook: 'vector/data-loss', check: 'Check processed bytes and component error logs' },
-], y=33);
+], y=35);
 
 g.dashboard.new('Pipeline — Vector')
 + g.dashboard.withUid('pipeline-vector')
@@ -143,14 +143,17 @@ g.dashboard.new('Pipeline — Vector')
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, hostVar])
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, uptimeStat, eventsInStat, eventsOutStat, errorRateStat,
-  g.panel.row.new('📤 Throughput') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('📤 Throughput') + c.pos(0, 6, 24, 1),
   eventsTs, eventsOutTs,
-  g.panel.row.new('⚠️ Errors & Bytes') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('⚠️ Errors & Bytes') + c.pos(0, 14, 24, 1),
   errorsTs, bytesTs,
-  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 23, 24, 1),
   logsPanel,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 32, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 34, 24, 1),
   troubleGuide,
 ])

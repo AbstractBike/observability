@@ -108,7 +108,7 @@ local linksPanel = c.customExternalLinksPanel([
   { icon: '📊', title: 'Hunter Metrics (VM)', url: 'http://192.168.0.4:9430/vmui' },
   { icon: '📝', title: 'Hunter Logs (VLogs)', url: 'http://192.168.0.4:9432/select/vmui' },
   { icon: '⏱', title: 'Temporal UI', url: 'http://temporal.pin' },
-], y=1, x=22);
+], y=3, x=22);
 
 // ── Row 1: Pipeline Duration & Workflow Status ──────────────────────────────
 
@@ -291,7 +291,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('hunter-pipeline', [
   { symptom: 'Dedup too aggressive', runbook: 'hunter/dedup-window', check: 'Review 35-day dedup window, check if sources recycling same listings' },
   { symptom: 'Red flags missed', runbook: 'hunter/red-flags', check: 'Review 8 red flag detectors in RankActivity, check is_agency threshold' },
   { symptom: 'Stale sources', runbook: 'hunter/stale-sources', check: 'Check source_config events in VLogs, verify VictoriaLogs source definitions' },
-], y=63);
+], y=65);
 
 // ── Row 9: Logs — Extracted Jobs ────────────────────────────────────────────
 
@@ -350,39 +350,42 @@ g.dashboard.new('Hunter Pipeline — Daily Job Search')
 + g.dashboard.withVariables([envVar, hunterLogsDsVar, hunterMetricsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Status') + c.pos(0, 0, 24, 1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
   alertPanel, jobsTodayStat, tier1Stat, emailsSentStat,
   linksPanel,
 
-  g.panel.row.new('Pipeline Duration & Workflows') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('Pipeline Duration & Workflows') + c.pos(0, 6, 24, 1),
   pipelineDurationTs, workflowStatusTs,
 
-  g.panel.row.new('1. SearchActivity') + c.pos(0, 13, 24, 1),
+  g.panel.row.new('1. SearchActivity') + c.pos(0, 15, 24, 1),
   searchSourcesTs, searchDedupTs,
 
-  g.panel.row.new('2. ScrapeExtractActivity (fan-out)') + c.pos(0, 22, 24, 1),
+  g.panel.row.new('2. ScrapeExtractActivity (fan-out)') + c.pos(0, 24, 24, 1),
   scrapeDurationTs, scrapeResultsTs,
 
-  g.panel.row.new('3. RankActivity (TF-IDF + dimensions)') + c.pos(0, 31, 24, 1),
+  g.panel.row.new('3. RankActivity (TF-IDF + dimensions)') + c.pos(0, 33, 24, 1),
   rankScoresTs, rankTiersTs,
 
-  g.panel.row.new('4. SummarizeRenderSendActivity') + c.pos(0, 40, 24, 1),
+  g.panel.row.new('4. SummarizeRenderSendActivity') + c.pos(0, 42, 24, 1),
   emailRenderTs, emailDeliveryTs,
 
-  g.panel.row.new('Activity Duration Breakdown') + c.pos(0, 44, 24, 1),
+  g.panel.row.new('Activity Duration Breakdown') + c.pos(0, 46, 24, 1),
   activityDurationTs,
 
-  g.panel.row.new('VictoriaLogs Event Volume') + c.pos(0, 53, 24, 1),
+  g.panel.row.new('VictoriaLogs Event Volume') + c.pos(0, 55, 24, 1),
   logsVolumeTs,
 
-  g.panel.row.new('Troubleshooting') + c.pos(0, 62, 24, 1),
+  g.panel.row.new('Troubleshooting') + c.pos(0, 64, 24, 1),
   troubleGuide,
 
-  g.panel.row.new('job_extracted') + c.pos(0, 68, 24, 1),
+  g.panel.row.new('job_extracted') + c.pos(0, 70, 24, 1),
   logsExtracted,
 
-  g.panel.row.new('job_ranked') + c.pos(0, 77, 24, 1),
+  g.panel.row.new('job_ranked') + c.pos(0, 79, 24, 1),
   logsRanked,
 
-  g.panel.row.new('job_sent') + c.pos(0, 86, 24, 1),
+  g.panel.row.new('job_sent') + c.pos(0, 88, 24, 1),
   logsSent,
 ])

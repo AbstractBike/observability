@@ -168,14 +168,17 @@ g.dashboard.new('Route Comparison — Multi-Route Firecrawl')
 + g.dashboard.withVariables([hunterMetricsDsVar])
 + g.dashboard.withPanels([
   g.panel.row.new('Route Stats') + c.pos(0, 0, 24, 1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
   directHitsStat, aucklandHitsStat, pragueHitsStat, overlapStat,
 
-  g.panel.row.new('Hits & Exclusive Finds') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('Hits & Exclusive Finds') + c.pos(0, 6, 24, 1),
   hitsOverTimeTs, exclusiveOverTimeTs,
 
-  g.panel.row.new('Latency & Failures') + c.pos(0, 13, 24, 1),
+  g.panel.row.new('Latency & Failures') + c.pos(0, 15, 24, 1),
   latencyTs, failuresTs,
 
-  g.panel.row.new('Route Efficiency') + c.pos(0, 22, 24, 1),
+  g.panel.row.new('Route Efficiency') + c.pos(0, 24, 24, 1),
   efficiencyBarTs,
 ])

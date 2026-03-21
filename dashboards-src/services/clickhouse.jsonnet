@@ -7,7 +7,7 @@ local c = import 'lib/common.libsonnet';
 //   ClickHouseMetrics_*         — current gauges
 //   ClickHouseAsyncMetrics_*    — background gauges (sampled at ~5s intervals)
 
-// ── Stats (y=1) ─────────────────────────────────────────────────────────────
+// ── Stats (y=3) ─────────────────────────────────────────────────────────────
 
 local alertPanel = c.alertCountPanel('clickhouse', col=0);
 
@@ -81,7 +81,7 @@ local connStat =
   ])
   + g.panel.stat.options.withColorMode('value');
 
-// ── Time series (y=5) ────────────────────────────────────────────────────────
+// ── Time series (y=7) ────────────────────────────────────────────────────────
 
 local queryTs =
   g.panel.timeSeries.new('Query Rate (Read vs Write)')
@@ -138,7 +138,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('clickhouse', [
   { symptom: 'Query Failures', runbook: 'clickhouse/query-errors', check: '"Failed Queries/sec" spike — check logs for error details' },
   { symptom: 'Too Many Parts', runbook: 'clickhouse/parts-management', check: '"Active Parts" over 1000 = merge not keeping up, check INSERT rate' },
   { symptom: 'Slow Inserts', runbook: 'clickhouse/slow-inserts', check: '"Insert Throughput" drop — check "Background Operations" for merge backlog' },
-], y=33);
+], y=35);
 
 g.dashboard.new('Services — ClickHouse')
 + g.dashboard.withUid('services-clickhouse')
@@ -147,14 +147,17 @@ g.dashboard.new('Services — ClickHouse')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, upStat, queryStat, memStat, errorRateStat, partsStat,
-  g.panel.row.new('⚡ Query Activity') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚡ Query Activity') + c.pos(0, 6, 24, 1),
   queryTs, insertTs,
-  g.panel.row.new('🏗️ Resources') + c.pos(0, 12, 24, 1),
+  g.panel.row.new('🏗️ Resources') + c.pos(0, 14, 24, 1),
   memTs, mergesTs,
-  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 23, 24, 1),
   logsPanel,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 32, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 34, 24, 1),
   troubleGuide,
 ])

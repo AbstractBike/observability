@@ -61,7 +61,7 @@ local loadStat =
   + g.panel.stat.options.withColorMode('value')
   + g.panel.stat.options.withGraphMode('area');
 
-// ── Time-series panels (rows y=5..20) ─────────────────────────────────────────
+// ── Time-series panels (rows y=7..20) ─────────────────────────────────────────
 
 local cpuTs =
   g.panel.timeSeries.new('CPU Usage by Mode')
@@ -110,7 +110,7 @@ local netIoTs =
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
-// ── Logs panel (y=21) ─────────────────────────────────────────────────────────
+// ── Logs panel (y=23) ─────────────────────────────────────────────────────────
 
 local logsPanel =
   g.panel.logs.new('System Logs')
@@ -131,7 +131,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('heater', [
   { symptom: 'Memory Pressure', runbook: 'heater/memory-pressure', check: 'Monitor Memory Used stat and swap usage' },
   { symptom: 'Disk Space Low', runbook: 'heater/disk-cleanup', check: 'Review Root Disk Used and disk I/O trends' },
   { symptom: 'System Overload', runbook: 'heater/load-average', check: 'Check Load Avg stat and correlate with Process grid' },
-], y=33);
+], y=35);
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
@@ -142,12 +142,15 @@ g.dashboard.new('Heater — System')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, cpuStat, memStat, diskStat, loadStat,
-  g.panel.row.new('⚡ Performance') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('⚡ Performance') + c.pos(0, 6, 24, 1),
   cpuTs, memTs, diskIoTs, netIoTs,
-  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 23, 24, 1),
   logsPanel,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 32, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 34, 24, 1),
   troubleGuide,
 ])

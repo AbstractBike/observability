@@ -152,7 +152,7 @@ local troubleGuide = c.serviceTroubleshootingGuide('grafana', [
   { symptom: 'Query Errors Spike', runbook: 'grafana/query-errors', check: 'Monitor "Error Rate" stat and errors by datasource' },
   { symptom: 'Slow Datasource', runbook: 'grafana/datasource-perf', check: 'Identify slow datasource in "Slowest Queries" chart' },
   { symptom: 'Dashboard Loading Slow', runbook: 'grafana/dashboard-speed', check: 'Check throughput and consider reducing refresh rate' },
-], y=22);
+], y=24);
 
 // ── Info Panel ──────────────────────────────────────────────────────────────
 
@@ -196,16 +196,19 @@ g.dashboard.new('Observability — Query Performance')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, avgQueryTimeStat, p99QueryTimeStat, queryErrorRateStat, totalQueriesStat,
 
-  g.panel.row.new('📈 Trends') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('📈 Trends') + c.pos(0, 6, 24, 1),
   queryTimeDistributionTs, slowestQueriesTs,
   queryErrorsTs, queryThroughputTs,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 21, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 23, 24, 1),
   troubleGuide,
 
-  g.panel.row.new('ℹ️ Info') + c.pos(0, 27, 24, 1),
+  g.panel.row.new('ℹ️ Info') + c.pos(0, 29, 24, 1),
   infoPanel,
 ])

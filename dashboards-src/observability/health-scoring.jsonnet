@@ -220,14 +220,14 @@ local insightsPanel =
 
 // ── Logs Panel ──────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('System Health Logs', 'error|critical|warning', y=39);
+local logsPanel = c.serviceLogsPanel('System Health Logs', 'error|critical|warning', y=41);
 
 local troubleGuide = c.serviceTroubleshootingGuide('observability-health', [
   { symptom: 'Overall Health Score Drop', runbook: 'health/score-drop', check: 'Check which components degraded in component health scores' },
   { symptom: 'Services Down', runbook: 'health/services-down', check: 'Identify down services in "Services Down" stat and Service Status table' },
   { symptom: 'High Error Rate', runbook: 'health/error-rate', check: 'Monitor "Error Rate (5m avg)" and check logs for patterns' },
   { symptom: 'Performance Degradation', runbook: 'health/latency', check: 'Check "System Latency (p99)" and "Health Trends" charts' },
-], y=50);
+], y=52);
 
 // ── Dashboard ───────────────────────────────────────────────────────────────
 
@@ -238,27 +238,30 @@ g.dashboard.new('Observability — System Health Scoring')
 + c.dashboardDefaults
 + g.dashboard.withPanels([
   g.panel.row.new('📊 Overall Health') + c.pos(0, 0, 24, 1),
-  c.externalLinksPanel(y=1),
+  // Transparent spacer — gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+
+  c.externalLinksPanel(y=3),
   alertPanel, overallHealthStat, upstreamHealthStat, downstreamHealthStat, healthTrendStat,
 
-  g.panel.row.new('🏗️ Component Health Scores') + c.pos(0, 4, 24, 1),
+  g.panel.row.new('🏗️ Component Health Scores') + c.pos(0, 6, 24, 1),
   databaseHealthStat, cacheHealthStat, queueHealthStat, infraHealthStat,
 
-  g.panel.row.new('📈 Health Trends & Performance') + c.pos(0, 8, 24, 1),
+  g.panel.row.new('📈 Health Trends & Performance') + c.pos(0, 10, 24, 1),
   healthTrendTs, componentHealthTs,
 
-  g.panel.row.new('⚠️ Error Rate & Latency') + c.pos(0, 17, 24, 1),
+  g.panel.row.new('⚠️ Error Rate & Latency') + c.pos(0, 19, 24, 1),
   errorRateTs, latencyTs,
 
-  g.panel.row.new('📊 Service Status') + c.pos(0, 26, 24, 1),
+  g.panel.row.new('📊 Service Status') + c.pos(0, 28, 24, 1),
   serviceStatusTable,
 
-  g.panel.row.new('💡 Health Guidance') + c.pos(0, 33, 24, 1),
+  g.panel.row.new('💡 Health Guidance') + c.pos(0, 35, 24, 1),
   insightsPanel,
 
-  g.panel.row.new('📝 Logs') + c.pos(0, 38, 24, 1),
+  g.panel.row.new('📝 Logs') + c.pos(0, 40, 24, 1),
   logsPanel,
 
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 49, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 51, 24, 1),
   troubleGuide,
 ])
