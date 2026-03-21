@@ -1,10 +1,10 @@
 // Merged Observability meta-dashboard
 //
-// Aggregates all 14 observability sub-dashboards into one view.
+// Aggregates all 11 observability sub-dashboards into one view.
 // Sources (in order):
-//   alertmanager · alerts · vmalert · grafana · logs · cost-tracking ·
+//   alertmanager · alerts · vmalert · grafana · logs ·
 //   metrics-discovery · health-scoring · query-performance · performance ·
-//   service-dependencies · dashboard-index · dashboard-usage · skywalking
+//   dashboard-index · skywalking
 
 local g = import 'github.com/grafana/grafonnet/gen/grafonnet-v11.4.0/main.libsonnet';
 local c = import 'lib/common.libsonnet';
@@ -518,108 +518,6 @@ local lg_panels = [
 ];
 local lg_height = 38;
 
-// ═══════════════════════════════════════════════════════════════════════════
-// § 6 — Cost Tracking (ct_)
-// ═══════════════════════════════════════════════════════════════════════════
-
-local ct_alertPanel = c.alertCountPanel('observability', col=0);
-
-local ct_totalCostStat =
-  g.panel.stat.new('Est. Monthly Cost')
-  + c.pos(6, 1, 4, 3)
-  + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(rate(process_resident_memory_bytes[30d]) * 0.01 + rate(container_cpu_usage_seconds_total[30d]) * 0.05) or vector(0)'),
-  ])
-  + g.panel.stat.standardOptions.withUnit('currencyUSD')
-  + g.panel.stat.standardOptions.withDecimals(2)
-  + g.panel.stat.options.withColorMode('background');
-
-local ct_cpuCostStat =
-  g.panel.stat.new('CPU Cost (30d)')
-  + c.pos(10, 1, 4, 3)
-  + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(rate(container_cpu_usage_seconds_total[30d]) * 0.05) or vector(0)'),
-  ])
-  + g.panel.stat.standardOptions.withUnit('currencyUSD')
-  + g.panel.stat.standardOptions.withDecimals(2)
-  + g.panel.stat.options.withColorMode('value');
-
-local ct_memoryCostStat =
-  g.panel.stat.new('Memory Cost (30d)')
-  + c.pos(14, 1, 5, 3)
-  + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(rate(process_resident_memory_bytes[30d]) * 0.01) or vector(0)'),
-  ])
-  + g.panel.stat.standardOptions.withUnit('currencyUSD')
-  + g.panel.stat.standardOptions.withDecimals(2)
-  + g.panel.stat.options.withColorMode('value');
-
-local ct_storageCostStat =
-  g.panel.stat.new('Storage Cost (30d)')
-  + c.pos(19, 1, 5, 3)
-  + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(vm_data_size_bytes or vector(0)) * 0.000001 or vector(0)'),
-  ])
-  + g.panel.stat.standardOptions.withUnit('currencyUSD')
-  + g.panel.stat.standardOptions.withDecimals(2)
-  + g.panel.stat.options.withColorMode('value');
-
-local ct_costTrendTs =
-  g.panel.timeSeries.new('Daily Cost Trend (7d)')
-  + c.tsPos(0, 0)
-  + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('sum(rate(container_cpu_usage_seconds_total[1d]) * 0.05 + rate(process_resident_memory_bytes[1d]) * 0.01) or vector(0)'),
-  ])
-  + g.panel.timeSeries.standardOptions.withUnit('currencyUSD')
-  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
-  + g.panel.timeSeries.options.tooltip.withMode('multi');
-
-local ct_cpuVsMemoryTs =
-  g.panel.timeSeries.new('CPU vs Memory Cost (30d)')
-  + c.tsPos(1, 0)
-  + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('sum(rate(container_cpu_usage_seconds_total[30d]) * 0.05)', 'CPU Cost'),
-    c.vmQ('sum(rate(process_resident_memory_bytes[30d]) * 0.01)', 'Memory Cost'),
-  ])
-  + g.panel.timeSeries.standardOptions.withUnit('currencyUSD')
-  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
-  + g.panel.timeSeries.options.tooltip.withMode('multi');
-
-local ct_serviceCostTable =
-  g.panel.table.new('Cost by Service (Top 10)')
-  + c.pos(0, 14, 24, 8)
-  + g.panel.table.queryOptions.withTargets([
-    c.vmQ('topk(10, sum by (job) (rate(container_cpu_usage_seconds_total[30d]) * 0.05 + rate(process_resident_memory_bytes[30d]) * 0.01) or vector(0))'),
-  ])
-  + g.panel.table.standardOptions.withUnit('currencyUSD')
-  + g.panel.table.standardOptions.withDecimals(2)
-  + g.panel.table.fieldConfig.defaults.custom.withAlign('center');
-
-local ct_logsPanel = c.serviceLogsPanel('Cost Tracking Logs', 'observability', y=29);
-
-local ct_troubleGuide = c.serviceTroubleshootingGuide('observability', [
-  { symptom: 'Cost Spike', runbook: 'cost/spike-investigation', check: 'Check "Daily Cost Trend" and "Cost by Service" for anomalies' },
-  { symptom: 'High CPU Cost', runbook: 'cost/cpu-optimization', check: 'Review top CPU consumers in "Cost by Service" table' },
-  { symptom: 'Memory Leak Detected', runbook: 'cost/memory-leak', check: 'Correlate with "Memory Cost" trend and service restarts' },
-  { symptom: 'Storage Growing', runbook: 'cost/storage-cleanup', check: 'Use "Metrics Discovery" dashboard to identify high-cardinality metrics' },
-], y=40);
-
-// ct: max y+h = troubleGuide y=40 h=5 → 45
-local ct_panels = [
-  g.panel.row.new('💰 Cost Tracking — Summary') + c.pos(0, 0, 24, 1),
-  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
-  c.externalLinksPanel(y=3),
-  ct_alertPanel, ct_totalCostStat, ct_cpuCostStat, ct_memoryCostStat, ct_storageCostStat,
-  g.panel.row.new('📈 Cost Trends') + c.pos(0, 6, 24, 1),
-  ct_costTrendTs, ct_cpuVsMemoryTs,
-  g.panel.row.new('📊 Service Breakdown') + c.pos(0, 14, 24, 1),
-  ct_serviceCostTable,
-  g.panel.row.new('📝 Logs') + c.pos(0, 23, 24, 1),
-  ct_logsPanel,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 34, 24, 1),
-  ct_troubleGuide,
-];
-local ct_height = 45;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // § 7 — Metrics Discovery (md_)
@@ -1177,121 +1075,6 @@ local pf_panels = [
 ];
 local pf_height = 44;
 
-// ═══════════════════════════════════════════════════════════════════════════
-// § 11 — Service Dependencies (sd_)
-// ═══════════════════════════════════════════════════════════════════════════
-
-local sd_alertPanel = c.alertCountPanel('skywalking', col=0);
-
-local sd_totalServicesStat =
-  g.panel.stat.new('Total Services')
-  + c.pos(6, 1, 4, 3)
-  + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('count(count by (service) ({__name__=~"skywalking.*"}))'),
-  ])
-  + g.panel.stat.standardOptions.withUnit('short')
-  + g.panel.stat.options.withColorMode('value')
-  + g.panel.stat.options.withGraphMode('area');
-
-local sd_meshHealthStat =
-  g.panel.stat.new('Mesh Health')
-  + c.pos(10, 1, 4, 3)
-  + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('(1 - (count(skywalking_trace_status_total{status="error"}) / count(skywalking_trace_status_total))) * 100 or vector(100)'),
-  ])
-  + g.panel.stat.standardOptions.withUnit('percent')
-  + g.panel.stat.standardOptions.thresholds.withMode('absolute')
-  + g.panel.stat.standardOptions.thresholds.withSteps([
-    { color: 'red', value: null },
-    { color: 'yellow', value: 95 },
-    { color: 'green', value: 99 },
-  ])
-  + g.panel.stat.options.withColorMode('background');
-
-local sd_avgEndToEndLatencyStat =
-  g.panel.stat.new('Avg End-to-End Latency')
-  + c.pos(14, 1, 5, 3)
-  + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('histogram_quantile(0.50, sum by(le) (rate(skywalking_trace_latency_bucket[5m]))) or vector(0)'),
-  ])
-  + g.panel.stat.standardOptions.withUnit('ms')
-  + g.panel.stat.options.withColorMode('value');
-
-local sd_serviceRelationshipsStat =
-  g.panel.stat.new('Service Relationships')
-  + c.pos(19, 1, 5, 3)
-  + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('count(count by (source_service,dest_service) (skywalking_service_relation_total)) or vector(0)'),
-  ])
-  + g.panel.stat.standardOptions.withUnit('short')
-  + g.panel.stat.options.withColorMode('value');
-
-local sd_serviceLatencyTable =
-  g.panel.table.new('Service-to-Service Latency (Top 20)')
-  + c.pos(0, 8, 24, 8)
-  + g.panel.table.queryOptions.withTargets([
-    c.vmQ('topk(20, sort_desc(avg by (source_service,dest_service) (skywalking_service_relation_latency)))', 'Latency'),
-  ])
-  + g.panel.table.standardOptions.withUnit('ms')
-  + g.panel.table.options.withSortBy([
-    { displayName: 'Latency', desc: true },
-  ]);
-
-local sd_callVolumeByPairTs =
-  g.panel.timeSeries.new('Call Volume Between Services (Top 5 pairs)')
-  + c.pos(0, 17, 12, 8)
-  + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('topk(5, sum by(source_service,dest_service) (rate(skywalking_service_relation_total[5m])))', '{{source_service}} → {{dest_service}}'),
-  ])
-  + g.panel.timeSeries.standardOptions.withUnit('short')
-  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
-  + g.panel.timeSeries.options.tooltip.withMode('multi');
-
-local sd_errorRateByPairTs =
-  g.panel.timeSeries.new('Error Rate Between Services (Top 5 with errors)')
-  + c.pos(12, 17, 12, 8)
-  + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('topk(5, (count by (source_service,dest_service) (skywalking_service_relation_status_total{status="error"}) / count by (source_service,dest_service) (skywalking_service_relation_status_total)) * 100)', '{{source_service}} → {{dest_service}}%'),
-  ])
-  + g.panel.timeSeries.standardOptions.withUnit('percent')
-  + g.panel.timeSeries.standardOptions.withMax(100)
-  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(10)
-  + g.panel.timeSeries.options.tooltip.withMode('multi');
-
-local sd_serviceHopCountTable =
-  g.panel.table.new('Request Hops per Service (Avg calls involved)')
-  + c.pos(0, 26, 24, 6)
-  + g.panel.table.queryOptions.withTargets([
-    c.vmQ('topk(15, sort_desc(avg by (source_service) (skywalking_service_relation_count)))', 'Avg Hops'),
-  ])
-  + g.panel.table.standardOptions.withUnit('short')
-  + g.panel.table.options.withSortBy([
-    { displayName: 'Avg Hops', desc: true },
-  ]);
-
-local sd_troubleGuide = c.serviceTroubleshootingGuide('skywalking', [
-  { symptom: 'Service Topology Not Visible', runbook: 'skywalking/topology-missing', check: 'Verify agents are running and sending spans to SkyWalking OAP' },
-  { symptom: 'High Latency Between Services', runbook: 'skywalking/service-latency', check: 'Check "Service-to-Service Latency" table and identify slowest pair' },
-  { symptom: 'Service Errors in Mesh', runbook: 'skywalking/mesh-errors', check: 'Examine "Error Rate Between Services" for problematic connections' },
-  { symptom: 'Circular Dependencies Detected', runbook: 'skywalking/circular-deps', check: 'Review topology for cyclic patterns in "Request Hops" analysis' },
-], y=44);
-
-// sd: max y+h = troubleGuide y=44 h=5 → 49
-local sd_panels = [
-  g.panel.row.new('🌐 Service Dependencies — Topology') + c.pos(0, 0, 24, 1),
-  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
-  c.externalLinksPanel(y=3),
-  sd_alertPanel, sd_totalServicesStat, sd_meshHealthStat, sd_avgEndToEndLatencyStat, sd_serviceRelationshipsStat,
-  g.panel.row.new('🔗 Service Relations') + c.pos(0, 6, 24, 1),
-  sd_serviceLatencyTable,
-  g.panel.row.new('📡 Call Patterns') + c.pos(0, 16, 24, 1),
-  sd_callVolumeByPairTs, sd_errorRateByPairTs,
-  g.panel.row.new('➡️ Service Hops') + c.pos(0, 25, 24, 1),
-  sd_serviceHopCountTable,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 43, 24, 1),
-  sd_troubleGuide,
-];
-local sd_height = 32;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // § 12 — Dashboard Index (di_)
@@ -1392,111 +1175,6 @@ local di_panels = [
 ];
 local di_height = 14;
 
-// ═══════════════════════════════════════════════════════════════════════════
-// § 13 — Dashboard Usage (du_)
-// ═══════════════════════════════════════════════════════════════════════════
-
-local du_alertPanel = c.alertCountPanel('grafana', col=0);
-
-local du_totalViewsStat =
-  g.panel.stat.new('Total Views (30d)')
-  + c.pos(6, 1, 4, 3)
-  + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(increase(grafana_dashboard_view_count[30d])) or vector(0)'),
-  ])
-  + g.panel.stat.standardOptions.withUnit('short')
-  + g.panel.stat.options.withColorMode('value')
-  + g.panel.stat.options.withGraphMode('area');
-
-local du_activeUsersStat =
-  g.panel.stat.new('Active Users (30d)')
-  + c.pos(10, 1, 4, 3)
-  + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('count(count by (user) (increase(grafana_dashboard_view_count[30d])) > 0) or vector(0)'),
-  ])
-  + g.panel.stat.standardOptions.withUnit('short')
-  + g.panel.stat.options.withColorMode('value');
-
-local du_avgEngagementStat =
-  g.panel.stat.new('Avg Engagement')
-  + c.pos(14, 1, 5, 3)
-  + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('(1 - avg(grafana_dashboard_bounce_rate) or vector(0.3)) * 100'),
-  ])
-  + g.panel.stat.standardOptions.withUnit('percent')
-  + g.panel.stat.options.withColorMode('background');
-
-local du_topDashboardsStat =
-  g.panel.stat.new('Top Dashboards')
-  + c.pos(19, 1, 5, 3)
-  + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('count(topk(10, sum by (dashboard) (increase(grafana_dashboard_view_count[30d]))) > 0)'),
-  ])
-  + g.panel.stat.standardOptions.withUnit('short')
-  + g.panel.stat.options.withColorMode('value');
-
-local du_usageTrendTs =
-  g.panel.timeSeries.new('Daily Views Trend (30d)')
-  + c.tsPos(0, 0)
-  + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('sum(increase(grafana_dashboard_view_count[1d])) or vector(0)'),
-  ])
-  + g.panel.timeSeries.standardOptions.withUnit('short')
-  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
-  + g.panel.timeSeries.options.tooltip.withMode('multi');
-
-local du_engagementTs =
-  g.panel.timeSeries.new('Engagement Rate (30d)')
-  + c.tsPos(1, 0)
-  + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('(1 - avg(grafana_dashboard_bounce_rate) or vector(0.3)) * 100'),
-  ])
-  + g.panel.timeSeries.standardOptions.withUnit('percent')
-  + g.panel.timeSeries.standardOptions.withMin(0)
-  + g.panel.timeSeries.standardOptions.withMax(100);
-
-local du_topDashboardsTable =
-  g.panel.table.new('Top Dashboards (30d)')
-  + c.pos(0, 14, 12, 8)
-  + g.panel.table.queryOptions.withTargets([
-    c.vmQ('topk(15, sum by (dashboard) (increase(grafana_dashboard_view_count[30d])))'),
-  ])
-  + g.panel.table.standardOptions.withUnit('short')
-  + g.panel.table.fieldConfig.defaults.custom.withAlign('left');
-
-local du_underutilizedTable =
-  g.panel.table.new('Underutilized Dashboards (<50 views)')
-  + c.pos(12, 14, 12, 8)
-  + g.panel.table.queryOptions.withTargets([
-    c.vmQ('sum by (dashboard) (increase(grafana_dashboard_view_count[30d])) <= 50'),
-  ])
-  + g.panel.table.standardOptions.withUnit('short')
-  + g.panel.table.fieldConfig.defaults.custom.withAlign('left');
-
-local du_logsPanel = c.serviceLogsPanel('Analytics Logs', 'grafana', y=29);
-
-local du_troubleGuide = c.serviceTroubleshootingGuide('grafana', [
-  { symptom: 'Low Engagement', runbook: 'grafana/engagement-low', check: 'Review "Engagement Rate" and check underutilized dashboards' },
-  { symptom: 'Missing Usage Data', runbook: 'grafana/metrics-missing', check: 'Verify Grafana is sending metrics to VictoriaMetrics (check targets)' },
-  { symptom: 'High View Count Anomaly', runbook: 'grafana/usage-spike', check: 'Correlate with "Daily Views Trend" and check for bots/automation' },
-], y=40);
-
-// du: max y+h = troubleGuide y=40 h=5 → 45
-local du_panels = [
-  g.panel.row.new('📊 Dashboard Usage — Summary') + c.pos(0, 0, 24, 1),
-  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
-  c.externalLinksPanel(y=3),
-  du_alertPanel, du_totalViewsStat, du_activeUsersStat, du_avgEngagementStat, du_topDashboardsStat,
-  g.panel.row.new('📈 Usage Trends') + c.pos(0, 6, 24, 1),
-  du_usageTrendTs, du_engagementTs,
-  g.panel.row.new('📊 Dashboard Performance') + c.pos(0, 14, 24, 1),
-  du_topDashboardsTable, du_underutilizedTable,
-  g.panel.row.new('📝 Logs') + c.pos(0, 23, 24, 1),
-  du_logsPanel,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 34, 24, 1),
-  du_troubleGuide,
-];
-local du_height = 45;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // § 14 — SkyWalking (sw_)
@@ -1610,7 +1288,7 @@ local sw_height = 26;
 
 g.dashboard.new('Observability — Meta')
 + g.dashboard.withUid('home-observability')
-+ g.dashboard.withDescription('Merged observability meta-dashboard: alertmanager, alerts, vmalert, grafana, logs, cost, metrics discovery, health scoring, query performance, performance, service dependencies, dashboard index, dashboard usage, skywalking.')
++ g.dashboard.withDescription('Merged observability meta-dashboard: alertmanager, alerts, vmalert, grafana, logs, metrics discovery, health scoring, query performance, performance, dashboard index, skywalking.')
 + g.dashboard.withTags(['observability', 'meta', 'alerting'])
 + c.dashboardDefaults
 + g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, c.swDsVar, c.vmAdhocVar, c.vlogsAdhocVar])
@@ -1620,13 +1298,10 @@ g.dashboard.new('Observability — Meta')
     + c.withYOffset(va_panels, am_height + al_height)
     + c.withYOffset(gr_panels, am_height + al_height + va_height)
     + c.withYOffset(lg_panels, am_height + al_height + va_height + gr_height)
-    + c.withYOffset(ct_panels, am_height + al_height + va_height + gr_height + lg_height)
-    + c.withYOffset(md_panels, am_height + al_height + va_height + gr_height + lg_height + ct_height)
-    + c.withYOffset(hs_panels, am_height + al_height + va_height + gr_height + lg_height + ct_height + md_height)
-    + c.withYOffset(qp_panels, am_height + al_height + va_height + gr_height + lg_height + ct_height + md_height + hs_height)
-    + c.withYOffset(pf_panels, am_height + al_height + va_height + gr_height + lg_height + ct_height + md_height + hs_height + qp_height)
-    + c.withYOffset(sd_panels, am_height + al_height + va_height + gr_height + lg_height + ct_height + md_height + hs_height + qp_height + pf_height)
-    + c.withYOffset(di_panels, am_height + al_height + va_height + gr_height + lg_height + ct_height + md_height + hs_height + qp_height + pf_height + sd_height)
-    + c.withYOffset(du_panels, am_height + al_height + va_height + gr_height + lg_height + ct_height + md_height + hs_height + qp_height + pf_height + sd_height + di_height)
-    + c.withYOffset(sw_panels, am_height + al_height + va_height + gr_height + lg_height + ct_height + md_height + hs_height + qp_height + pf_height + sd_height + di_height + du_height)
+    + c.withYOffset(md_panels, am_height + al_height + va_height + gr_height + lg_height)
+    + c.withYOffset(hs_panels, am_height + al_height + va_height + gr_height + lg_height + md_height)
+    + c.withYOffset(qp_panels, am_height + al_height + va_height + gr_height + lg_height + md_height + hs_height)
+    + c.withYOffset(pf_panels, am_height + al_height + va_height + gr_height + lg_height + md_height + hs_height + qp_height)
+    + c.withYOffset(di_panels, am_height + al_height + va_height + gr_height + lg_height + md_height + hs_height + qp_height + pf_height)
+    + c.withYOffset(sw_panels, am_height + al_height + va_height + gr_height + lg_height + md_height + hs_height + qp_height + pf_height + di_height)
   )

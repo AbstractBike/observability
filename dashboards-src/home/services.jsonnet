@@ -130,14 +130,6 @@ local red_upStat =
   ])
   + g.panel.stat.options.withColorMode('background');
 
-local red_memStat =
-  g.panel.stat.new('Memory Used')
-  + c.statPos(2)
-  + g.panel.stat.queryOptions.withTargets([c.vmQ('redis_memory_used_bytes or vector(0)')])
-  + g.panel.stat.standardOptions.withUnit('bytes')
-  + g.panel.stat.options.withColorMode('value')
-  + g.panel.stat.options.withGraphMode('area');
-
 local red_hitRateStat =
   g.panel.stat.new('Keyspace Hit Rate')
   + c.statPos(3)
@@ -200,7 +192,7 @@ local redisPanels = [
   g.panel.row.new('🔴 Redis') + c.pos(0, 0, 24, 1),
   g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
   c.externalLinksPanel(y=3),
-  red_alertPanel, red_upStat, red_memStat, red_hitRateStat,
+  red_alertPanel, red_upStat, red_hitRateStat,
   g.panel.row.new('⚡ Operations') + c.pos(0, 6, 24, 1),
   red_opsTs, red_memTs,
   g.panel.row.new('💾 Evictions & Keyspace') + c.pos(0, 14, 24, 1),
@@ -330,16 +322,6 @@ local ch_upStat =
   + g.panel.stat.options.withColorMode('background')
   + g.panel.stat.options.withTextMode('value_and_name');
 
-local ch_queryStat =
-  g.panel.stat.new('Queries/sec')
-  + c.pos(10, 1, 4, 3)
-  + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('rate(ClickHouseProfileEvents_Query[5m]) or vector(0)'),
-  ])
-  + g.panel.stat.standardOptions.withUnit('reqps')
-  + g.panel.stat.options.withColorMode('value')
-  + g.panel.stat.options.withGraphMode('area');
-
 local ch_memStat =
   g.panel.stat.new('Memory Used')
   + c.pos(14, 1, 4, 3)
@@ -436,7 +418,7 @@ local chPanels = [
   g.panel.row.new('🏠 ClickHouse') + c.pos(0, 0, 24, 1),
   g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
   c.externalLinksPanel(y=3),
-  ch_alertPanel, ch_upStat, ch_queryStat, ch_memStat, ch_errorRateStat, ch_partsStat,
+  ch_alertPanel, ch_upStat, ch_memStat, ch_errorRateStat, ch_partsStat,
   g.panel.row.new('⚡ Query Activity') + c.pos(0, 6, 24, 1),
   ch_queryTs, ch_insertTs,
   g.panel.row.new('🏗️ Resources') + c.pos(0, 14, 24, 1),
@@ -460,22 +442,6 @@ local mat_upStat =
     { color: 'green', value: 1 },
   ])
   + g.panel.stat.options.withColorMode('background');
-
-local mat_usersStat =
-  g.panel.stat.new('Local Users')
-  + c.statPos(2)
-  + g.panel.stat.queryOptions.withTargets([c.vmQ('matrix_local_users or vector(0)')])
-  + g.panel.stat.standardOptions.withUnit('short')
-  + g.panel.stat.options.withColorMode('value')
-  + g.panel.stat.options.withGraphMode('none');
-
-local mat_roomsStat =
-  g.panel.stat.new('Rooms')
-  + c.statPos(3)
-  + g.panel.stat.queryOptions.withTargets([c.vmQ('matrix_rooms_joined or vector(0)')])
-  + g.panel.stat.standardOptions.withUnit('short')
-  + g.panel.stat.options.withColorMode('value')
-  + g.panel.stat.options.withGraphMode('none');
 
 local mat_rttTs =
   g.panel.timeSeries.new('Message Round-Trip Time')
@@ -538,7 +504,7 @@ local matrixPanels = [
   g.panel.row.new('💬 Matrix') + c.pos(0, 0, 24, 1),
   g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
   c.externalLinksPanel(y=3),
-  mat_alertPanel, mat_upStat, mat_usersStat, mat_roomsStat,
+  mat_alertPanel, mat_upStat,
   g.panel.row.new('🔁 Probe — RTT & Errors') + c.pos(0, 6, 24, 1),
   mat_rttTs, mat_errorsTs,
   g.panel.row.new('👥 Growth')             + c.pos(0, 15, 24, 1),
@@ -793,16 +759,6 @@ local es_nodesStat =
   + g.panel.stat.standardOptions.withDecimals(0)
   + g.panel.stat.options.withColorMode('value');
 
-local es_indexRateStat =
-  g.panel.stat.new('Indexing Rate')
-  + c.pos(18, 1, 3, 3)
-  + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('sum(rate(elasticsearch_indices_indexing_index_total[5m])) or vector(0)'),
-  ])
-  + g.panel.stat.standardOptions.withUnit('reqps')
-  + g.panel.stat.options.withColorMode('value')
-  + g.panel.stat.options.withGraphMode('area');
-
 local es_searchLatStat =
   g.panel.stat.new('Search Latency (avg)')
   + c.pos(21, 1, 3, 3)
@@ -873,7 +829,7 @@ local esPanels = [
   g.panel.row.new('🔍 Elasticsearch') + c.pos(0, 0, 24, 1),
   g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
   c.externalLinksPanel(y=3),
-  es_alertPanel, es_upStat, es_healthStat, es_nodesStat, es_indexRateStat, es_searchLatStat,
+  es_alertPanel, es_upStat, es_healthStat, es_nodesStat, es_searchLatStat,
   g.panel.row.new('🔍 Indexing & Search') + c.pos(0, 6, 24, 1),
   es_indexTs, es_searchTs,
   g.panel.row.new('🏗️ JVM & Disk') + c.pos(0, 14, 24, 1),
@@ -1475,32 +1431,16 @@ local sr_toolLatencyTs =
   + g.panel.timeSeries.standardOptions.withUnit('ms')
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
-local sr_upPanel(title, job, col, row) =
-  g.panel.stat.new(title)
-  + c.pos(col * 6, 29 + row * 4, 6, 3)
-  + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('up{job="' + job + '"}'),
-  ])
-  + g.panel.stat.standardOptions.thresholds.withMode('absolute')
-  + g.panel.stat.standardOptions.thresholds.withSteps([
-    { color: 'red', value: null },
-    { color: 'green', value: 1 },
-  ])
-  + g.panel.stat.options.withColorMode('background')
-  + g.panel.stat.options.withReduceOptions(
-    g.panel.stat.options.reduceOptions.withCalcs(['lastNotNull'])
-  );
-
 local sr_troubleGuide = c.serviceTroubleshootingGuide('serena-backends', [
   { symptom: 'Serena Latency High', runbook: 'serena/latency-spike', check: 'Check Avg Response Time stat and per-tool latency breakdown' },
   { symptom: 'Serena Error Rate Up', runbook: 'serena/error-investigation', check: 'Review Error Rate stat and check error logs for stack traces' },
   { symptom: 'Backend Service Down', runbook: 'serena/backend-outage', check: 'Check Backend Services grid for red status indicators' },
   { symptom: 'MCP Connection Lost', runbook: 'serena/mcp-reconnect', check: 'Verify Serena MCP process running and check SLA metric' },
-], y=54);
+], y=42);
 
 local sr_errorLogs =
   g.panel.logs.new('Recent Errors & Warnings')
-  + c.logPos(41)
+  + c.logPos(28)
   + g.panel.logs.queryOptions.withTargets([
     c.vlogsQ('{level=~"(error|warning)"} or _msg:~"(Exception|Error)"'),
   ])
@@ -1518,24 +1458,12 @@ local serenaPanels = [
   sr_errorRateTs, sr_toolCpmTs,
   g.panel.row.new('🔧 Serena — Per-Tool Breakdown') + c.pos(0, 22, 24, 1),
   sr_toolLatencyTs,
-  g.panel.row.new('⚡ Backend Services — Health') + c.pos(0, 30, 24, 1),
-  sr_upPanel('Serena MCP',         'serena-mcp',           0, 0),
-  sr_upPanel('Arbitraje',          'arbitraje',            1, 0),
-  sr_upPanel('PostgreSQL',         'postgres-exporter',    2, 0),
-  sr_upPanel('Redis',              'redis-exporter',       3, 0),
-  sr_upPanel('Elasticsearch',      'elasticsearch-exporter', 0, 1),
-  sr_upPanel('ClickHouse',         'clickhouse',           1, 1),
-  sr_upPanel('Redpanda',           'redpanda',             2, 1),
-  sr_upPanel('Temporal',           'temporal',             3, 1),
-  sr_upPanel('VictoriaMetrics',    'victoriametrics-self', 0, 2),
-  sr_upPanel('Alertmanager',       'alertmanager',         1, 2),
-  sr_upPanel('VMAlert',            'vmalert',              2, 2),
-  g.panel.row.new('❌ Error Logs') + c.pos(0, 42, 24, 1),
+  g.panel.row.new('❌ Error Logs') + c.pos(0, 30, 24, 1),
   sr_errorLogs,
-  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 53, 24, 1),
+  g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 41, 24, 1),
   sr_troubleGuide,
 ];
-local serenaHeight = 59;
+local serenaHeight = 47;
 
 // ── Dashboard assembly ─────────────────────────────────────────────────────
 
