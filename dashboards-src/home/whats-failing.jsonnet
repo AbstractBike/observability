@@ -286,6 +286,42 @@ local nxPanels = [
 ];
 local nxHeight = 9;
 
+// ── Deploy Impact (prefix dpl_) ──────────────────────────────────────────
+
+local dpl_impactTs =
+  g.panel.timeSeries.new('Deploy Impact — Error Rate Around Deploys')
+  + c.pos(0, 1, 16, 8)
+  + g.panel.timeSeries.queryOptions.withTargets([
+    c.vmQ('sum(rate(service_error_with_type{job="temporal"}[5m])) or vector(0)', 'Temporal Errors/s'),
+    c.vmQ('sum(rate(service_requests{operation="StartWorkflowExecution",service_name="frontend",job="temporal"}[5m])) or vector(0)', 'Deploy Starts/s'),
+  ])
+  + g.panel.timeSeries.standardOptions.withUnit('short')
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(10)
+  + g.panel.timeSeries.options.tooltip.withMode('multi');
+
+local dpl_impactStat =
+  g.panel.stat.new('Deploy Impact Score')
+  + c.pos(16, 1, 8, 8)
+  + g.panel.stat.queryOptions.withTargets([
+    c.vmQ('(sum(rate(service_error_with_type{job="temporal"}[5m])) / clamp_min(sum(rate(service_error_with_type{job="temporal"}[30m])), 0.0001) - 1) * 100 or vector(0)'),
+  ])
+  + g.panel.stat.standardOptions.withUnit('percent')
+  + g.panel.stat.standardOptions.withDecimals(0)
+  + g.panel.stat.standardOptions.thresholds.withMode('absolute')
+  + g.panel.stat.standardOptions.thresholds.withSteps([
+    { color: 'green', value: null },
+    { color: 'yellow', value: 20 },
+    { color: 'red', value: 100 },
+  ])
+  + g.panel.stat.options.withColorMode('background')
+  + g.panel.stat.options.withGraphMode('area');
+
+local deployPanels = [
+  g.panel.row.new('🚀 Deploy Impact') + c.pos(0, 0, 24, 1),
+  dpl_impactTs, dpl_impactStat,
+];
+local deployHeight = 9;
+
 // ── Dashboard heights for stacking ───────────────────────────────────────────
 
 local whatDownHeight = 32;
@@ -318,5 +354,6 @@ g.dashboard.new("What's Failing")
     ]
     + c.withYOffset(corrPanels, whatDownHeight + activityHeight)
     + c.withYOffset(nxPanels, whatDownHeight + activityHeight + corrHeight)
-    + c.withYOffset(sloPanels, whatDownHeight + activityHeight + corrHeight + nxHeight)
+    + c.withYOffset(deployPanels, whatDownHeight + activityHeight + corrHeight + nxHeight)
+    + c.withYOffset(sloPanels, whatDownHeight + activityHeight + corrHeight + nxHeight + deployHeight)
   )

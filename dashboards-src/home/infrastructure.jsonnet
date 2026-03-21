@@ -1052,6 +1052,37 @@ local homelabSystemPanels = [
   homelabTroubleGuide,
 ];
 
+// ── System Rhythm Heatmap ─────────────────────────────────────────────────
+
+local rhythm_logVolumeTs =
+  g.panel.timeSeries.new('Log Volume by Service (Rhythm)')
+  + c.pos(0, 1, 12, 8)
+  + g.panel.timeSeries.queryOptions.withTargets([
+    c.vlogsStatsQ('host:homelab | stats by (service) count() as logs'),
+  ])
+  + g.panel.timeSeries.standardOptions.withUnit('short')
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(20)
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withStacking({ mode: 'normal' })
+  + g.panel.timeSeries.options.tooltip.withMode('multi');
+
+local rhythm_cpuOverlayTs =
+  g.panel.timeSeries.new('CPU + Memory Rhythm')
+  + c.pos(12, 1, 12, 8)
+  + g.panel.timeSeries.queryOptions.withTargets([
+    c.vmQ('(100 - avg(rate(host_cpu_seconds_total{mode="idle",host="heater"}[5m])) * 100) or vector(0)', 'CPU % (heater)'),
+    c.vmQ('(100 - avg(rate(host_cpu_seconds_total{mode="idle",host="homelab"}[5m])) * 100) or vector(0)', 'CPU % (homelab)'),
+    c.vmQ('(1 - node_memory_MemAvailable_bytes{host="heater"} / node_memory_MemTotal_bytes{host="heater"}) * 100 or vector(0)', 'RAM % (heater)'),
+  ])
+  + g.panel.timeSeries.standardOptions.withUnit('percent')
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(10)
+  + g.panel.timeSeries.options.tooltip.withMode('multi');
+
+local rhythmPanels = [
+  g.panel.row.new('🕐 System Rhythm') + c.pos(0, 0, 24, 1),
+  rhythm_logVolumeTs, rhythm_cpuOverlayTs,
+];
+local rhythmHeight = 9;
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Dashboard assembly
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1070,4 +1101,5 @@ g.dashboard.new('Infrastructure')
     + c.withYOffset(processesPanels, systemHeight + gpuHeight + jvmHeight + networkingHeight)
     + c.withYOffset(homePanels, systemHeight + gpuHeight + jvmHeight + networkingHeight + processesHeight)
     + c.withYOffset(homelabSystemPanels, systemHeight + gpuHeight + jvmHeight + networkingHeight + processesHeight + homeHeight)
+    + c.withYOffset(rhythmPanels, systemHeight + gpuHeight + jvmHeight + networkingHeight + processesHeight + homeHeight + 40)
   )

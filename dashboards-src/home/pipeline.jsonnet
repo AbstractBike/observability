@@ -1081,6 +1081,24 @@ local sm_logsPanelOther =
   + g.panel.logs.options.withEnableLogDetails(true)
   + g.panel.logs.options.withShowTime(true);
 
+// ── Opportunity Funnel (stacked timeSeries showing pipeline stages) ──────
+
+local sm_funnelTs =
+  g.panel.timeSeries.new('Opportunity Funnel')
+  + c.pos(0, 115, 24, 8)
+  + g.panel.timeSeries.queryOptions.withTargets([
+    c.vmQ('sum(rate(arbitrage_scans_total{application="market.scalable"}[5m])) or vector(0)', 'Scans'),
+    c.vmQ('sum(rate(arbitrage_opportunity_found_total{application="market.scalable"}[5m])) or vector(0)', 'Found'),
+    c.vmQ('sum(rate(arbitrage_opportunities_filtered{application="market.scalable"}[5m])) or vector(0)', 'Filtered'),
+    c.vmQ('sum(rate(arbitrage_execution_aborted_total{application="market.scalable"}[5m])) or vector(0)', 'Aborted'),
+    c.vmQ('sum(rate(arbitrage_slippage_detected{application="market.scalable"}[5m])) or vector(0)', 'Slippage'),
+    c.vmQ('sum(rate(arbitrage_execution_profit_deviation{application="market.scalable"}[5m])) or vector(0)', 'Profit Dev'),
+  ])
+  + g.panel.timeSeries.standardOptions.withUnit('short')
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(30)
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withStacking({ mode: 'normal' })
+  + g.panel.timeSeries.options.tooltip.withMode('multi');
+
 local scalableMarketPanels = [
   g.panel.row.new('Scalable Market') + c.pos(0, 0, 24, 1),
   g.panel.row.new('Status') + c.pos(0, 1, 24, 1),
@@ -1131,10 +1149,13 @@ local scalableMarketPanels = [
 
   g.panel.row.new('Logs — Binance Job & Vault') + c.pos(0, 106, 24, 1),
   sm_logsPanelBinanceJob, sm_logsPanelOther,
+
+  g.panel.row.new('📊 Opportunity Funnel') + c.pos(0, 114, 24, 1),
+  sm_funnelTs,
 ];
 
-// max y+h: logsPanelOther at y=105, h=8 → 113
-local scalableMarketHeight = 113;
+// max y+h: sm_funnelTs at y=115, h=8 → 123
+local scalableMarketHeight = 123;
 
 // ════════════════════════════════════════════════════════════════════════════
 // ── 6. pipeline/scalable-pathranker ─────────────────────────────────────────
