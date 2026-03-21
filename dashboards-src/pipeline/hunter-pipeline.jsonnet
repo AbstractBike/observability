@@ -30,7 +30,7 @@ local envVar =
 local hunterLogsDsVar =
   g.dashboard.variable.datasource.new('hunterlogs', 'victoriametrics-logs-datasource')
   + g.dashboard.variable.datasource.generalOptions.withLabel('Hunter Logs')
-  + g.dashboard.variable.datasource.withRegex('^VictoriaLogs$');
+  + g.dashboard.variable.datasource.withRegex('^HunterLogs$');
 
 local hunterMetricsDsVar =
   g.dashboard.variable.datasource.new('huntermetrics', 'victoriametrics-metrics-datasource')
