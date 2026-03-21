@@ -188,6 +188,8 @@ local red_hitsTs =
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(8)
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
+local red_logsPanel = c.serviceLogsPanel('Redis Logs', 'redis', y=24);
+
 local red_troubleGuide = c.serviceTroubleshootingGuide('redis', [
   { symptom: 'High Memory Usage', runbook: 'redis/memory-pressure', check: '"Memory Used" near max = risk of evictions or OOM' },
   { symptom: 'High Eviction Rate', runbook: 'redis/eviction', check: '"Evictions/sec" — evictions mean memory is full, keys being dropped' },
@@ -205,10 +207,12 @@ local redisPanels = [
   red_opsTs, red_memTs,
   g.panel.row.new('💾 Evictions & Keyspace') + c.pos(0, 14, 24, 1),
   red_evictTs, red_hitsTs,
+  g.panel.row.new('📝 Logs') + c.pos(0, 23, 24, 1),
+  red_logsPanel,
   g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 35, 24, 1),
   red_troubleGuide,
 ];
-local redisHeight = 24;
+local redisHeight = 41;
 
 // ── postgresql panels ──────────────────────────────────────────────────────
 
@@ -424,6 +428,8 @@ local ch_mergesTs =
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
+local ch_logsPanel = c.serviceLogsPanel('ClickHouse Logs', 'clickhouse-server');
+
 local ch_troubleGuide = c.serviceTroubleshootingGuide('clickhouse', [
   { symptom: 'Service Down', runbook: 'clickhouse/service-down', check: '"ClickHouse Up" = 0 — check service status and logs' },
   { symptom: 'High Memory', runbook: 'clickhouse/memory-usage', check: '"Memory Used" stat and "Memory & Storage" chart — check max_memory_usage setting' },
@@ -441,10 +447,12 @@ local chPanels = [
   ch_queryTs, ch_insertTs,
   g.panel.row.new('🏗️ Resources') + c.pos(0, 14, 24, 1),
   ch_memTs, ch_mergesTs,
+  g.panel.row.new('📝 Logs') + c.pos(0, 23, 24, 1),
+  ch_logsPanel,
   g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 34, 24, 1),
   ch_troubleGuide,
 ];
-local chHeight = 23;
+local chHeight = 40;
 
 // ── matrix panels ──────────────────────────────────────────────────────────
 
@@ -528,10 +536,25 @@ local mat_roomsTs =
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(8)
   + g.panel.timeSeries.options.tooltip.withMode('single');
 
+local mat_logsPanel =
+  c.serviceLogsPanel('Matrix Logs', 'matrix-exporter', y=23);
+
+local mat_webhookLogsPanel =
+  g.panel.logs.new('Alertmanager Webhook Logs')
+  + c.pos(0, 32, 24, 10)
+  + g.panel.logs.queryOptions.withTargets([
+    c.vlogsQ('{host="homelab",service_name="alertmanager-matrix-webhook"}'),
+  ])
+  + g.panel.logs.options.withWrapLogMessage(true)
+  + g.panel.logs.options.withSortOrder('Descending')
+  + g.panel.logs.options.withEnableLogDetails(true)
+  + g.panel.logs.options.withShowTime(true);
+
 local mat_troubleGuide = c.serviceTroubleshootingGuide('continuwuity', [
   { symptom: 'Matrix Down',        runbook: 'matrix/down',        check: '"Matrix Up" = 0 — check container@continuwuity systemd service' },
   { symptom: 'High RTT',           runbook: 'matrix/high-rtt',    check: '"Message Round-Trip Time" above 1s — check server load and disk I/O' },
   { symptom: 'Probe Errors',       runbook: 'matrix/probe-error', check: '"Probe Errors" > 0 — check matrix-exporter logs and credentials' },
+  { symptom: 'Webhook 500 errors', runbook: 'matrix/webhook',     check: 'Check "Alertmanager Webhook Logs" for 401/500 — bot token may have expired' },
 ], y=45);
 
 local matrixPanels = [
@@ -543,10 +566,13 @@ local matrixPanels = [
   mat_rttTs, mat_errorsTs,
   g.panel.row.new('👥 Growth')             + c.pos(0, 15, 24, 1),
   mat_usersTs, mat_roomsTs,
+  g.panel.row.new('📝 Logs')               + c.pos(0, 23, 24, 1),
+  mat_logsPanel,
+  mat_webhookLogsPanel,
   g.panel.row.new('🔧 Troubleshooting')    + c.pos(0, 44, 24, 1),
   mat_troubleGuide,
 ];
-local matrixHeight = 23;
+local matrixHeight = 50;
 
 // ── sbtcp panels ───────────────────────────────────────────────────────────
 
@@ -953,6 +979,8 @@ local rp_lagTs =
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(8)
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
+local rp_logsPanel = c.serviceLogsPanel('Redpanda Logs', 'redpanda', y=15);
+
 local rp_troubleGuide = c.serviceTroubleshootingGuide('redpanda', [
   { symptom: 'Broker Down', runbook: 'redpanda/broker-down', check: '"Redpanda Up" = 0 — check service status and logs' },
   { symptom: 'High Consumer Lag', runbook: 'redpanda/consumer-lag', check: '"Consumer Group Lag" chart — lag means consumers are behind producers' },
@@ -968,10 +996,12 @@ local redpandaPanels = [
   rp_alertPanel, rp_upStat, rp_uptimeStat, rp_throughputInStat, rp_throughputOutStat,
   g.panel.row.new('📤 Throughput & Lag') + c.pos(0, 6, 24, 1),
   rp_throughputTs, rp_lagTs,
+  g.panel.row.new('📝 Logs') + c.pos(0, 14, 24, 1),
+  rp_logsPanel,
   g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 25, 24, 1),
   rp_troubleGuide,
 ];
-local redpandaHeight = 14;
+local redpandaHeight = 31;
 
 // ── mcp-vanguard panels ────────────────────────────────────────────────────
 
