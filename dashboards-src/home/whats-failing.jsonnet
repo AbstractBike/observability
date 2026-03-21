@@ -10,7 +10,7 @@ local g = import 'github.com/grafana/grafonnet/gen/grafonnet-v11.4.0/main.libson
 local c = import 'lib/common.libsonnet';
 
 // Extended job list (adds node-exporter and vector to the original 12)
-local ALL_JOBS = 'alertmanager|clickhouse|elasticsearch-exporter|grafana|nixos-mcp|node-exporter|postgres-exporter|redis-exporter|redpanda|skywalking-oap|temporal|vector|victoriametrics-self|victorialogs-general|vmalert';
+local ALL_JOBS = 'alertmanager|clickhouse|elasticsearch-exporter|grafana|node-exporter|postgres-exporter|redis-exporter|redpanda|temporal|vector|victoriametrics-self|victorialogs-general|vmalert';
 
 // ── Top Stats (y=3) ──────────────────────────────────────────────────────────
 
@@ -59,9 +59,7 @@ local servicesList = [
   { job: 'clickhouse',             name: 'ClickHouse',      uid: 'services-clickhouse' },
   { job: 'elasticsearch-exporter', name: 'Elasticsearch',   uid: 'services-elasticsearch' },
   { job: 'redpanda',               name: 'Redpanda',        uid: 'services-redpanda' },
-  { job: 'skywalking-oap',         name: 'SkyWalking OAP',  uid: 'observability-skywalking' },
   { job: 'vmalert',                name: 'vmalert',         uid: 'observability-vmalert' },
-  { job: 'nixos-mcp',              name: 'NixOS MCP',       uid: 'observability-nixos-mcp' },
 ];
 
 local svcStat(svc, idx) =
