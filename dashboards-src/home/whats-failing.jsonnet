@@ -49,17 +49,17 @@ local alertCountStat =
 // ── Service Status Grid (y=7) ────────────────────────────────────────────────
 
 local servicesList = [
-  { job: 'postgres-exporter',      name: 'PostgreSQL',      uid: 'services-postgresql' },
-  { job: 'redis-exporter',         name: 'Redis',           uid: 'services-redis' },
-  { job: 'temporal',               name: 'Temporal',        uid: 'services-temporal' },
-  { job: 'grafana',                name: 'Grafana',         uid: 'observability-grafana' },
-  { job: 'alertmanager',           name: 'Alertmanager',    uid: 'observability-alertmanager' },
-  { job: 'victoriametrics-self',   name: 'VictoriaMetrics', uid: 'vm-overview' },
-  { job: 'victorialogs-general',   name: 'VictoriaLogs',    uid: 'observability-logs' },
-  { job: 'clickhouse',             name: 'ClickHouse',      uid: 'services-clickhouse' },
-  { job: 'elasticsearch-exporter', name: 'Elasticsearch',   uid: 'services-elasticsearch' },
-  { job: 'redpanda',               name: 'Redpanda',        uid: 'services-redpanda' },
-  { job: 'vmalert',                name: 'vmalert',         uid: 'observability-vmalert' },
+  { job: 'postgres-exporter',      name: 'PostgreSQL',      uid: 'home-services' },
+  { job: 'redis-exporter',         name: 'Redis',           uid: 'home-services' },
+  { job: 'temporal',               name: 'Temporal',        uid: 'home-services' },
+  { job: 'grafana',                name: 'Grafana',         uid: 'home-observability' },
+  { job: 'alertmanager',           name: 'Alertmanager',    uid: 'home-observability' },
+  { job: 'victoriametrics-self',   name: 'VictoriaMetrics', uid: 'home-observability' },
+  { job: 'victorialogs-general',   name: 'VictoriaLogs',    uid: 'home-services' },
+  { job: 'clickhouse',             name: 'ClickHouse',      uid: 'home-services' },
+  { job: 'elasticsearch-exporter', name: 'Elasticsearch',   uid: 'home-services' },
+  { job: 'redpanda',               name: 'Redpanda',        uid: 'home-services' },
+  { job: 'vmalert',                name: 'vmalert',         uid: 'home-observability' },
 ];
 
 local svcStat(svc, idx) =
@@ -76,7 +76,7 @@ local svcStat(svc, idx) =
     { color: 'green', value: 1 },
   ])
   + g.panel.stat.options.withColorMode('background')
-  + g.panel.stat.options.withTextMode('name')
+  + g.panel.stat.options.withTextMode('none')
   + g.panel.stat.options.withGraphMode('none')
   + { fieldConfig+: { defaults+: { links: [{ title: svc.name + ' Dashboard', url: '/d/' + svc.uid, targetBlank: false }] } } };
 
