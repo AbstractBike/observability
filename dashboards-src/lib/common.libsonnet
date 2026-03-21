@@ -21,7 +21,8 @@ local config = {
   // Dashboard-level template variable for VictoriaLogs datasource.
   vlogsDsVar:
     g.dashboard.variable.datasource.new('vlogs', 'victoriametrics-logs-datasource')
-    + g.dashboard.variable.datasource.generalOptions.withLabel('Logs'),
+    + g.dashboard.variable.datasource.generalOptions.withLabel('Logs')
+    + g.dashboard.variable.datasource.withRegex('^VictoriaLogs$'),
 
   vmAdhocVar:
     g.dashboard.variable.adhoc.new('vmFilters', 'victoriametrics-metrics-datasource', '${datasource}')
