@@ -229,10 +229,8 @@ local routeCard     = navCard('Route Comparison',  'Route comparison analysis', 
 
 local claudeRow = g.panel.row.new('Claude / MCP') + c.pos(0, 21, 24, 1);
 
-local claudeProxyCard  = navCard('Claude Proxy',   'API proxy metrics',    '/d/claude-proxy')          + c.pos(0,  22, 6, 3);
-local claudeCodeCard   = navCard('Claude Code',    'Agent activity',       '/d/heater-claude-code')    + c.pos(6,  22, 6, 3);
-local mcpVanguardCard  = navCard('MCP Vanguard',   'MCP server metrics',   '/d/services-mcp-vanguard') + c.pos(12, 22, 6, 3);
-local sbtcpCard        = navCard('SBTCP',          'Entity overview',      '/d/sbtcp-entity-overview') + c.pos(18, 22, 6, 3);
+local claudeProxyCard  = navCard('Claude Proxy',   'API proxy metrics',    '/d/claude-proxy')       + c.pos(0,  22, 12, 3);
+local claudeCodeCard   = navCard('Claude Code',    'Agent activity',       '/d/heater-claude-code') + c.pos(12, 22, 12, 3);
 
 // ── Grafana Tools (y=25, h=3) ───────────────────────────────────────────────
 
@@ -277,7 +275,7 @@ g.dashboard.new('Pin SI — Home')
     cotCard, prefetchCard, arbitrajeCard, scalableCard, pathrankerCard, routeCard,
     // Claude / MCP
     claudeRow,
-    claudeProxyCard, claudeCodeCard, mcpVanguardCard, sbtcpCard,
+    claudeProxyCard, claudeCodeCard,
     // Grafana Tools
     toolsRow,
     exploreMetrics, exploreLogs, metricsDrilldown, tracesDrilldown, dashboardsNav,
