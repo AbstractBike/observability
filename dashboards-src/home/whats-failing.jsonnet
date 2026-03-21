@@ -666,7 +666,7 @@ g.dashboard.new("What's Failing")
 + g.dashboard.time.withFrom('now-15m')
 + g.dashboard.time.withTo('now')
 + g.dashboard.graphTooltip.withSharedCrosshair()
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, c.vmAdhocVar, c.vlogsAdhocVar])
 + g.dashboard.withPanels(
     [
       g.panel.row.new('🔴 Status') + c.pos(0, 0, 24, 1),

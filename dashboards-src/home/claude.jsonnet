@@ -611,7 +611,7 @@ g.dashboard.new('Claude')
 + g.dashboard.withDescription('Claude Code sessions, token cost, context, logs, and traces. Merged from heater/claude-code and claude/overview.')
 + g.dashboard.withTags(['claude', 'ai', 'heater'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, c.swDsVar, projectVar, modelVar, sessionVar, intervalVar])
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, c.swDsVar, projectVar, modelVar, sessionVar, intervalVar, c.vmAdhocVar, c.vlogsAdhocVar])
 + g.dashboard.withPanels(
     c.withYOffset(claudeCodePanels, 0)
     + c.withYOffset(claudeOverviewPanels, claudeCodeHeight)

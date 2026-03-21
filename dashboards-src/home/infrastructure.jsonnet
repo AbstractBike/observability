@@ -1061,7 +1061,7 @@ g.dashboard.new('Infrastructure')
 + g.dashboard.withDescription('Heater host and homelab VM system metrics — CPU, GPU, JVM, network, processes.')
 + g.dashboard.withTags(['infrastructure', 'heater', 'homelab'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar])
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, c.vmAdhocVar, c.vlogsAdhocVar])
 + g.dashboard.withPanels(
     c.withYOffset(systemPanels, 0)
     + c.withYOffset(gpuPanels, systemHeight)

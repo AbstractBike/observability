@@ -1616,7 +1616,7 @@ g.dashboard.new('Observability — Meta')
 + g.dashboard.withDescription('Merged observability meta-dashboard: alertmanager, alerts, vmalert, grafana, logs, cost, metrics discovery, health scoring, query performance, performance, service dependencies, dashboard index, dashboard usage, skywalking.')
 + g.dashboard.withTags(['observability', 'meta', 'alerting'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, c.swDsVar])
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, c.swDsVar, c.vmAdhocVar, c.vlogsAdhocVar])
 + g.dashboard.withPanels(
     c.withYOffset(am_panels, 0)
     + c.withYOffset(al_panels, am_height)

@@ -1675,7 +1675,7 @@ g.dashboard.new('Pipeline')
 + g.dashboard.withDescription('Hunter job pipeline and Scalable Market data processing — sources, ranking, routing.')
 + g.dashboard.withTags(['pipeline', 'hunter', 'scalable-market'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, hs_hunterLogsDsVar, hs_slugVar, sm_instanceVar, vec_hostVar])
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, hs_hunterLogsDsVar, hs_slugVar, sm_instanceVar, vec_hostVar, c.vmAdhocVar, c.vlogsAdhocVar])
 + g.dashboard.withPanels(
     c.withYOffset(jobHunterPanels, 0)
     + c.withYOffset(hunterSourcesPanels, jobHunterHeight)

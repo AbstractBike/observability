@@ -23,6 +23,14 @@ local config = {
     g.dashboard.variable.datasource.new('vlogs', 'victoriametrics-logs-datasource')
     + g.dashboard.variable.datasource.generalOptions.withLabel('Logs'),
 
+  vmAdhocVar:
+    g.dashboard.variable.adhoc.new('vmFilters', 'victoriametrics-metrics-datasource', '${datasource}')
+    + g.dashboard.variable.adhoc.generalOptions.withLabel('Metric Filters'),
+
+  vlogsAdhocVar:
+    g.dashboard.variable.adhoc.new('vlogsFilters', 'victoriametrics-logs-datasource', '${vlogs}')
+    + g.dashboard.variable.adhoc.generalOptions.withLabel('Log Filters'),
+
   // Dashboard-level template variable for Elasticsearch datasource.
   esDsVar:
     g.dashboard.variable.datasource.new('esdatasource', 'elasticsearch')

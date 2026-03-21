@@ -737,7 +737,7 @@ g.dashboard.new('APM')
 + g.dashboard.withDescription('Application Performance Monitoring — API gateway, service traces, SkyWalking, Tempo.')
 + g.dashboard.withTags(['apm', 'traces', 'skywalking'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, c.swDsVar])
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, c.swDsVar, c.vmAdhocVar, c.vlogsAdhocVar])
 + g.dashboard.withPanels(
     c.withYOffset(apiGatewayPanels, 0)
     + c.withYOffset(pinTracesPanels, apiGatewayHeight)

@@ -1576,7 +1576,7 @@ g.dashboard.new('Services')
 + g.dashboard.withDescription('All homelab services — Temporal, Redis, PostgreSQL, ClickHouse, Matrix, SBTCP, Elasticsearch, Redpanda, MCP Vanguard, NixOS MCP, VictoriaLogs, NixOS Deployer, and Serena.')
 + g.dashboard.withTags(['services', 'homelab'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, c.swDsVar, sb_metricsDsVar, sb_logsDsVar, sb_entityIDVar])
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, c.swDsVar, sb_metricsDsVar, sb_logsDsVar, sb_entityIDVar, c.vmAdhocVar, c.vlogsAdhocVar])
 + g.dashboard.withPanels(
     c.withYOffset(temporalPanels,      offset0)
     + c.withYOffset(redisPanels,       offset1)
