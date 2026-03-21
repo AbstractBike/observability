@@ -82,7 +82,16 @@ local tmp_latTs =
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
-local tmp_logsPanel = c.serviceLogsPanel('Temporal Logs', 'temporal', y=15);
+local tmp_logsPanel =
+  g.panel.logs.new('Temporal Logs')
+  + c.logPos(15)
+  + g.panel.logs.queryOptions.withTargets([
+    c.vlogsQ('{host="homelab",service=~"podman-temporal|podman-temporal-ui"}'),
+  ])
+  + g.panel.logs.options.withWrapLogMessage(true)
+  + g.panel.logs.options.withSortOrder('Descending')
+  + g.panel.logs.options.withEnableLogDetails(true)
+  + g.panel.logs.options.withShowTime(true);
 
 local tmp_troubleGuide = c.serviceTroubleshootingGuide('temporal', [
   { symptom: 'Service Down', runbook: 'temporal/service-down', check: '"Temporal Up" = 0 — check service status and logs' },
@@ -858,7 +867,16 @@ local es_diskTs =
   + g.panel.timeSeries.standardOptions.withUnit('bytes')
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(8);
 
-local es_logsPanel = c.serviceLogsPanel('Elasticsearch Logs', 'elasticsearch', y=24);
+local es_logsPanel =
+  g.panel.logs.new('Elasticsearch Logs')
+  + c.logPos(24)
+  + g.panel.logs.queryOptions.withTargets([
+    c.vlogsQ('{host="homelab",service="prometheus-elasticsearch-exporter"}'),
+  ])
+  + g.panel.logs.options.withWrapLogMessage(true)
+  + g.panel.logs.options.withSortOrder('Descending')
+  + g.panel.logs.options.withEnableLogDetails(true)
+  + g.panel.logs.options.withShowTime(true);
 
 local es_troubleGuide = c.serviceTroubleshootingGuide('elasticsearch', [
   { symptom: 'Cluster Not Green', runbook: 'elasticsearch/cluster-health', check: '"Cluster Health" = 0 (not green) — check shard allocation and logs' },
