@@ -106,6 +106,13 @@ pkgs.runCommand "grafana-dashboards" {
   cp ${observabilityDashboardsPath}/overview/*.json "$out/overview/" 2>/dev/null || true
 
   mkdir -p $out/claude
+
+  for f in ${observabilityDashboardsPath}/claude/*.jsonnet; do
+    name=$(basename "$f" .jsonnet)
+    echo "Compiling claude/$name.jsonnet..."
+    jsonnet $JPATH "$f" > "$out/claude/$name.json"
+  done
+
   cp ${observabilityDashboardsPath}/claude/*.json "$out/claude/" 2>/dev/null || true
 
   mkdir -p $out/apm
