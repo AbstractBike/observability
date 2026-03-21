@@ -286,6 +286,59 @@ local nxPanels = [
 ];
 local nxHeight = 9;
 
+// ── Probe Latency (prefix prb_) ──────────────────────────────────────────
+
+local prb_latencyTs =
+  g.panel.timeSeries.new('Service Probe Latency')
+  + c.pos(0, 1, 16, 8)
+  + g.panel.timeSeries.queryOptions.withTargets([
+    c.vmQ('probe_duration_seconds{job="blackbox-http"} or vector(0)', '{{instance}}'),
+  ])
+  + g.panel.timeSeries.standardOptions.withUnit('s')
+  + g.panel.timeSeries.standardOptions.withDecimals(3)
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
+  + g.panel.timeSeries.options.tooltip.withMode('multi');
+
+local prb_successStat =
+  g.panel.stat.new('Services Up')
+  + c.pos(16, 1, 8, 4)
+  + g.panel.stat.queryOptions.withTargets([
+    c.vmQ('sum(probe_success{job="blackbox-http"}) or vector(0)'),
+  ])
+  + g.panel.stat.standardOptions.withUnit('short')
+  + g.panel.stat.standardOptions.withDecimals(0)
+  + g.panel.stat.standardOptions.thresholds.withMode('absolute')
+  + g.panel.stat.standardOptions.thresholds.withSteps([
+    { color: 'red', value: null },
+    { color: 'yellow', value: 5 },
+    { color: 'green', value: 7 },
+  ])
+  + g.panel.stat.options.withColorMode('background')
+  + g.panel.stat.options.withGraphMode('area');
+
+local prb_slowestStat =
+  g.panel.stat.new('Slowest Probe')
+  + c.pos(16, 5, 8, 4)
+  + g.panel.stat.queryOptions.withTargets([
+    c.vmQ('max(probe_duration_seconds{job="blackbox-http"}) or vector(0)'),
+  ])
+  + g.panel.stat.standardOptions.withUnit('s')
+  + g.panel.stat.standardOptions.withDecimals(3)
+  + g.panel.stat.standardOptions.thresholds.withMode('absolute')
+  + g.panel.stat.standardOptions.thresholds.withSteps([
+    { color: 'green', value: null },
+    { color: 'yellow', value: 1 },
+    { color: 'red', value: 3 },
+  ])
+  + g.panel.stat.options.withColorMode('background')
+  + g.panel.stat.options.withGraphMode('none');
+
+local probePanels = [
+  g.panel.row.new('📡 Probe Latency') + c.pos(0, 0, 24, 1),
+  prb_latencyTs, prb_successStat, prb_slowestStat,
+];
+local probeHeight = 9;
+
 // ── Deploy Impact (prefix dpl_) ──────────────────────────────────────────
 
 local dpl_impactTs =
@@ -354,6 +407,7 @@ g.dashboard.new("What's Failing")
     ]
     + c.withYOffset(corrPanels, whatDownHeight + activityHeight)
     + c.withYOffset(nxPanels, whatDownHeight + activityHeight + corrHeight)
-    + c.withYOffset(deployPanels, whatDownHeight + activityHeight + corrHeight + nxHeight)
-    + c.withYOffset(sloPanels, whatDownHeight + activityHeight + corrHeight + nxHeight + deployHeight)
+    + c.withYOffset(probePanels, whatDownHeight + activityHeight + corrHeight + nxHeight)
+    + c.withYOffset(deployPanels, whatDownHeight + activityHeight + corrHeight + nxHeight + probeHeight)
+    + c.withYOffset(sloPanels, whatDownHeight + activityHeight + corrHeight + nxHeight + probeHeight + deployHeight)
   )
