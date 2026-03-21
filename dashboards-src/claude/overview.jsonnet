@@ -38,6 +38,10 @@ local intervalVar =
   + g.dashboard.variable.interval.generalOptions.withLabel('Interval')
   + g.dashboard.variable.interval.withAutoOption(30, '1m');
 
+// Datasource vars hidden from the bar — still functional via $datasource/$vlogs
+local hiddenVmDs   = c.vmDsVar   + g.dashboard.variable.datasource.generalOptions.showOnDashboard.withNothing();
+local hiddenVlogsDs = c.vlogsDsVar + g.dashboard.variable.datasource.generalOptions.showOnDashboard.withNothing();
+
 // ── Stats (8 × width 3 = 24 columns, y=0, h=3) ──────────────────────────────
 
 local sessionCostStat =
@@ -319,7 +323,7 @@ g.dashboard.new('Claude — Overview')
 + g.dashboard.withDescription('Merged Claude observability: tokens, cost, cache, context, lines, proxy metrics, heater-scoped logs. Absorbed from metrics.json + claude-proxy-dashboard.')
 + g.dashboard.withTags(['claude', 'ai', 'overview'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, projectVar, modelVar, sessionVar, intervalVar])
++ g.dashboard.withVariables([hiddenVmDs, hiddenVlogsDs, projectVar, modelVar, sessionVar, intervalVar])
 + g.dashboard.withPanels([
   // Stats
   sessionCostStat, contextUsedStat, totalTokensStat, cacheHitStat,
