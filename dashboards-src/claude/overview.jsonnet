@@ -43,11 +43,11 @@ local intervalVar =
 local hiddenVmDs   = c.vmDsVar   + g.dashboard.variable.datasource.generalOptions.showOnDashboard.withNothing();
 local hiddenVlogsDs = c.vlogsDsVar + g.dashboard.variable.datasource.generalOptions.showOnDashboard.withNothing();
 
-// ── Stats (8 × width 3 = 24 columns, y=4, h=3) ──────────────────────────────
+// ── Stats (8 × width 3 = 24 columns, y=1, h=3) ──────────────────────────────
 
 local sessionCostStat =
   g.panel.stat.new('Session Cost')
-  + c.pos(0, 4, 3, 3)
+  + c.pos(0, 1, 3, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(claude_session_cost_usd{project=~"$project",model=~"$model"}) or vector(0)'),
   ])
@@ -64,7 +64,7 @@ local sessionCostStat =
 
 local contextUsedStat =
   g.panel.stat.new('Context Used %')
-  + c.pos(3, 4, 3, 3)
+  + c.pos(3, 1, 3, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('max(claude_context_used_pct{project=~"$project",model=~"$model"}) or vector(0)'),
   ])
@@ -76,7 +76,7 @@ local contextUsedStat =
 
 local totalTokensStat =
   g.panel.stat.new('Tokens (in+out)')
-  + c.pos(6, 4, 3, 3)
+  + c.pos(6, 1, 3, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(claude_tokens_input_total{project=~"$project",model=~"$model"}) + sum(claude_tokens_output_total{project=~"$project",model=~"$model"}) or vector(0)'),
   ])
@@ -87,7 +87,7 @@ local totalTokensStat =
 
 local cacheHitStat =
   g.panel.stat.new('Cache Hit %')
-  + c.pos(9, 4, 3, 3)
+  + c.pos(9, 1, 3, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(claude_tokens_cache_read{project=~"$project",model=~"$model"}) / (sum(claude_tokens_cache_read{project=~"$project",model=~"$model"}) + sum(claude_tokens_input_total{project=~"$project",model=~"$model"}) + 1) * 100 or vector(0)'),
   ])
@@ -104,7 +104,7 @@ local cacheHitStat =
 
 local linesNetStat =
   g.panel.stat.new('Lines +/-')
-  + c.pos(12, 4, 3, 3)
+  + c.pos(12, 1, 3, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(claude_lines_added{project=~"$project",model=~"$model"}) or vector(0)', 'added'),
     c.vmQ('sum(claude_lines_removed{project=~"$project",model=~"$model"}) or vector(0)', 'removed'),
@@ -116,7 +116,7 @@ local linesNetStat =
 
 local apiWaitStat =
   g.panel.stat.new('API Wait (avg)')
-  + c.pos(15, 4, 3, 3)
+  + c.pos(15, 1, 3, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(claude_duration_api_seconds{project=~"$project",model=~"$model"}) / sum(claude_prompt_count{project=~"$project",model=~"$model"}) or vector(0)'),
   ])
@@ -133,7 +133,7 @@ local apiWaitStat =
 
 local proxyTokensInStat =
   g.panel.stat.new('Proxy Tokens In')
-  + c.pos(18, 4, 3, 3)
+  + c.pos(18, 1, 3, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('sum(increase(claude_proxy_tokens_input_total[$__range])) or vector(0)'),
   ])
@@ -144,7 +144,7 @@ local proxyTokensInStat =
 
 local proxyLatencyStat =
   g.panel.stat.new('Proxy Latency')
-  + c.pos(21, 4, 3, 3)
+  + c.pos(21, 1, 3, 3)
   + g.panel.stat.queryOptions.withTargets([
     c.vmQ('avg(claude_proxy_duration_ms) or vector(0)'),
   ])
@@ -154,12 +154,12 @@ local proxyLatencyStat =
   + g.panel.stat.options.withColorMode('background')
   + g.panel.stat.options.withGraphMode('none');
 
-// ── Time series (pairs of 12, starting y=7) ──────────────────────────────────
+// ── Time series (pairs of 12, starting y=4) ──────────────────────────────────
 // Raw counters are intentional — shows cumulative usage trends (same as heater/claude-code.jsonnet)
 
 local tokensTs =
   g.panel.timeSeries.new('Token Usage (Input vs Output)')
-  + c.pos(0, 7, 12, 8)
+  + c.pos(0, 4, 12, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ('sum by (project) (claude_tokens_input_total{project=~"$project",model=~"$model"}) or vector(0)', 'input {{project}}'),
     c.vmQ('sum by (project) (claude_tokens_output_total{project=~"$project",model=~"$model"}) or vector(0)', 'output {{project}}'),
@@ -170,7 +170,7 @@ local tokensTs =
 
 local cacheTs =
   g.panel.timeSeries.new('Cache Tokens (Read vs Write)')
-  + c.pos(12, 7, 12, 8)
+  + c.pos(12, 4, 12, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ('sum by (project) (claude_tokens_cache_read{project=~"$project",model=~"$model"}) or vector(0)', 'read {{project}}'),
     c.vmQ('sum by (project) (claude_tokens_cache_write{project=~"$project",model=~"$model"}) or vector(0)', 'write {{project}}'),
@@ -181,7 +181,7 @@ local cacheTs =
 
 local costByProjectTs =
   g.panel.timeSeries.new('Cost by Project')
-  + c.pos(0, 15, 12, 8)
+  + c.pos(0, 12, 12, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ('sum by (project) (claude_session_cost_usd{project=~"$project",model=~"$model"}) or vector(0)', '{{project}}'),
   ])
@@ -191,7 +191,7 @@ local costByProjectTs =
 
 local tokensByProjectTs =
   g.panel.timeSeries.new('Tokens by Project')
-  + c.pos(12, 15, 12, 8)
+  + c.pos(12, 12, 12, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ('sum by (project) (claude_tokens_input_total{project=~"$project",model=~"$model"} + claude_tokens_output_total{project=~"$project",model=~"$model"}) or vector(0)', '{{project}}'),
   ])
@@ -201,7 +201,7 @@ local tokensByProjectTs =
 
 local apiDurationTs =
   g.panel.timeSeries.new('API Duration over Time')
-  + c.pos(0, 23, 12, 8)
+  + c.pos(0, 20, 12, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ('sum by (project) (claude_duration_api_seconds{project=~"$project",model=~"$model"}) or vector(0)', '{{project}}'),
   ])
@@ -211,7 +211,7 @@ local apiDurationTs =
 
 local contextTs =
   g.panel.timeSeries.new('Context Window Usage')
-  + c.pos(12, 23, 12, 8)
+  + c.pos(12, 20, 12, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ('max by (project) (claude_context_used_pct{project=~"$project",model=~"$model"}) or vector(0)', '{{project}}'),
   ])
@@ -223,7 +223,7 @@ local contextTs =
 
 local linesTs =
   g.panel.timeSeries.new('Lines Added / Removed')
-  + c.pos(0, 31, 12, 8)
+  + c.pos(0, 28, 12, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ('sum by (project) (claude_lines_added{project=~"$project",model=~"$model"}) or vector(0)', '+added {{project}}'),
     c.vmQ('-sum by (project) (claude_lines_removed{project=~"$project",model=~"$model"}) or vector(0)', '-removed {{project}}'),
@@ -234,7 +234,7 @@ local linesTs =
 
 local proxyTokensTs =
   g.panel.timeSeries.new('Proxy Token Usage by Model')
-  + c.pos(12, 31, 12, 8)
+  + c.pos(12, 28, 12, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ('sum by (model) (rate(claude_proxy_tokens_input_total[$interval])) or vector(0)', 'in {{model}}'),
     c.vmQ('sum by (model) (rate(claude_proxy_tokens_output_total[$interval])) or vector(0)', 'out {{model}}'),
@@ -245,7 +245,7 @@ local proxyTokensTs =
 
 local proxyLatencyTs =
   g.panel.timeSeries.new('Proxy Latency by Model')
-  + c.pos(0, 39, 24, 8)
+  + c.pos(0, 36, 24, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
     c.vmQ('avg by (model) (claude_proxy_duration_ms) or vector(0)', '{{model}}'),
   ])
@@ -253,11 +253,11 @@ local proxyLatencyTs =
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
-// ── Charts (3 × width 8 = 24, y=47) ─────────────────────────────────────────
+// ── Charts (3 × width 8 = 24, y=44) ─────────────────────────────────────────
 
 local tokensByModelPie =
   g.panel.pieChart.new('Tokens by Model')
-  + c.pos(0, 47, 8, 8)
+  + c.pos(0, 44, 8, 8)
   + g.panel.pieChart.queryOptions.withTargets([
     c.vmQ('sum by (model) (last_over_time(claude_tokens_input_total{project=~"$project",model=~"$model"}[$__range]) + last_over_time(claude_tokens_output_total{project=~"$project",model=~"$model"}[$__range])) or vector(0)', '{{model}}'),
   ])
@@ -266,7 +266,7 @@ local tokensByModelPie =
 
 local costByModelBar =
   g.panel.barChart.new('Cost by Model')
-  + c.pos(8, 47, 8, 8)
+  + c.pos(8, 44, 8, 8)
   + g.panel.barChart.queryOptions.withTargets([
     c.vmQ('sum by (model) (last_over_time(claude_session_cost_usd{project=~"$project",model=~"$model"}[$__range])) or vector(0)', '{{model}}'),
   ])
@@ -274,17 +274,17 @@ local costByModelBar =
 
 local modelShareBar =
   g.panel.barChart.new('Model Share % by Project')
-  + c.pos(16, 47, 8, 8)
+  + c.pos(16, 44, 8, 8)
   + g.panel.barChart.queryOptions.withTargets([
     c.vmQ('sum by (project, model) (last_over_time(claude_tokens_input_total{project=~"$project",model=~"$model"}[$__range])) or vector(0)', '{{project}} / {{model}}'),
   ])
   + g.panel.barChart.standardOptions.withUnit('short');
 
-// ── Table (full width, y=55) ─────────────────────────────────────────────────
+// ── Table (full width, y=52) ─────────────────────────────────────────────────
 
 local tokenBreakdownTable =
   g.panel.table.new('Token Breakdown: Project × Model')
-  + c.pos(0, 55, 24, 8)
+  + c.pos(0, 52, 24, 8)
   + g.panel.table.queryOptions.withTargets([
     c.vmQ('sum by (project, model) (last_over_time(claude_tokens_input_total{project=~"$project",model=~"$model"}[$__range]) + last_over_time(claude_tokens_output_total{project=~"$project",model=~"$model"}[$__range])) or vector(0)', '{{project}} / {{model}}'),
   ])
@@ -326,6 +326,8 @@ g.dashboard.new('Claude — Overview')
 + c.dashboardDefaults
 + g.dashboard.withVariables([hiddenVmDs, hiddenVlogsDs, projectVar, modelVar, sessionVar, intervalVar])
 + g.dashboard.withPanels([
+  // Status row — anchors layout, prevents vertical compaction
+  g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
   // Stats
   sessionCostStat, contextUsedStat, totalTokensStat, cacheHitStat,
   linesNetStat, apiWaitStat, proxyTokensInStat, proxyLatencyStat,
@@ -339,8 +341,8 @@ g.dashboard.new('Claude — Overview')
   tokensByModelPie, costByModelBar, modelShareBar,
   // Table
   tokenBreakdownTable,
-  // Collapsed log rows (y=63, 64, 65)
-  (g.panel.row.new('Session Logs') + c.pos(0, 63, 24, 1) + { collapsed: true, panels: [sessionLogsPanel] }),
-  (g.panel.row.new('Debug Logs')   + c.pos(0, 64, 24, 1) + { collapsed: true, panels: [debugLogsPanel] }),
-  (g.panel.row.new('HTTP Traffic') + c.pos(0, 65, 24, 1) + { collapsed: true, panels: [trafficLogsPanel] }),
+  // Collapsed log rows (y=60, 61, 62)
+  (g.panel.row.new('Session Logs') + c.pos(0, 60, 24, 1) + { collapsed: true, panels: [sessionLogsPanel] }),
+  (g.panel.row.new('Debug Logs')   + c.pos(0, 61, 24, 1) + { collapsed: true, panels: [debugLogsPanel] }),
+  (g.panel.row.new('HTTP Traffic') + c.pos(0, 62, 24, 1) + { collapsed: true, panels: [trafficLogsPanel] }),
 ])
