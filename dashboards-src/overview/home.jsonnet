@@ -242,11 +242,10 @@ local toolsRow = g.panel.row.new('Grafana Tools') + c.pos(0, 25, 24, 1);
 local metricsExploreUrl = '/explore?schemaVersion=1&panes=%7B%22vm%22%3A%7B%22datasource%22%3A%22P4169E866C3094E38%22%2C%22queries%22%3A%5B%7B%22refId%22%3A%22A%22%2C%22datasource%22%3A%7B%22type%22%3A%22victoriametrics-metrics-datasource%22%2C%22uid%22%3A%22P4169E866C3094E38%22%7D%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22now-1h%22%2C%22to%22%3A%22now%22%7D%2C%22compact%22%3Afalse%7D%7D&orgId=1';
 local logsExploreUrl = '/explore?schemaVersion=1&panes=%7B%22qfl%22%3A%7B%22datasource%22%3A%22PD775F2863313E6C7%22%2C%22queries%22%3A%5B%7B%22refId%22%3A%22A%22%2C%22datasource%22%3A%7B%22type%22%3A%22victoriametrics-logs-datasource%22%2C%22uid%22%3A%22PD775F2863313E6C7%22%7D%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22now-1h%22%2C%22to%22%3A%22now%22%7D%2C%22compact%22%3Afalse%7D%7D&orgId=1';
 
-local exploreMetrics   = navCard('Metrics Explore',   'VictoriaMetrics query', metricsExploreUrl)                   + c.pos(0,  26, 4, 3);
-local exploreLogs      = navCard('Logs Explore',      'VictoriaLogs query',    logsExploreUrl)                     + c.pos(4,  26, 4, 3);
-local tracesDrilldown  = navCard('Traces Drilldown',  'Traces explore app',    '/a/grafana-exploretraces-app/explore') + c.pos(8, 26, 4, 3);
-local metricsDrilldown = navCard('Metrics Drilldown', 'Metrics drilldown app', '/a/grafana-metricsdrilldown-app/?var-ds=P4169E866C3094E38') + c.pos(12, 26, 4, 3);
-local dashboardsNav    = navCard('Dashboards',        'All dashboard folders', '/dashboards')                                                + c.pos(16, 26, 4, 3);
+local exploreMetrics  = navCard('Metrics Explore',  'VictoriaMetrics query', metricsExploreUrl)                      + c.pos(0,  26, 6, 3);
+local exploreLogs     = navCard('Logs Explore',     'VictoriaLogs query',    logsExploreUrl)                         + c.pos(6,  26, 6, 3);
+local tracesDrilldown = navCard('Traces Drilldown', 'Traces explore app',    '/a/grafana-exploretraces-app/explore') + c.pos(12, 26, 6, 3);
+local dashboardsNav   = navCard('Dashboards',       'All dashboard folders', '/dashboards')                          + c.pos(18, 26, 6, 3);
 
 // ── Dashboard assembly ──────────────────────────────────────────────────────
 
@@ -278,5 +277,5 @@ g.dashboard.new('Pin SI — Home')
     claudeProxyCard, claudeCodeCard, mcpVanguardCard, sbtcpCard,
     // Grafana Tools
     toolsRow,
-    exploreMetrics, exploreLogs, tracesDrilldown, metricsDrilldown, dashboardsNav,
+    exploreMetrics, exploreLogs, tracesDrilldown, dashboardsNav,
   ])
