@@ -23,7 +23,7 @@ Merge all active Claude dashboards into a single flat Jsonnet dashboard (`claude
 ### No data — drop panels
 - `claude_proxy_requests_total` — 0 series → drop: Total Requests, Error Rate, Requests per Model, Errors by Status Code
 - `claude_chat_*` — 0 series (entire chat subsystem not deployed) → drop all chat panels
-- SkyWalking/MCP traces — 0 traces in Tempo → drop MCP P95 and all traces panels
+- SkyWalking/MCP traces — 0 traces in Tempo → drop all traces panels
 
 ## Output
 
@@ -34,40 +34,40 @@ Merge all active Claude dashboards into a single flat Jsonnet dashboard (`claude
 
 ## Layout (flat, grouped by panel type — no rows)
 
-### 1. Stats (top, full width)
-10 stat panels across:
+### 1. Stats (top, full width = 24 columns)
 
-| Panel | Query | Width |
-|---|---|---|
-| Session Cost | `sum(increase(claude_session_cost_usd[$__range]))` | 2 |
-| Context Used % | `avg(claude_context_used_pct)` | 2 |
-| Tokens (in+out) | `sum(increase(claude_tokens_input_total[$__range] + claude_tokens_output_total[$__range]))` | 2 |
-| Cache Hit % | `sum(increase(claude_tokens_cache_read[$__range])) / clamp_min(sum(...cache_read+cache_write...),1) * 100` | 2 |
-| Lines +/- | `sum(increase(claude_lines_added[$__range])) - sum(increase(claude_lines_removed[$__range]))` | 2 |
-| API Wait avg | `sum(increase(claude_duration_api_seconds[$__range])) / clamp_min(sum(increase(claude_prompt_count[$__range])),1)` | 2 |
-| Prompts | `sum(increase(claude_prompt_count[$__range]))` | 2 |
-| Proxy Tokens In | `sum(increase(claude_proxy_tokens_input_total[$__range]))` | 2 |
-| Proxy Tokens Out | `sum(increase(claude_proxy_tokens_output_total[$__range]))` | 2 |
-| Proxy Latency | `avg(claude_proxy_duration_ms)` in ms | 2 |
+8 stat panels × width 3 = 24 columns. Starting positions: x = 0, 3, 6, 9, 12, 15, 18, 21. Row y = 0, height = 3.
 
-Total width: 10 × 2 = 20 columns (uses standard 24-column grid, centered or padded)
+| x  | Panel | Query | Unit |
+|----|---|---|---|
+| 0  | Session Cost | `sum(increase(claude_session_cost_usd[$__range]))` | currencyUSD |
+| 3  | Context Used % | `avg(claude_context_used_pct)` | percent (0–100) |
+| 6  | Tokens (in+out) | `sum(increase(claude_tokens_input_total[$__range])) + sum(increase(claude_tokens_output_total[$__range]))` | short |
+| 9  | Cache Hit % | `sum(increase(claude_tokens_cache_read[$__range])) / clamp_min(sum(increase(claude_tokens_input_total[$__range])) + sum(increase(claude_tokens_cache_read[$__range])), 1) * 100` — matches reference formula in heater/claude-code.jsonnet | percent |
+| 12 | Lines +/- | `sum(increase(claude_lines_added[$__range])) - sum(increase(claude_lines_removed[$__range]))` | short |
+| 15 | API Wait avg | `sum(increase(claude_duration_api_seconds[$__range])) / clamp_min(sum(increase(claude_prompt_count[$__range])), 1)` | s |
+| 18 | Proxy Tokens In | `sum(increase(claude_proxy_tokens_input_total[$__range]))` | short |
+| 21 | Proxy Latency | `avg(claude_proxy_duration_ms)` | ms |
+
+Note: "Prompts" and "Proxy Tokens Out" dropped to fit 8 × 3 = 24. Both are derivable from other panels.
 
 ### 2. Time Series (middle)
-In order, each 12 wide except where noted:
 
-| Panel | Query | Width |
+Raw counter queries are intentional — they show cumulative usage trends matching the convention in `heater/claude-code.jsonnet`. Each panel 12 wide, y starting at 3.
+
+| Panel | Queries | Width |
 |---|---|---|
-| Token Usage (in vs out) | `sum(claude_tokens_input_total)` + `sum(claude_tokens_output_total)` | 12 |
-| Cache Tokens (read/write) | `sum(claude_tokens_cache_read)` + `sum(claude_tokens_cache_write)` | 12 |
+| Token Usage (in vs out) | `sum(claude_tokens_input_total)`, `sum(claude_tokens_output_total)` | 12 |
+| Cache Tokens (read/write) | `sum(claude_tokens_cache_read)`, `sum(claude_tokens_cache_write)` | 12 |
 | Cost by Project | `sum by (project) (claude_session_cost_usd)` | 12 |
 | Tokens by Project | `sum by (project) (claude_tokens_input_total + claude_tokens_output_total)` | 12 |
 | API Duration over time | `sum(claude_duration_api_seconds)` | 12 |
 | Context Usage % | `avg(claude_context_used_pct)` | 12 |
-| Lines Added/Removed | `sum(claude_lines_added)` + `sum(claude_lines_removed)` | 12 |
-| Proxy Token Usage by Model | `sum by (model) (rate(claude_proxy_tokens_input_total[5m]))` + output | 12 |
+| Lines Added/Removed | `sum(claude_lines_added)`, `sum(claude_lines_removed)` | 12 |
+| Proxy Token Usage by Model | `sum by (model) (rate(claude_proxy_tokens_input_total[5m]))`, `sum by (model) (rate(claude_proxy_tokens_output_total[5m]))` | 12 |
 | Proxy Latency by Model | `avg by (model) (claude_proxy_duration_ms)` | 12 |
 
-### 3. Charts (below time series)
+### 3. Charts (below time series, 8 wide each = 24)
 
 | Panel | Type | Query | Width |
 |---|---|---|---|
@@ -75,20 +75,23 @@ In order, each 12 wide except where noted:
 | Cost by Model | barchart | `sum by (model) (last_over_time(claude_session_cost_usd[$__range]))` | 8 |
 | Model Share % by Project | barchart | `sum by (project, model) (last_over_time(claude_tokens_input_total[$__range]))` | 8 |
 
-### 4. Table
+### 4. Table (full width)
 
 | Panel | Type | Query | Width |
 |---|---|---|---|
-| Token Breakdown: Project × Model | table | `sum by (project, model) (last_over_time(claude_tokens_input_total[$__range] + last_over_time(claude_tokens_output_total[$__range])))` | 24 |
+| Token Breakdown: Project × Model | table | `sum by (project, model) (last_over_time(claude_tokens_input_total[$__range]) + last_over_time(claude_tokens_output_total[$__range]))` | 24 |
 
-### 5. Logs (bottom)
-Reused from `heater/claude-code.jsonnet` (same queries, same datasource):
+### 5. Logs (bottom, heater-only — intentional)
 
-| Panel | Width |
-|---|---|
-| Session Logs | 24 |
-| Debug Logs | 24 |
-| HTTP Traffic | 24 |
+These logs are scoped to `host="heater"` because Claude Code runs exclusively on the heater machine. This is intentional — the dashboard is heater-scoped for Claude activity.
+
+Queries follow `heater/claude-code.jsonnet` exactly:
+
+| Panel | Filter | Width |
+|---|---|---|
+| Session Logs | `{host="heater", service="claude-code"}` via VictoriaLogs | 24 |
+| Debug Logs | `{host="heater", service="claude-code"} \| json \| level="debug"` | 24 |
+| HTTP Traffic | `{host="heater", service="claude-code"} \| json \| has_http=true` | 24 |
 
 ## Files Modified
 
@@ -108,9 +111,10 @@ Reused from `heater/claude-code.jsonnet` (same queries, same datasource):
 
 ## Conventions (from heater/claude-code.jsonnet)
 
-- Import: `grafonnet-lib` via `import 'grafonnet/grafana.libsonnet'` pattern
-- Datasource variable: `$datasource` for VictoriaMetrics, `$logs` for VictoriaLogs
-- Positioning: `c.pos(x, y, w, h)` from local helper
-- Stat panels: `g.panel.stat.new(...)` with background color mode for KPIs
-- Time series: `g.panel.timeSeries.new(...)` with legend bottom
-- Logs: `g.panel.logs.new(...)` with VictoriaLogs datasource UID `victorialogs`
+- Import: grafonnet via `local g = import ...` and `local c = import 'common.libsonnet'`
+- Datasource UIDs: `"victoriametrics"` for metrics, `"victorialogs"` for logs
+- Dashboard variables: declare `$datasource` (VictoriaMetrics) and `$logs` (VictoriaLogs) only — do NOT declare `swDsVar` (SkyWalking), as all traces panels are dropped
+- Positioning: `c.pos(x, y, w, h)` helper
+- Stat panels: `g.panel.stat.new(...)` with `colorMode = "background"` for KPIs with thresholds, `colorMode = "value"` for neutral counters
+- Time series: `g.panel.timeSeries.new(...)` with `legendDisplayMode = "table"`, `legendPlacement = "bottom"`
+- Logs: `g.panel.logs.new(...)` with datasource uid `"victorialogs"`
