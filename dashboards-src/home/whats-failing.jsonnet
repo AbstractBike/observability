@@ -99,7 +99,7 @@ local svcStat(svc, idx) =
   g.panel.stat.new(svc.name)
   + c.pos(col * 4, 5 + row * 3, 4, 3)
   + g.panel.stat.queryOptions.withTargets([
-    c.vmQ('up{job="' + svc.job + '"} or vector(0)'),
+    c.vmQ('max(up{job="' + svc.job + '"}) or vector(0)'),
   ])
   + g.panel.stat.standardOptions.thresholds.withMode('absolute')
   + g.panel.stat.standardOptions.thresholds.withSteps([
