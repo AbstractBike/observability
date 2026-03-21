@@ -144,7 +144,16 @@ local alertsTable =
 
 // ── Error Logs (y=28) ────────────────────────────────────────────────────────
 
-local logsPanel = c.serviceLogsPanel('Recent Error Logs (homelab)', 'homelab', y=28, host='homelab');
+local logsPanel =
+  g.panel.logs.new('Recent Error Logs (homelab — all services)')
+  + c.logPos(28)
+  + g.panel.logs.queryOptions.withTargets([
+    c.vlogsQ('{host="homelab",level=~"(error|warn|critical)"}'),
+  ])
+  + g.panel.logs.options.withWrapLogMessage(true)
+  + g.panel.logs.options.withSortOrder('Descending')
+  + g.panel.logs.options.withEnableLogDetails(true)
+  + g.panel.logs.options.withShowTime(true);
 
 // ── Activity panels (y=40..44) ───────────────────────────────────────────────
 
