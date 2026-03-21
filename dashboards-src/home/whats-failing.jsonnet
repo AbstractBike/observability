@@ -10,7 +10,7 @@ local g = import 'github.com/grafana/grafonnet/gen/grafonnet-v11.4.0/main.libson
 local c = import 'lib/common.libsonnet';
 
 // Extended job list (adds node-exporter and vector to the original 12)
-local ALL_JOBS = 'alertmanager|clickhouse|elasticsearch-exporter|grafana|node-exporter|postgres-exporter|redis-exporter|redpanda|skywalking-oap|temporal|vector|victoriametrics-self|victorialogs|vmalert';
+local ALL_JOBS = 'alertmanager|clickhouse|elasticsearch-exporter|grafana|node-exporter|postgres-exporter|redis-exporter|redpanda|skywalking-oap|temporal|vector|victoriametrics-self|victorialogs-general|vmalert';
 
 // ── Top Stats (y=3) ──────────────────────────────────────────────────────────
 
@@ -85,7 +85,7 @@ local servicesList = [
   { job: 'grafana',                name: 'Grafana',         uid: 'observability-grafana' },
   { job: 'alertmanager',           name: 'Alertmanager',    uid: 'observability-alertmanager' },
   { job: 'victoriametrics-self',   name: 'VictoriaMetrics', uid: 'vm-overview' },
-  { job: 'victorialogs',           name: 'VictoriaLogs',    uid: 'observability-logs' },
+  { job: 'victorialogs-general',   name: 'VictoriaLogs',    uid: 'observability-logs' },
   { job: 'clickhouse',             name: 'ClickHouse',      uid: 'services-clickhouse' },
   { job: 'elasticsearch-exporter', name: 'Elasticsearch',   uid: 'services-elasticsearch' },
   { job: 'redpanda',               name: 'Redpanda',        uid: 'services-redpanda' },
@@ -291,7 +291,7 @@ local sloHeight = 33;
 // ── Home Overview panels (prefix oh_) ─────────────────────────────────────────
 // Copied from overview/home.jsonnet — panels at their original y coords (0-relative)
 
-local oh_ALL_JOBS = 'alertmanager|clickhouse|elasticsearch-exporter|firecrawl|grafana|postgres-exporter|redis-exporter|redpanda|temporal|victoriametrics-self|victorialogs|vmalert';
+local oh_ALL_JOBS = 'alertmanager|clickhouse|elasticsearch-exporter|firecrawl|grafana|postgres-exporter|redis-exporter|redpanda|temporal|victoriametrics-self|victorialogs-general|vmalert';
 
 local oh_homeDsVar =
   g.dashboard.variable.datasource.new('datasource', 'victoriametrics-metrics-datasource')
@@ -451,7 +451,7 @@ local oh_statusCpuPanel =
 local oh_infraRow = g.panel.row.new('Infrastructure') + c.pos(0, 4, 24, 1);
 
 local oh_vmCard       = oh_svcCard('VictoriaMetrics', 'Metrics storage',    'up{job="victoriametrics-self"}',   'http://victoria.pin')   + c.pos(0,  5, 6, 3);
-local oh_vlogsCard    = oh_svcCard('VictoriaLogs',    'Log storage',        'up{job="victorialogs"}',           'http://logs.pin')       + c.pos(6,  5, 6, 3);
+local oh_vlogsCard    = oh_svcCard('VictoriaLogs',    'Log storage',        'up{job="victorialogs-general"}',   'http://logs.pin')       + c.pos(6,  5, 6, 3);
 local oh_pgCard       = oh_svcCard('PostgreSQL',      'Relational DB',      'up{job="postgres-exporter"}',      '/d/services-postgresql') + c.pos(12, 5, 6, 3);
 local oh_chCard       = oh_svcCard('ClickHouse',      'Columnar analytics', 'up{job="clickhouse"}',             'http://clickhouse.pin') + c.pos(18, 5, 6, 3);
 
@@ -592,7 +592,7 @@ local ohl_services = [
   ohl_svcStat('Redpanda',        'up{job="redpanda"}',                                                                    0, 1),
   ohl_svcStat('Temporal',        'up{job="temporal"}',                                                                    1, 1),
   ohl_svcStat('VictoriaMetrics', 'up{job="victoriametrics-self"}',                                                        2, 1),
-  ohl_svcStat('VictoriaLogs',    'up{job="victorialogs"}',                                                                3, 1),
+  ohl_svcStat('VictoriaLogs',    'up{job="victorialogs-general"}',                                                        3, 1),
   ohl_svcStat('Grafana',         'up{job="grafana"}',                                                                     0, 2),
   ohl_svcStat('Alertmanager',    'up{job="alertmanager"}',                                                                1, 2),
   ohl_svcStat('VMAlert',         'up{job="vmalert"}',                                                                     2, 2),
