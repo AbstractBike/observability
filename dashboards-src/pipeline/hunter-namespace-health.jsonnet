@@ -30,7 +30,7 @@ local hQ(expr, legend='') =
 
 // ── Metric selector with mandatory labels ───────────────────────────────────
 
-local workerUp = 'hunter_namespace_worker_up{namespace="hunter-prod", service="hunter", host="homelab", env="$env"}';
+local workerUp = 'hunter_namespace_worker_up{namespace="hunter-prod", service="hunter-engine", host="homelab", env="$env"}';
 
 // ── Panels ──────────────────────────────────────────────────────────────────
 
