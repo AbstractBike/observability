@@ -326,9 +326,11 @@ g.dashboard.new('Claude — Overview')
 + c.dashboardDefaults
 + g.dashboard.withVariables([hiddenVmDs, hiddenVlogsDs, projectVar, modelVar, sessionVar, intervalVar])
 + g.dashboard.withPanels([
-  // Status row — anchors layout, h=3 adds breathing room below variable bar
-  g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 3),
-  // Stats
+  // Status row at y=0 — anchors layout against vertical compaction
+  g.panel.row.new('📊 Status') + c.pos(0, 0, 24, 1),
+  // Transparent spacer at y=1 h=2 — prevents compaction, creates gap below sticky variable bar
+  g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
+  // Stats at y=3 — positioned below sticky bar (sticky bar ends at ~133px, grid y=3 → ~168px)
   sessionCostStat, contextUsedStat, totalTokensStat, cacheHitStat,
   linesNetStat, apiWaitStat, proxyTokensInStat, proxyLatencyStat,
   // Time series
