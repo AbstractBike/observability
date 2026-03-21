@@ -1041,7 +1041,7 @@ local sm_logsPanelArbitraje =
   g.panel.logs.new('Arbitraje Logs')
   + c.pos(0, 97, 12, 8)
   + g.panel.logs.queryOptions.withTargets([
-    c.vlogsQ('{instance=~"$instance",service=~"arbitraje|market\\.scalable"}'),
+    c.vlogsQ('{host="homelab",service=~"scalable-orderbook.*"}'),
   ])
   + g.panel.logs.options.withWrapLogMessage(true)
   + g.panel.logs.options.withSortOrder('Descending')
@@ -1052,7 +1052,7 @@ local sm_logsPanelExplorer =
   g.panel.logs.new('Explorer Logs')
   + c.pos(12, 97, 12, 8)
   + g.panel.logs.queryOptions.withTargets([
-    c.vlogsQ('{instance=~"$instance",service=~"explorer|matrix\\.explorer"}'),
+    c.vlogsQ('{host="homelab",service="scalable-explorer"}'),
   ])
   + g.panel.logs.options.withWrapLogMessage(true)
   + g.panel.logs.options.withSortOrder('Descending')
@@ -1063,7 +1063,7 @@ local sm_logsPanelBinanceJob =
   g.panel.logs.new('Binance Job Logs')
   + c.pos(0, 105, 12, 8)
   + g.panel.logs.queryOptions.withTargets([
-    c.vlogsQ('{instance=~"$instance",service=~"binance-job"}'),
+    c.vlogsQ('{host="homelab",service=~"binance.*"}'),
   ])
   + g.panel.logs.options.withWrapLogMessage(true)
   + g.panel.logs.options.withSortOrder('Descending')
@@ -1074,7 +1074,7 @@ local sm_logsPanelOther =
   g.panel.logs.new('Vault & Technicals Logs')
   + c.pos(12, 105, 12, 8)
   + g.panel.logs.queryOptions.withTargets([
-    c.vlogsQ('{instance=~"$instance",service=~"vault|technicals"}'),
+    c.vlogsQ('{host="homelab",service=~"vault|technicals"}'),
   ])
   + g.panel.logs.options.withWrapLogMessage(true)
   + g.panel.logs.options.withSortOrder('Descending')
@@ -1221,7 +1221,16 @@ local pr_returnRatioTs =
   + g.panel.timeSeries.fieldConfig.defaults.custom.withLineWidth(2)
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
-local pr_logsPanel = c.serviceLogsPanel('Pathranker Logs', 'scalable-pathranker', y=24);
+local pr_logsPanel =
+  g.panel.logs.new('Pathranker Logs')
+  + c.logPos(24)
+  + g.panel.logs.queryOptions.withTargets([
+    c.vlogsQ('{host="homelab",service="podman-scalable-pathranker"}'),
+  ])
+  + g.panel.logs.options.withWrapLogMessage(true)
+  + g.panel.logs.options.withSortOrder('Descending')
+  + g.panel.logs.options.withEnableLogDetails(true)
+  + g.panel.logs.options.withShowTime(true);
 
 local pr_troubleGuide = c.serviceTroubleshootingGuide('pathranker', [
   { symptom: 'Zero paths found', runbook: 'pathranker/no-paths', check: 'Check instruments gauge — if 0, orderbook is not pushing to VM' },
