@@ -238,6 +238,54 @@ local sloPanels = [
 // sloHeight: troubleGuide at y=28, h=5 → max(y+h) = 33
 local sloHeight = 33;
 
+// ── Cross-Signal Correlation (prefix corr_) ─────────────────────────────────
+
+local corr_overlayTs =
+  g.panel.timeSeries.new('Cross-Signal Correlation')
+  + c.pos(0, 1, 24, 8)
+  + g.panel.timeSeries.queryOptions.withTargets([
+    c.vmQ('(100 - avg(rate(host_cpu_seconds_total{mode="idle",host="homelab"}[5m])) * 100)', 'CPU %'),
+    c.vmQ('avg(claude_duration_api_seconds) / clamp_min(avg(claude_prompt_count), 1) * 10', 'Claude API Wait (x10s)'),
+    c.vmQ('sum(rate(service_error_with_type{job="temporal"}[5m])) * 1000', 'Temporal Errors (x1000)'),
+  ])
+  + g.panel.timeSeries.standardOptions.withUnit('short')
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
+  + g.panel.timeSeries.options.tooltip.withMode('multi');
+
+local corrPanels = [
+  g.panel.row.new('🔗 Correlation') + c.pos(0, 0, 24, 1),
+  corr_overlayTs,
+];
+local corrHeight = 9;
+
+// ── Nginx Traffic Intelligence (prefix nx_) ──────────────────────────────
+
+local nx_errorRateTs =
+  g.panel.timeSeries.new('HTTP Errors by Status Code')
+  + c.pos(0, 1, 12, 8)
+  + g.panel.timeSeries.queryOptions.withTargets([
+    c.vlogsStatsQ('{service="nginx"} AND status:>=400 | stats by (status) count() as errors'),
+  ])
+  + g.panel.timeSeries.standardOptions.withUnit('short')
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(10)
+  + g.panel.timeSeries.options.tooltip.withMode('multi');
+
+local nx_topErrorUrisTs =
+  g.panel.timeSeries.new('Top Error URIs')
+  + c.pos(12, 1, 12, 8)
+  + g.panel.timeSeries.queryOptions.withTargets([
+    c.vlogsStatsQ('{service="nginx"} AND status:>=400 | stats by (uri) count() as errors | sort by (errors) desc | limit 10'),
+  ])
+  + g.panel.timeSeries.standardOptions.withUnit('short')
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(10)
+  + g.panel.timeSeries.options.tooltip.withMode('multi');
+
+local nxPanels = [
+  g.panel.row.new('🌐 Traffic Intelligence') + c.pos(0, 0, 24, 1),
+  nx_errorRateTs, nx_topErrorUrisTs,
+];
+local nxHeight = 9;
+
 // ── Dashboard heights for stacking ───────────────────────────────────────────
 
 local whatDownHeight = 32;
@@ -268,5 +316,7 @@ g.dashboard.new("What's Failing")
       g.panel.row.new('⚡ Activity') + c.pos(0, activityRowY, 24, 1),
       gpuActivityStat, claudeActivityStat, hunterActivityStat, scalableActivityStat,
     ]
-    + c.withYOffset(sloPanels, whatDownHeight + activityHeight)
+    + c.withYOffset(corrPanels, whatDownHeight + activityHeight)
+    + c.withYOffset(nxPanels, whatDownHeight + activityHeight + corrHeight)
+    + c.withYOffset(sloPanels, whatDownHeight + activityHeight + corrHeight + nxHeight)
   )

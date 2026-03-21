@@ -234,6 +234,90 @@ local cc_logVolumeTs =
   + g.panel.timeSeries.fieldConfig.defaults.custom.withStacking({ mode: 'normal' })
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
+// ── Token Economy panels ────────────────────────────────────────────────
+
+local te_costPerLineStat =
+  g.panel.stat.new('$/Net Line')
+  + c.pos(0, 46, 6, 3)
+  + g.panel.stat.queryOptions.withTargets([
+    c.vmQ('sum(claude_session_cost_usd{project=~"$project"}) / clamp_min(sum(claude_lines_added{project=~"$project"}) - sum(claude_lines_removed{project=~"$project"}), 1)'),
+  ])
+  + g.panel.stat.standardOptions.withUnit('currencyUSD')
+  + g.panel.stat.standardOptions.withDecimals(3)
+  + g.panel.stat.standardOptions.thresholds.withMode('absolute')
+  + g.panel.stat.standardOptions.thresholds.withSteps([
+    { color: 'green', value: null },
+    { color: 'yellow', value: 0.05 },
+    { color: 'red', value: 0.20 },
+  ])
+  + g.panel.stat.options.withColorMode('background')
+  + g.panel.stat.options.withGraphMode('none');
+
+local te_cacheSavingsStat =
+  g.panel.stat.new('Cache Savings $')
+  + c.pos(6, 46, 6, 3)
+  + g.panel.stat.queryOptions.withTargets([
+    c.vmQ('sum(claude_tokens_cache_read{project=~"$project"}) * 0.00000030'),
+  ])
+  + g.panel.stat.standardOptions.withUnit('currencyUSD')
+  + g.panel.stat.standardOptions.withDecimals(2)
+  + g.panel.stat.standardOptions.thresholds.withMode('absolute')
+  + g.panel.stat.standardOptions.thresholds.withSteps([
+    { color: 'green', value: null },
+  ])
+  + g.panel.stat.options.withColorMode('background')
+  + g.panel.stat.options.withGraphMode('none');
+
+local te_efficiencyByModelStat =
+  g.panel.stat.new('Opus $/Line')
+  + c.pos(12, 46, 6, 3)
+  + g.panel.stat.queryOptions.withTargets([
+    c.vmQ('sum(claude_session_cost_usd{model=~".*opus.*"}) / clamp_min(sum(claude_lines_added{model=~".*opus.*"}), 1)', 'Opus'),
+    c.vmQ('sum(claude_session_cost_usd{model=~".*sonnet.*"}) / clamp_min(sum(claude_lines_added{model=~".*sonnet.*"}), 1)', 'Sonnet'),
+  ])
+  + g.panel.stat.standardOptions.withUnit('currencyUSD')
+  + g.panel.stat.standardOptions.withDecimals(3)
+  + g.panel.stat.options.withColorMode('value')
+  + g.panel.stat.options.withGraphMode('none');
+
+local te_tokenBudgetStat =
+  g.panel.stat.new('Total Spend')
+  + c.pos(18, 46, 6, 3)
+  + g.panel.stat.queryOptions.withTargets([
+    c.vmQ('sum(claude_session_cost_usd)'),
+  ])
+  + g.panel.stat.standardOptions.withUnit('currencyUSD')
+  + g.panel.stat.standardOptions.withDecimals(2)
+  + g.panel.stat.standardOptions.thresholds.withMode('absolute')
+  + g.panel.stat.standardOptions.thresholds.withSteps([
+    { color: 'green', value: null },
+    { color: 'yellow', value: 50 },
+    { color: 'red', value: 200 },
+  ])
+  + g.panel.stat.options.withColorMode('background')
+  + g.panel.stat.options.withGraphMode('area');
+
+local te_costPerLineTs =
+  g.panel.timeSeries.new('Cost per Line by Project')
+  + c.pos(0, 49, 12, 8)
+  + g.panel.timeSeries.queryOptions.withTargets([
+    c.vmQ('sum by (project) (claude_session_cost_usd{project=~"$project"}) / clamp_min(sum by (project) (claude_lines_added{project=~"$project"}), 1)', '{{project}}'),
+  ])
+  + g.panel.timeSeries.standardOptions.withUnit('currencyUSD')
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
+  + g.panel.timeSeries.options.tooltip.withMode('multi');
+
+local te_cacheEconomicsTs =
+  g.panel.timeSeries.new('Cache Savings vs Actual Spend')
+  + c.pos(12, 49, 12, 8)
+  + g.panel.timeSeries.queryOptions.withTargets([
+    c.vmQ('sum(claude_tokens_cache_read{project=~"$project"}) * 0.00000030', 'Saved (cache reads)'),
+    c.vmQ('sum(claude_session_cost_usd{project=~"$project"})', 'Spent (actual)'),
+  ])
+  + g.panel.timeSeries.standardOptions.withUnit('currencyUSD')
+  + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
+  + g.panel.timeSeries.options.tooltip.withMode('multi');
+
 local cc_sessionLogsPanel =
   c.serviceLogsPanel('Session Logs (claude-code)', 'claude-code', host='heater', y=0);
 
@@ -268,7 +352,7 @@ local cc_troubleGuide = c.serviceTroubleshootingGuide('claude-code', [
   { symptom: 'Session Failures', runbook: 'claude-code/error-recovery', check: 'Review HTTP Traffic logs for 4xx/5xx and Debug Logs for errors' },
 ], y=0);
 
-// claudeCodePanels: row at y=0, last collapsed rows at y=46,47,48,49 h=1 → height=50
+// claudeCodePanels: row at y=0, last collapsed rows at y=57,58,59,60 h=1 → height=61
 local claudeCodePanels = [
   g.panel.row.new('Claude Code') + c.pos(0, 0, 24, 1),
   g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
@@ -291,15 +375,19 @@ local claudeCodePanels = [
   g.panel.row.new('Activity') + c.pos(0, 37, 24, 1),
   cc_linesTs, cc_logVolumeTs,
 
-  (g.panel.row.new('Session Logs') + c.pos(0, 46, 24, 1) + { collapsed: true, panels: [cc_sessionLogsPanel] }),
-  (g.panel.row.new('Debug Logs')   + c.pos(0, 47, 24, 1) + { collapsed: true, panels: [cc_debugLogsPanel] }),
-  (g.panel.row.new('HTTP Traffic') + c.pos(0, 48, 24, 1) + { collapsed: true, panels: [cc_trafficLogsPanel] }),
+  g.panel.row.new('💰 Token Economy') + c.pos(0, 45, 24, 1),
+  te_costPerLineStat, te_cacheSavingsStat, te_efficiencyByModelStat, te_tokenBudgetStat,
+  te_costPerLineTs, te_cacheEconomicsTs,
 
-  (g.panel.row.new('Troubleshooting') + c.pos(0, 49, 24, 1) + { collapsed: true, panels: [cc_troubleGuide] }),
+  (g.panel.row.new('Session Logs') + c.pos(0, 57, 24, 1) + { collapsed: true, panels: [cc_sessionLogsPanel] }),
+  (g.panel.row.new('Debug Logs')   + c.pos(0, 58, 24, 1) + { collapsed: true, panels: [cc_debugLogsPanel] }),
+  (g.panel.row.new('HTTP Traffic') + c.pos(0, 59, 24, 1) + { collapsed: true, panels: [cc_trafficLogsPanel] }),
+
+  (g.panel.row.new('Troubleshooting') + c.pos(0, 60, 24, 1) + { collapsed: true, panels: [cc_troubleGuide] }),
 ];
 
 // claudeCodeHeight = 50 (last panel at y=49 h=1)
-local claudeCodeHeight = 50;
+local claudeCodeHeight = 61;
 
 // ── Dashboard ─────────────────────────────────────────────────────────────
 

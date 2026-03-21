@@ -58,6 +58,23 @@ local tmp_errorStat =
   ])
   + g.panel.stat.options.withColorMode('background');
 
+local tmp_drainTimeStat =
+  g.panel.stat.new('Min to Drain')
+  + c.pos(6, 4, 6, 2)
+  + g.panel.stat.queryOptions.withTargets([
+    c.vmQ('(sum(approximate_backlog_count{job="temporal"}) or vector(0)) / clamp_min(sum(rate(poll_latency_count{job="temporal"}[5m])) * 60, 0.001)'),
+  ])
+  + g.panel.stat.standardOptions.withUnit('short')
+  + g.panel.stat.standardOptions.withDecimals(1)
+  + g.panel.stat.standardOptions.thresholds.withMode('absolute')
+  + g.panel.stat.standardOptions.thresholds.withSteps([
+    { color: 'green', value: null },
+    { color: 'yellow', value: 5 },
+    { color: 'red', value: 30 },
+  ])
+  + g.panel.stat.options.withColorMode('background')
+  + g.panel.stat.options.withGraphMode('none');
+
 local tmp_workflowTs =
   g.panel.timeSeries.new('Workflow Operations/sec')
   + c.tsPos(0, 0)
@@ -105,7 +122,7 @@ local temporalPanels = [
   g.panel.row.new('⏱️ Temporal') + c.pos(0, 0, 24, 1),
   g.panel.text.new('') + c.pos(0, 1, 24, 2) + { transparent: true, options: { content: '', mode: 'html' } },
   c.externalLinksPanel(y=3),
-  tmp_alertPanel, tmp_upStat, tmp_workflowStartStat, tmp_taskQueueStat, tmp_schedLatStat, tmp_errorStat,
+  tmp_alertPanel, tmp_upStat, tmp_workflowStartStat, tmp_taskQueueStat, tmp_schedLatStat, tmp_errorStat, tmp_drainTimeStat,
   g.panel.row.new('⚡ Workflows & Latency') + c.pos(0, 6, 24, 1),
   tmp_workflowTs, tmp_latTs,
   g.panel.row.new('📝 Logs') + c.pos(0, 14, 24, 1),
