@@ -229,7 +229,7 @@ local routeCard     = navCard('Route Comparison',  'Route comparison analysis', 
 
 local claudeRow = g.panel.row.new('Claude / MCP') + c.pos(0, 21, 24, 1);
 
-local claudeProxyCard  = navCard('Claude Proxy',   'API proxy metrics',    '/d/claude-proxy')       + c.pos(0,  22, 12, 3);
+local claudeProxyCard  = navCard('Claude Overview', 'Tokens, cost, cache, proxy', '/d/claude-overview') + c.pos(0,  22, 12, 3);
 local claudeCodeCard   = navCard('Claude Code',    'Agent activity',       '/d/heater-claude-code') + c.pos(12, 22, 12, 3);
 
 // ── Grafana Tools (y=25, h=3) ───────────────────────────────────────────────
