@@ -25,3 +25,4 @@ Thumbs.db
 # Build artifacts
 .dashboards/
 *.json.bak
+test-results/
