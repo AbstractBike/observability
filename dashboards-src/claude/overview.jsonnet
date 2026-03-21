@@ -24,6 +24,20 @@ local modelVar =
   + g.dashboard.variable.query.selectionOptions.withMulti(true)
   + g.dashboard.variable.query.selectionOptions.withIncludeAll(true, '.*');
 
+local sessionVar =
+  g.dashboard.variable.query.new('session')
+  + g.dashboard.variable.query.queryTypes.withLabelValues(
+      'session', 'claude_tokens_input_total'
+    )
+  + g.dashboard.variable.query.generalOptions.withLabel('Session')
+  + g.dashboard.variable.query.selectionOptions.withMulti(true)
+  + g.dashboard.variable.query.selectionOptions.withIncludeAll(true, '.*');
+
+local intervalVar =
+  g.dashboard.variable.interval.new('interval', ['1m', '5m', '15m', '30m', '1h', '3h'])
+  + g.dashboard.variable.interval.generalOptions.withLabel('Interval')
+  + g.dashboard.variable.interval.withAutoOption(30, '1m');
+
 // ── Stats (8 × width 3 = 24 columns, y=0, h=3) ──────────────────────────────
 
 local sessionCostStat =
@@ -217,8 +231,8 @@ local proxyTokensTs =
   g.panel.timeSeries.new('Proxy Token Usage by Model')
   + c.pos(12, 27, 12, 8)
   + g.panel.timeSeries.queryOptions.withTargets([
-    c.vmQ('sum by (model) (rate(claude_proxy_tokens_input_total[5m])) or vector(0)', 'in {{model}}'),
-    c.vmQ('sum by (model) (rate(claude_proxy_tokens_output_total[5m])) or vector(0)', 'out {{model}}'),
+    c.vmQ('sum by (model) (rate(claude_proxy_tokens_input_total[$interval])) or vector(0)', 'in {{model}}'),
+    c.vmQ('sum by (model) (rate(claude_proxy_tokens_output_total[$interval])) or vector(0)', 'out {{model}}'),
   ])
   + g.panel.timeSeries.standardOptions.withUnit('short')
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(10)
@@ -305,7 +319,7 @@ g.dashboard.new('Claude — Overview')
 + g.dashboard.withDescription('Merged Claude observability: tokens, cost, cache, context, lines, proxy metrics, heater-scoped logs. Absorbed from metrics.json + claude-proxy-dashboard.')
 + g.dashboard.withTags(['claude', 'ai', 'overview'])
 + c.dashboardDefaults
-+ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, projectVar, modelVar])
++ g.dashboard.withVariables([c.vmDsVar, c.vlogsDsVar, projectVar, modelVar, sessionVar, intervalVar])
 + g.dashboard.withPanels([
   // Stats
   sessionCostStat, contextUsedStat, totalTokensStat, cacheHitStat,
