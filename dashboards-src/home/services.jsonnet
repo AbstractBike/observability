@@ -283,7 +283,16 @@ local pg_sizeTs =
   + g.panel.timeSeries.standardOptions.withUnit('bytes')
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
-local pg_logsPanel = c.serviceLogsPanel('PostgreSQL Logs', 'postgres', y=24);
+local pg_logsPanel =
+  g.panel.logs.new('PostgreSQL Logs')
+  + c.logPos(24)
+  + g.panel.logs.queryOptions.withTargets([
+    c.vlogsQ('{host="homelab",service=~"prometheus-postgres-exporter|postgres_exporter"}'),
+  ])
+  + g.panel.logs.options.withWrapLogMessage(true)
+  + g.panel.logs.options.withSortOrder('Descending')
+  + g.panel.logs.options.withEnableLogDetails(true)
+  + g.panel.logs.options.withShowTime(true);
 
 local pg_troubleGuide = c.serviceTroubleshootingGuide('postgresql', [
   { symptom: 'Connection Pool Exhausted', runbook: 'postgresql/conn-pool', check: 'Check "Connections by State" — look for idle-in-transaction or waiting states' },
