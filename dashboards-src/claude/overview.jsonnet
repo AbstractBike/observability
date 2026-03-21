@@ -31,7 +31,8 @@ local sessionVar =
     )
   + g.dashboard.variable.query.generalOptions.withLabel('Session')
   + g.dashboard.variable.query.selectionOptions.withMulti(true)
-  + g.dashboard.variable.query.selectionOptions.withIncludeAll(true, '.*');
+  + g.dashboard.variable.query.selectionOptions.withIncludeAll(true, '.*')
+  + g.dashboard.variable.query.generalOptions.showOnDashboard.withNothing();
 
 local intervalVar =
   g.dashboard.variable.interval.new('interval', ['1m', '5m', '15m', '30m', '1h', '3h'])
