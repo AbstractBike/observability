@@ -151,8 +151,6 @@ local agGuidancePanel =
     - **Check logs** for stack traces: `service:"api-gateway" AND level:"error"`
   |||);
 
-local agLogsPanel = c.serviceLogsPanel('API Gateway Logs', 'api-gateway', y=37);
-
 local agTroubleGuide = c.serviceTroubleshootingGuide('api-gateway', [
   { symptom: 'High Latency', runbook: 'api-gateway/latency', check: 'Check p99/p95 in "Latency Percentiles"' },
   { symptom: 'Error Rate Spike', runbook: 'api-gateway/errors', check: 'Monitor "Error Rate" stat and check "Trace Volume"' },
@@ -172,13 +170,11 @@ local apiGatewayPanels = [
   agSpanLatencyTable,
   g.panel.row.new('Correlation Guide') + c.pos(0, 32, 24, 1),
   agGuidancePanel,
-  g.panel.row.new('Logs') + c.pos(0, 36, 24, 1),
-  agLogsPanel,
   g.panel.row.new('Troubleshooting') + c.pos(0, 47, 24, 1),
   agTroubleGuide,
 ];
-// max(y+h): troubleGuide y=48 h=5 → 53
-local apiGatewayHeight = 53;
+// max(y+h): troubleGuide y=48 h=5 → 53 (minus 17 for removed logs panel+row)
+local apiGatewayHeight = 36;
 
 // ── apm/pin-traces panels ──────────────────────────────────────────────────────
 

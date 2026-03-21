@@ -290,8 +290,6 @@ local va_evalTs =
   + g.panel.timeSeries.standardOptions.withUnit('ms')
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
-local va_logsPanel = c.serviceLogsPanel('VMAlert Logs', 'vmalert', y=15);
-
 local va_troubleGuide = c.serviceTroubleshootingGuide('vmalert', [
   { symptom: 'Evaluation Errors', runbook: 'vmalert/eval-errors', check: '"Eval Errors/sec" > 0 — check logs for parse errors or invalid metric names' },
   { symptom: 'High Rule Evaluation Latency', runbook: 'vmalert/latency', check: '"Evaluation Duration" p99 rising — check VM query load' },
@@ -307,12 +305,10 @@ local va_panels = [
   va_alertPanel, va_firingCountStat, va_rulesStat, va_evalDurStat, va_errorStat,
   g.panel.row.new('⚙️ Evaluation') + c.pos(0, 6, 24, 1),
   va_firingTs, va_evalTs,
-  g.panel.row.new('📝 Logs') + c.pos(0, 14, 24, 1),
-  va_logsPanel,
   g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 25, 24, 1),
   va_troubleGuide,
 ];
-local va_height = 31;
+local va_height = 14;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // § 4 — Grafana (gr_)
@@ -1273,8 +1269,6 @@ local sd_serviceHopCountTable =
     { displayName: 'Avg Hops', desc: true },
   ]);
 
-local sd_logsPanel = c.serviceLogsPanel('Multi-Service Request Logs', 'skywalking-oap', y=33);
-
 local sd_troubleGuide = c.serviceTroubleshootingGuide('skywalking', [
   { symptom: 'Service Topology Not Visible', runbook: 'skywalking/topology-missing', check: 'Verify agents are running and sending spans to SkyWalking OAP' },
   { symptom: 'High Latency Between Services', runbook: 'skywalking/service-latency', check: 'Check "Service-to-Service Latency" table and identify slowest pair' },
@@ -1294,12 +1288,10 @@ local sd_panels = [
   sd_callVolumeByPairTs, sd_errorRateByPairTs,
   g.panel.row.new('➡️ Service Hops') + c.pos(0, 25, 24, 1),
   sd_serviceHopCountTable,
-  g.panel.row.new('📝 Request Logs') + c.pos(0, 32, 24, 1),
-  sd_logsPanel,
   g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 43, 24, 1),
   sd_troubleGuide,
 ];
-local sd_height = 49;
+local sd_height = 32;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // § 12 — Dashboard Index (di_)
@@ -1589,8 +1581,6 @@ local sw_traceLatencyPanel =
   + g.panel.timeSeries.fieldConfig.defaults.custom.withFillOpacity(5)
   + g.panel.timeSeries.options.tooltip.withMode('multi');
 
-local sw_oapLogsPanel = c.serviceLogsPanel('OAP Logs', 'skywalking-oap', y=27);
-
 local sw_troubleGuide = c.serviceTroubleshootingGuide('skywalking-oap', [
   { symptom: 'OAP Service Down', runbook: 'skywalking/service-down', check: 'Check "OAP Uptime" stat and logs' },
   { symptom: 'High Heap Usage', runbook: 'skywalking/memory', check: 'Monitor "Heap Used" and GC time trends' },
@@ -1608,13 +1598,11 @@ local sw_panels = [
   sw_heapTs, sw_gcTs,
   g.panel.row.new('📡 Traces') + c.pos(0, 14, 24, 1),
   sw_recentTracesPanel, sw_traceLatencyPanel,
-  g.panel.row.new('📝 Logs') + c.pos(0, 21, 24, 1),
-  sw_oapLogsPanel,
   g.panel.row.new('🔧 Troubleshooting') + c.pos(0, 32, 24, 1),
   sw_troubleGuide,
 ];
 // sw: max y+h = troubleGuide y=38 h=5 → 43
-local sw_height = 43;
+local sw_height = 26;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Dashboard Assembly
